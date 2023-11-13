@@ -1,0 +1,124 @@
+/* @tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body{
+    @apply flex items-center justify-center m-auto p-[1rem] bg-slate-100;
+  }
+  html{
+    @apply font-festive
+  }
+}
+@layer components {
+  .mainContainer {
+    @apply w-[95vw] h-[95vh] shadow bg-white border-solid border-stone-300 rounded-lg p-5  overflow-y-scroll  relative;
+  }
+  .container {
+    @apply h-full;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+} */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  Input {
+    @apply h-[40px];
+  }
+  label {
+    @apply font-sans font-bold;
+  }
+  p {
+    @apply font-sans;
+  }
+  html {
+    @apply font-serif;
+  }
+  /* body {
+    @apply flex items-center justify-center m-auto p-[1rem];
+  }
+  section {
+    @apply py-[75px] w-[90vw];
+  } */
+  h1 {
+    @apply font-extrabold text-xl;
+  }
+}
+@layer components {
+  #root {
+    @apply p-4;
+  }
+  /* .mainContainer {
+    @apply w-[95vw] h-[95vh] border-solid rounded-lg overflow-y-scroll  relative;
+  } */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .btn {
+    @apply shadow-md bg-primaryColor py-[15px] px-[35px] rounded-[50px] text-white font-[600]  transition-all duration-1000;
+  }
+  .btn:hover {
+    @apply scale-90 ease-in-out shadow;
+  }
+  .heading {
+    @apply text-[44px] leading-[54px] font-[700] text-headingColor;
+  }
+  .text__para {
+    @apply text-[18px] leading-[30px] font-[400] text-textColor mt-[18px];
+  }
+  .header {
+    @apply bg-[url('./assets/images/mask.png')] bg-no-repeat bg-center bg-cover w-full h-[100px] leading-[100px];
+  }
+  .hero__section {
+    @apply bg-[url('./assets/images/hero-bg.png')] bg-no-repeat bg-center bg-cover;
+  }
+  .form__label {
+    @apply text-textColor font-semibold text-[16px] mb-2;
+  }
+
+  .listItem:hover {
+    @apply bg-bgColorBtn text-white;
+  }
+  .icon:hover {
+    @apply cursor-pointer stroke-cyan-500;
+  }
+  .active {
+    @apply text-white bg-bgColorBtn rounded-lg;
+  }
+  .odd-row {
+    @apply bg-colorBg h-4;
+  }
+  .custom-row {
+    @apply cursor-pointer;
+  }
+  .custom-row :first-child {
+    @apply rounded-l-lg rounded-bl-lg;
+  }
+  .custom-row :last-child {
+    @apply rounded-r-lg rounded-br-lg;
+  }
+  .ant-picker {
+    @apply h-[40px];
+  }
+}
+@media only screen and (max-width: 1024px) {
+  .container {
+    @apply w-full;
+  }
+  .section {
+    @apply py-[35px];
+  }
+}
+@media only screen and (max-width: 768px) {
+  .heading {
+    @apply text-[26px] leading-[36px];
+  }
+  .text__para {
+    @apply text-[16px] leading-7 mt-3;
+  }
+}
