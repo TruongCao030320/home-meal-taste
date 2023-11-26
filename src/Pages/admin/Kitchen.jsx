@@ -8,7 +8,12 @@ import {
   DatePicker,
   Button,
   ConfigProvider,
+  Popover,
 } from "antd";
+import { TbSearch } from "react-icons/tb";
+
+import { TiTick } from "react-icons/ti";
+import { IoCloseSharp } from "react-icons/io5";
 import toast from "react-hot-toast";
 import { render } from "react-dom";
 import { Modal } from "react-bootstrap";
@@ -16,6 +21,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getAllKitchen } from "../../API/Admin";
+import { direction } from "../../API/Direction";
+const normalizeString = (str) => {
+  return str
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+};
 const Kitchen = () => {
   const navigate = useNavigate();
   const [show, setShow] = useState(false);
@@ -34,41 +46,56 @@ const Kitchen = () => {
     {
       title: "Store ID",
       dataIndex: "kitchenId",
-      render: (text) => <div>{text}</div>,
+      render: (text) => <div className="font-bold">{text}</div>,
     },
     {
       title: "Name",
       dataIndex: "name",
-      render: (text) => <div>{text}</div>,
+      render: (text) => <div className="font-bold">{text}</div>,
+    },
+    {
+      title: "Email",
+      dataIndex: "",
+      render: (_, record) => (
+        <div className="font-bold">
+          {record?.userDtoKitchenResponseModel?.email}
+        </div>
+      ),
     },
     {
       title: "Phone",
       dataIndex: "user",
-      render: (_, record) => <div>{record.user.phone}</div>,
+      render: (_, record) => (
+        <div className="font-bold">
+          {record?.userDtoKitchenResponseModel?.phone}
+        </div>
+      ),
     },
     {
-      title: "Number Of Orders",
-      dataIndex: "phone",
-      render: (text) => <p className="min-w-[150px]">{text}</p>,
-    },
-    {
-      title: "Is Active",
-      dataIndex: "price",
-      render: (_, record, index) => {
-        const isEvent = index % 2 === 0;
-        const tagName = isEvent ? "Active" : "Inactive";
-        const tagColor = isEvent ? "geekblue" : "yellow";
+      title: "Active",
+      dataIndex: "",
+      render: (_, record) => {
+        const status = record?.user?.status;
         return (
-          <Tag color={tagColor} className="min-w-[60px] text-center p-1">
-            {tagName}
-          </Tag>
+          <div className="font-bold">
+            {status == true ? <TiTick /> : <IoCloseSharp />}
+          </div>
         );
       },
+      filters: [
+        { text: "Yes", value: true },
+        { text: "No", value: false },
+      ],
+      onFilter: (value, record) => record.user.status === value,
     },
     {
-      title: "Create At",
-      dataIndex: "birthDate",
-      render: (text) => <Tag className="min-w-[80px]">{text}</Tag>,
+      title: "Address",
+      dataIndex: "",
+      render: (_, record) => (
+        <div className="font-bold">
+          {record.address} - {record.district}
+        </div>
+      ),
     },
     {
       title: "Action",
@@ -78,7 +105,9 @@ const Kitchen = () => {
           size="middle"
           className="p-1 border rounded-md hover:border-gray-600"
         >
-          <Link to={`/dashboard/kitchen/${record.kitchenId}`}>
+          <Link
+            to={`/${direction.dashboard}/${direction.kitchen}/${record.kitchenId}`}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -105,11 +134,13 @@ const Kitchen = () => {
   ];
 
   const newData = data?.filter((item) => {
-    return item.name.toLowerCase().includes(search.toLowerCase());
+    const searchTermNormalized = normalizeString(search.toLowerCase());
+    const itemNormalized = normalizeString(item.name.toLowerCase());
+    return itemNormalized.includes(searchTermNormalized);
   });
   useEffect(() => {
     setLoading(true);
-    getAllKitchen().then((res) => {
+    getAllKitchen(navigate).then((res) => {
       setData(res);
       setLoading(false);
     });
@@ -120,36 +151,24 @@ const Kitchen = () => {
       <div className="account-search h-[10%] flex items-center  justify-end mb-3">
         <div className="h-[40%] add-btn flex justify-between items-center w-full">
           <h1>Kitchen Management</h1>
-          <Link to="productCreating">
-            <button className="btn rounded-xl py-3 bg-bgBtnColor">Add</button>
-          </Link>
+          {/* <Link to="productCreating">
+            <button className="btn rounded-xl py-3 bg-bgBtnColor">
+              Add New Kitchen
+            </button>
+          </Link> */}
         </div>
       </div>
       <div className="bg-white p-4 rounded-lg">
-        <div className="account-search flex items-center justify-between mb-5 ">
-          <div className=" w-[50%]  rounded-md flex items-center justify-between md:w-full md:grid md:grid-cols-2 md:gap-3 lg:w-[50%] lg:flex">
-            <div className="my-2">
-              <h2 className="mb-1">Search</h2>
-              <Input
-                onChange={(e) => setSearch(e.target.value)}
-                className="box__shadow"
-              />
-            </div>
-            <div className="my-3">
-              <h2 className="mb-1">Create At</h2>
-              <RangePicker className="box__shadow" />
-            </div>
-            <div className="my-2 rounded-lg mt-0">
-              <h2 className="mb-1">Active</h2>
-              <Select
-                defaultValue="Yes"
-                options={[
-                  { value: "yes", label: "Yes" },
-                  { value: "no", label: "No" },
-                ]}
-                className="w-full "
-              />
-            </div>
+        <div className="account-search lg:flex items-center justify-between mb-5 lg:w-[100%] md:w-full md:grid md:grid-cols-2 md:gap-3">
+          <div className="my-2">
+            <Input
+              placeholder="Enter kitchen want to find..."
+              onChange={(e) => {
+                setSearch(e.target.value);
+              }}
+              className="box__shadow"
+              suffix={<TbSearch />}
+            />
           </div>
         </div>
         <div className="w-full h-full flex justify-between md:overflow-auto">

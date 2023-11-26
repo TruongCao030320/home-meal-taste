@@ -21,14 +21,22 @@ import { AiTwotoneEdit, AiFillDelete } from "react-icons/ai";
 import ModalConfirm from "./ModalConfirm";
 import context from "react-bootstrap/esm/AccordionContext";
 import { toast } from "react-toastify";
-import { getAllMeal } from "../API/Admin";
+import { getAllMeal, getAllMealSession, getSingleMeal } from "../API/Admin";
+import { direction } from "../API/Direction";
+import { useDispatch, useSelector } from "react-redux";
+import { showDrawer } from "../redux/ToggleDrawerMealSlice.js";
+import CustomDrawer from "./MealDrawer";
+import { getSingleMealSessionById } from "../API/Admin";
 const ProductList = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const [modal, contextHolder] = Modal.useModal();
+  const [drawerData, setDrawerData] = useState({});
   const showToastMessage = () => {
     toast.success("Delete successfully.");
   };
+  const refresh = useSelector((state) => state.mealDrawer.refresh);
+  console.log(refresh);
   const confirm = () => {
     modal.confirm({
       title: "Confirm",
@@ -42,11 +50,17 @@ const ProductList = () => {
   const { RangePicker } = DatePicker;
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  const toggleDrawerType2 = async (mealSessionId) => {
+    console.log("vao2 day96 khong6", mealSessionId);
+    await getSingleMealSessionById(mealSessionId)
+      .then((res) => setDrawerData(res))
+      .catch((error) => console.log(error));
+    dispatch(showDrawer(mealSessionId));
+  };
   const [searchTerm, setSearchTerm] = useState("");
 
   const productPerPage = 12;
-  const searchedProduct = data.filter((item) => {
+  const searchedProduct = data?.filter((item) => {
     if (searchTerm === "") {
       return item;
     }
@@ -90,25 +104,14 @@ const ProductList = () => {
   );
   const columns = [
     {
-      title: "Avatar",
+      title: "Menu",
       dataIndex: "image",
-      render: (text) => (
-        <div className="w-[100px] h-[100px] rounded-lg border box__shadow">
-          <img
-            src={text}
-            className="hover:scale-110 transition-all duration-500 h-full w-full"
-          ></img>
-        </div>
-      ),
-    },
-    {
-      title: "Name",
-      dataIndex: "name",
       render: (_, record) => (
-        <div>
-          <h1>{record.name}</h1>
-          <p>Create At :</p>
-          <p>{record.description}</p>
+        <div className="lg:w-full md:w-[100px] h-[120px] p-1 flex justify-center items-center">
+          <img
+            className="!rounded-2xl box__shadow bg-yellow-50 hover:scale-110 transition-all duration-500 h-full w-[120px] "
+            src={record.mealDtoForMealSession.image}
+          ></img>
         </div>
       ),
     },
@@ -120,14 +123,52 @@ const ProductList = () => {
       ),
     },
     {
-      title: "Action",
+      dataIndex: "name",
+      render: (_, record) => (
+        <div className="flex  justify-between items-center">
+          <div>
+            <h1>{record.mealDtoForMealSession.name}</h1>
+            <p>Create At :{record.createDate}</p>
+            <p>{record.mealDtoForMealSession.description}</p>
+          </div>
+          <div>
+            <Tag
+              className="p-2 shadow-md min-w-[100px] text-center"
+              color={`${
+                record.status.includes("PROCESSING")
+                  ? "blue"
+                  : record.status.includes("APPROVED")
+                  ? "green"
+                  : "red"
+              }`}
+            >
+              <span className="font-bold">{record.status}</span>
+            </Tag>
+          </div>
+        </div>
+      ),
+      filters: [
+        { text: "PROCESSING", value: "PROCESSING" },
+        { text: "APPROVED", value: "APPROVED" },
+        { text: "REJECTED", value: "REJECTED" },
+      ],
+      onFilter: (value, record) => record.status.includes(value),
+    },
+
+    {
+      dataIndex: "",
+      render: (_, record) => (
+        <Divider type="vertical" className="h-[70px] bg-slate-300" />
+      ),
+    },
+    {
       key: "action",
       render: (_, record) => (
         <Space
           size="middle"
           className=" hover:border-gray-600 flex flex-col  w-[150px]"
         >
-          <h1>{record.defaultPrice} VND</h1>
+          <h1>{record.price} VND</h1>
           {/* <Link to={`/dashboard/account/${record.id}`}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -156,7 +197,7 @@ const ProductList = () => {
             <AiTwotoneEdit
               size={20}
               className="text-bgBtnColor hover:text-bgColorBtn "
-              onClick={() => goToProductDetail(record.id)}
+              onClick={() => toggleDrawerType2(record.mealSessionId)}
             />
             <AiFillDelete
               size={20}
@@ -166,67 +207,38 @@ const ProductList = () => {
           </div>
         </Space>
       ),
+      sorter: (a, b) => a.price - b.price,
     },
   ];
   const goToProductDetail = (id) => {
-    navigate(`/dashboard/product/${id}`);
+    navigate(`/${direction.dashboard}/${direction.meal}/${id}`);
   };
-  useEffect(() => {
+  const fetchAllMealSession = () => {
     setLoading(true);
-    getAllMeal().then((res) => {
+    getAllMealSession().then((res) => {
+      console.log(res);
       setData(res);
       setLoading(false);
     });
-  }, []);
+  };
+
+  useEffect(() => {
+    fetchAllMealSession();
+  }, [refresh]);
   return (
     <div className="h-full w-full p-4">
+      <CustomDrawer meal={drawerData || {}} />
       {contextHolder}
       <div className="account-search flex items-center justify-end mb-3">
         <div className="h-[40%] add-btn flex justify-between items-center w-full">
           <h1>Meal Management</h1>
         </div>
       </div>
-      {/* <div className="grid grid-cols-4 gap-10 my-5 relative min-h-[90vh]">
-        {displayPage.length == 0 ? (
-          <div className=" w-[75vw] flex justify-center items-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-[50%] h-[50%] opacity-5"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"
-              />
-            </svg>
-          </div>
-        ) : (
-          displayPage.map((item) => (
-            <div>
-              <ProductCard food={item} />
-            </div>
-          ))
-        )}
-        <div className="absolute bottom-[-50px] left-[40%]">
-          <ReactPaginate
-            pageCount={pageCount}
-            onPageChange={changePage}
-            previousLabel={"Prev"}
-            nextLabel={"Next"}
-            containerClassName="paginationBttns"
-            breakClassName={"break"} // Style for ellipsis "..."
-            activeClassName={"activePage"} // Style for the active page number
-          />
-        </div>
-      </div> */}
       <div className="bg-white p-4 rounded-lg">
         <div className="account-search flex items-center justify-between mb-5 w-[100%]  lg:flex md:w-full md:grid md:grid-cols-2 md:gap-3 lg:w-[100%]">
           <div className="my-2">
             <Input
+              placeholder="Enter meal's name..."
               onChange={(e) => setSearch(e.target.value)}
               className="box__shadow"
               suffix={<TbSearch />}
@@ -263,7 +275,6 @@ const ProductList = () => {
             }}
           >
             <Table
-              showHeader={false}
               dataSource={data}
               columns={columns}
               loading={loading}

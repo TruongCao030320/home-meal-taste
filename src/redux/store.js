@@ -1,10 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 
-import ToggleDrawerReducer from "./ToggleDrawerSlice";
+import ToggleDrawerSessionReducer from "./ToggleDrawerSessionSlice";
+import ToggleDrawerMealReducer from "./ToggleDrawerMealSlice.js";
 
 const store = configureStore({
   reducer: {
-    drawer: ToggleDrawerReducer,
+    sessionDrawer: ToggleDrawerSessionReducer,
+    mealDrawer: ToggleDrawerMealReducer,
   },
 });
 export default store;

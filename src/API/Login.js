@@ -1,4 +1,5 @@
 import axios from "axios";
+import { direction } from "./Direction";
 export const login = async (values, navigate, message) => {
   try {
     // Make an API request to your authentication endpoint
@@ -7,11 +8,10 @@ export const login = async (values, navigate, message) => {
       values
     );
     const { token, userId, roleId } = response.data; // Assuming your API returns a token
-    console.log(token);
     if (roleId === 1) {
       localStorage.setItem("userId", userId);
-      navigate("/dashboard");
       message.success("Login completed.");
+      navigate(`/${direction.dashboard}`);
     } else {
       message.error("Login failed. Please check your credentials.");
     }

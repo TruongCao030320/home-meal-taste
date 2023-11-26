@@ -5,9 +5,11 @@ import { Table } from "antd";
 import { toast } from "react-toastify";
 import {
   changeIsActive,
+  getAllTransactionByUserId,
   getOrderByUserId,
   getSingleUser,
 } from "../../../API/Admin";
+import { direction } from "../../../API/Direction";
 const AccountDetail = () => {
   const [data, setData] = useState({});
   const [order, setOrder] = useState([]);
@@ -17,8 +19,15 @@ const AccountDetail = () => {
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
-  const navigate = useNavigate();
+  const [transaction, setTransaction] = useState([]);
 
+  const navigate = useNavigate();
+  const fetchAllTransaction = () => {
+    getAllTransactionByUserId(id).then((res) => {
+      console.log(res);
+      setTransaction(res);
+    });
+  };
   useEffect(() => {
     const fetch = async () => {
       const user = await getSingleUser(id, navigate);
@@ -32,8 +41,10 @@ const AccountDetail = () => {
     getOrderByUserId(id)
       .then((res) => setOrder(res))
       .catch((error) => console.log(error));
+    fetchAllTransaction();
   }, []);
-  const { username, email, phone, address, district, roleId } = data || {};
+  const { username, email, phone, address, districtId, roleId } = data || {};
+  const { balance } = data?.walletDto || {};
   const columns = [
     {
       title: "Order number",
@@ -41,6 +52,21 @@ const AccountDetail = () => {
       render: (text) => (
         <div className="rounded-full  flex justify-center items-center font-bold">
           {text}
+        </div>
+      ),
+    },
+    {
+      title: "Products",
+      dataIndex: "meal",
+      render: (_, record, index) => (
+        <div className="w-[200px] h-[100px] flex justify-between items-center">
+          <img
+            src={record.mealSessionDto2?.mealDto2?.image}
+            className="w-[100px] h-[100px] rounded-full border"
+          ></img>
+          <p className="font-bold text-xl">
+            {record.mealSessionDto2?.mealDto2?.name}
+          </p>
         </div>
       ),
     },
@@ -55,7 +81,7 @@ const AccountDetail = () => {
     },
     {
       title: "Amount",
-      dataIndex: "promotionPrice",
+      dataIndex: "totalPrice",
       render: (text) => <div className="font-bold">{text}</div>,
       defaultSortOrder: "descend",
       sorter: (a, b) => a.price - b.price,
@@ -64,19 +90,72 @@ const AccountDetail = () => {
       title: "Chef",
       dataIndex: "meal",
       render: (_, record, index) => (
-        <div className="min-w-[100px] font-bold">{record.meal.name}</div>
+        <div className="min-w-[100px] font-bold">
+          {record.mealSessionDto2?.mealDto2?.kitchenDto2?.name}
+        </div>
+      ),
+    },
+
+    {
+      title: "Create At",
+      dataIndex: "time",
+      render: (text) => <div className="min-w-[80px] font-bold">{text}</div>,
+    },
+  ];
+  const transactionColumns = [
+    {
+      title: "Transaction ID",
+      dataIndex: "transactionId",
+      render: (text) => (
+        <div className="rounded-full  flex justify-center items-center font-bold">
+          {text}
+        </div>
       ),
     },
     {
       title: "Products",
       dataIndex: "meal",
       render: (_, record, index) => (
-        <div className="font-bold">{record.meal.name}</div>
+        <div className="w-[200px] h-[100px] flex justify-between items-center">
+          <img
+            src={record.mealSessionDto2?.mealDto2?.image}
+            className="w-[100px] h-[100px] rounded-full border"
+          ></img>
+          <p className="font-bold text-xl">
+            {record.mealSessionDto2?.mealDto2?.name}
+          </p>
+        </div>
       ),
     },
     {
+      title: "Status",
+      dataIndex: "status",
+      render: (text) => (
+        <Tag color="geekblue" className="font-bold">
+          Paid
+        </Tag>
+      ),
+    },
+    {
+      title: "Amount",
+      dataIndex: "totalPrice",
+      render: (text) => <div className="font-bold">{text}</div>,
+      defaultSortOrder: "descend",
+      sorter: (a, b) => a.price - b.price,
+    },
+    {
+      title: "Chef",
+      dataIndex: "meal",
+      render: (_, record, index) => (
+        <div className="min-w-[100px] font-bold">
+          {record.mealSessionDto2?.mealDto2?.kitchenDto2?.name}
+        </div>
+      ),
+    },
+
+    {
       title: "Create At",
-      dataIndex: "date",
+      dataIndex: "time",
       render: (text) => <div className="min-w-[80px] font-bold">{text}</div>,
     },
   ];
@@ -85,7 +164,7 @@ const AccountDetail = () => {
       <div className="account-search h-[10%] flex items-center  justify-end mb-3">
         <div className="h-[40%] add-btn flex justify-between items-center w-full">
           <h1>Customer Information View</h1>
-          <Link to="/dashboard/account">
+          <Link to={`/${direction.dashboard}/${direction.user}`}>
             <Button className="border-none mr-3">Cancel</Button>
           </Link>
         </div>
@@ -112,14 +191,14 @@ const AccountDetail = () => {
               <p>Total Order</p> <span>27</span>
             </div>
             <div className="gender h-[15%] flex w-[90%] justify-between items-center">
-              <p>Total Point</p> <span>257</span>
+              <p>Balance</p> <span>{balance}</span>
             </div>
           </div>
         </div>
         <div className="w-[70%]">
           <Divider orientation="left">General Information</Divider>
           <Row className="flex justify-around my-4 h-[80px]">
-            <Col className="" span={11}>
+            <Col className="" span={23}>
               <div>
                 <label htmlFor="" className=" flex justify-start pb-2">
                   Name
@@ -129,14 +208,6 @@ const AccountDetail = () => {
                   classNames="mt-2"
                   value={username}
                 />
-              </div>
-            </Col>
-            <Col className="" span={11}>
-              <div>
-                <label htmlFor="" className=" flex justify-start pb-2">
-                  Last Name
-                </label>
-                <Input className="box__shadow" classNames="mt-2" />
               </div>
             </Col>
           </Row>
@@ -184,9 +255,12 @@ const AccountDetail = () => {
                 <label htmlFor="" className=" flex justify-start pb-2">
                   District
                 </label>
-                <Select defaultValue={district} className="w-full">
-                  <option>Quận 1</option>
-                  <option>Quận 2</option>
+                <Select
+                  defaultValue={districtId}
+                  value={districtId}
+                  className="w-full"
+                >
+                  <Select.Option>Quận 1</Select.Option>
                 </Select>
               </div>
             </Col>
@@ -198,6 +272,15 @@ const AccountDetail = () => {
         <Table
           dataSource={order}
           columns={columns}
+          bordered
+          loading={loading}
+        ></Table>
+      </div>
+      <div className="w-[100%] h-[30%]">
+        <h1 className="my-3">Transactions</h1>
+        <Table
+          dataSource={order}
+          columns={transactionColumns}
           bordered
           loading={loading}
         ></Table>

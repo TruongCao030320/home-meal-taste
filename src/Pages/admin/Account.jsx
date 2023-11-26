@@ -16,11 +16,13 @@ import { TbSearch } from "react-icons/tb";
 import { changeIsActive, getAllUser } from "../../API/Admin";
 import { render } from "react-dom";
 import { Modal } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import { direction } from "../../API/Direction";
 const { RangePicker } = DatePicker;
 
 const Account = () => {
+  const navigate = useNavigate();
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [id, setId] = useState();
@@ -70,14 +72,19 @@ const Account = () => {
       });
     }
     setFilteredData(filtered);
+    setLoading(false);
   };
   useEffect(() => {
+    setLoading(true);
     onFinish();
   }, [search, data]);
   const resetFilter = () => {
     setFilteredData();
     setGenderSelected();
     setSelectedDateRange();
+  };
+  const navigateToUserDetail = (id) => {
+    navigate(`/${direction.dashboard}/${direction.user}/${id}`);
   };
   const content2 = (
     <Form
@@ -104,14 +111,15 @@ const Account = () => {
       <Form.Item>
         <div className="flex w-full justify-between items-center">
           <div className="w-[20%]">
-            <h2>Gender</h2>
+            <h2>Role</h2>
           </div>
           <div className="w-[70%]">
             <Select
               className="w-full"
               options={[
-                { value: "male", label: "Male" },
-                { value: "female", label: "Female" },
+                { value: "1", label: "Admin" },
+                { value: "2", label: "Customer" },
+                { value: "3", label: "Chef" },
               ]}
               value={genderSelected}
               onChange={(value) => setGenderSelected(value)}
@@ -140,18 +148,32 @@ const Account = () => {
 
   const columns = [
     {
-      title: "Phone Number",
-      dataIndex: "phone",
+      title: "ID",
+      dataIndex: "userId",
       render: (text) => (
-        <div className="rounded-full overflow-hidden min-w-[120px] flex justify-start items-center">
+        <div className="rounded-full overflow-hidden min-w-[120px] flex justify-start items-center font-bold">
           {text}
         </div>
       ),
     },
     {
+      title: "Phone Number",
+      dataIndex: "phone",
+      render: (text) => (
+        <div className="rounded-full overflow-hidden min-w-[120px] flex justify-start items-center font-bold">
+          {text}
+        </div>
+      ),
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      render: (text) => <div className="font-bold">{text}</div>,
+    },
+    {
       title: "Name",
       dataIndex: "username",
-      render: (text) => <div>{text}</div>,
+      render: (text) => <div className="font-bold">{text}</div>,
     },
 
     {
@@ -170,6 +192,11 @@ const Account = () => {
           </Tag>
         );
       },
+      filters: [
+        { text: "Yes", value: true },
+        { text: "No", value: false },
+      ],
+      onFilter: (value, record) => record.status === value,
     },
     {
       title: "Role",
@@ -178,16 +205,16 @@ const Account = () => {
         const roleName = text == 1 ? "Admin" : text == 2 ? "Customer" : "Chef";
         const roleColor = text == 1 ? "gray" : text == 2 ? "blue" : "green";
         return (
-          <div className="min-w-[70px] p-1" color={roleColor}>
+          <div className="min-w-[70px] p-1 font-bold" color={roleColor}>
             {roleName}
           </div>
         );
       },
-    },
-    {
-      title: "Create At",
-      dataIndex: "birthDate",
-      render: (text) => <Tag className="min-w-[80px]">{text}</Tag>,
+      filters: [
+        { text: "Chef", value: 3 },
+        { text: "Customer", value: 2 },
+      ],
+      onFilter: (value, record) => record.roleId === value,
     },
     {
       title: "Action",
@@ -196,48 +223,53 @@ const Account = () => {
         <Space
           size="middle"
           className="p-1 border rounded-md hover:border-gray-600"
+          onClick={() => navigateToUserDetail(record.userId, record.roleId)}
         >
-          <Link to={`/dashboard/account/${record.userId}`}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-6 h-6"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-              />
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
-          </Link>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="w-6 h-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+            />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            />
+          </svg>
         </Space>
       ),
     },
   ];
-  // const getAllUsers = async () => {
-  //   const users = await getAllUser(toast);
-  //   return users;
-  // };
+  const newData = data.filter((item) => {
+    return item.phone.includes(search);
+  });
   useEffect(() => {
     setLoading(true);
-    getAllUser().then((res) => setData(res));
+    getAllUser(toast, navigate)
+      .then((res) => {
+        setData(res);
+      })
+      .catch((error) => console.log(error));
     setLoading(false);
-  }, [data]);
+  }, []);
   return (
     <div className="w-full h-full p-4 rounded-lg">
       <div className="account-search h-[10%] flex items-center justify-end mb-3">
         <div className="h-[40%] add-btn flex justify-between items-center w-full">
-          <h1>Account Management</h1>
-          <Link to="accountCreating">
-            <button className="btn rounded-xl py-3 bg-bgBtnColor">Add</button>
+          <h1>User Management</h1>
+          {/* <Link to="accountCreating"> */}
+          <Link to={`${direction.accountCreating}`}>
+            <button className="btn rounded-xl py-3 bg-bgBtnColor">
+              Add New User
+            </button>
           </Link>
         </div>
       </div>
@@ -245,6 +277,7 @@ const Account = () => {
         <div className="account-search lg:flex items-center justify-between mb-5 lg:w-[100%] md:w-full md:grid md:grid-cols-2 md:gap-3">
           <div className="my-2">
             <Input
+              placeholder="Enter account want to find..."
               onChange={(e) => {
                 setSearch(e.target.value);
               }}
@@ -252,7 +285,7 @@ const Account = () => {
               suffix={<TbSearch />}
             />
           </div>
-          <div className="my-2">
+          {/* <div className="my-2">
             <Popover
               content={content2}
               title="Filter"
@@ -264,7 +297,7 @@ const Account = () => {
                 <span>Filter</span>
               </Button>
             </Popover>
-          </div>
+          </div> */}
         </div>
         <div className="w-full md:overflow-auto">
           <ConfigProvider
@@ -282,7 +315,7 @@ const Account = () => {
             }}
           >
             <Table
-              dataSource={filteredData?.length > 0 ? filteredData : data}
+              dataSource={newData ? newData : data}
               columns={columns}
               loading={loading}
               pagination={{ pageSize: 5 }}

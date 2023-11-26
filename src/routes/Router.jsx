@@ -19,29 +19,45 @@ import OrderTracking from "../Pages/admin/details/OrderTracking";
 import ProductCreating from "../Pages/admin/details/ProductCreating";
 import KitchenDetail from "../Pages/admin/details/KitchenDetail";
 import ErrorPage from "../Pages/ErrorPage";
+import Area from "../Pages/admin/Area";
+import { direction } from "../API/Direction";
+import DishType from "../Pages/admin/DishType";
 const Router = () => {
   return (
     <>
       <Routes>
-        <Route path="/register" element={<Signup />}></Route>
+        <Route path={`/${direction.register}`} element={<Signup />}></Route>
         <Route path="/" element={<Login />}></Route>
-        <Route path="/error" element={<ErrorPage />}></Route>
-        <Route path="/dashboard/" element={<Dashboard />}>
+        <Route path={`/${direction.error}`} element={<ErrorPage />}></Route>
+        <Route path={`/${direction.dashboard}/`} element={<Dashboard />}>
           <Route path="" element={<DashboardPage />} />
-          <Route path="account" element={<Account />} />
-          <Route path="kitchen" element={<Kitchen />} />
-          <Route path="kitchen/:id" element={<KitchenDetail />} />
-          <Route path="kitchen/productCreating" element={<ProductCreating />} />
-          <Route path="account/accountCreating" element={<AccountCreating />} />
-          <Route path="account/:id" element={<AccountDetail />} />
-          <Route path="admin/:id" element={<AdminProfile />} />
-          <Route path="product/:id" element={<ProductDetail />} />
-          <Route path="product" element={<Product />} />
-          <Route path="session" element={<Session />} />
-          <Route path="payment" element={<Payment />} />
-          <Route path="order" element={<Order />} />
-          <Route path="order/:id" element={<OrderTracking />} />
+          <Route path={direction.user} element={<Account />} />
+          <Route path={direction.kitchen} element={<Kitchen />} />
+          <Route
+            path={`${direction.kitchen}/:id`}
+            element={<KitchenDetail />}
+          />
+          <Route
+            path={`${direction.kitchen}/${direction.productCreating}`}
+            element={<ProductCreating />}
+          />
+          <Route
+            path={`${direction.user}/${direction.accountCreating}`}
+            element={<AccountCreating />}
+          />
+          <Route path={`${direction.user}/:id`} element={<AccountDetail />} />
+          <Route path={`${direction.admin}/:id`} element={<AdminProfile />} />
+          <Route path={`${direction.meal}/:id`} element={<ProductDetail />} />
+          <Route path={`${direction.meal}`} element={<Product />} />
+          <Route path={`${direction.session}`} element={<Session />} />
+          <Route path={`${direction.dishType}`} element={<DishType />} />
 
+          <Route path={`${direction.area}`} element={<Area />} />
+          {/* <Route path="area" element={<Area />} /> */}
+
+          <Route path={`${direction.payment}`} element={<Payment />} />
+          <Route path={`${direction.order}`} element={<Order />} />
+          <Route path={`${direction.order}/:id`} element={<OrderTracking />} />
           <Route path="chatbox" element={<Chatbox />} />
         </Route>
       </Routes>

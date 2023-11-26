@@ -5,19 +5,19 @@ import { TbMessageCircle } from "react-icons/tb";
 import { GrNotification } from "react-icons/gr";
 import avt from "../assets/images/avatar01.png";
 import logo from "../assets/images/logo.jpg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { DownOutlined } from "@ant-design/icons";
-import { Dropdown, Space } from "antd";
+import { Dropdown, Popover, Space } from "antd";
 import NotificationTag from "./NotificationTag";
 import { Input } from "antd";
+import { useEffect } from "react";
+import { getSingleUser } from "../API/Admin";
+import { direction } from "../API/Direction";
 const Top = () => {
+  const navigate = useNavigate();
+  const id = localStorage.getItem("userId");
+  console.log(id);
   const [showLogout, setShowLogout] = useState(false);
-  const handleMouseEnter = () => {
-    setShowLogout(true);
-  };
-  const handleMouseLeave = () => {
-    setShowLogout(false);
-  };
   const toggleRef = useRef(null);
   const toggleRef2 = useRef(null);
   const toggleVisibility = () => {
@@ -26,9 +26,6 @@ const Top = () => {
       toggleRef2.current.classList.toggle("hidden");
     }
   };
-  const successToast = () => {
-    toast.error("Lỗi nè");
-  };
   const notiExample = [
     {
       title: "Khuyến mãi ngày 24.7",
@@ -36,18 +33,6 @@ const Top = () => {
       description:
         "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Aliquid ut et quam rerum eligendi veniam quasi ad porro.Quaerat, temporibus.",
     },
-    // {
-    //   title: "Khuyến mãi ngày 24.7",
-    //   timeStamp: "23.7.2023",
-    //   description:
-    //     "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Aliquid ut et quam rerum eligendi veniam quasi ad porro.Quaerat, temporibus.",
-    // },
-    // {
-    //   title: "Khuyến mãi ngày 24.7",
-    //   timeStamp: "23.7.2023",
-    //   description:
-    //     "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Aliquid ut et quam rerum eligendi veniam quasi ad porro.Quaerat, temporibus.",
-    // },
   ];
   const items = [
     {
@@ -55,6 +40,63 @@ const Top = () => {
       key: "1",
     },
   ];
+  // const fetchUser = async () => {
+  //   const reponse = await getSingleUser(id, navigate);
+  //   setUser(reponse);
+  // };
+  // useEffect(() => {
+  //   fetchUser();
+  // }, []);
+  const navigateToAdminProfile = (id) => {
+    navigate(`/${direction.dashboard}/${direction.admin}/${id}`);
+  };
+  const navigateToLogin = () => {
+    navigate(`/`);
+  };
+  const content = (
+    <div>
+      <div
+        className="hover:bg-gray-300 flex justify-around items-center w-full max-h-[40px] hover:cursor-pointer p-2"
+        onClick={() => navigateToAdminProfile(id)}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="w-6 h-6 text-black"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+          />
+        </svg>
+        Profile
+      </div>
+      <div
+        className="hover:bg-gray-300 flex justify-around items-center w-full max-h-[40px] hover:cursor-pointer p-2"
+        onClick={navigateToLogin}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="w-6 h-6 text-black"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"
+          />
+        </svg>
+        Log out
+      </div>
+    </div>
+  );
   return (
     <div className="h-full w-full sticky__header">
       <div
@@ -68,8 +110,7 @@ const Top = () => {
             Welcome to <span>Home Meal Taste</span> !
           </h1>
           <p className="text-textColor p-0 m-0 leading-5">
-            Hello <span className="text-yellowColor">Tuanung</span>, Welcome
-            back !
+            Hello <span className="text-yellowColor">{}</span>, Welcome back !
           </p>
         </div>
 
@@ -119,62 +160,15 @@ const Top = () => {
             </svg>
           </div>
 
-          <div
-            className="adminImg h-10 w-10  rounded-full p-1 bg-white relative before:w-[40px] before:absolute before:top-[33px] before:right-[7px] before:content-[''] before:h-[20px] before:bg-black before:opacity-0 "
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          >
-            <figure>
-              <img
-                src={avt}
-                className="rounded-full w-full h-full border border-solid cursor-pointer box__shadow"
-              ></img>
-            </figure>
-            {showLogout && (
-              <div className="absolute top-10  shadow-md right-4 min-w-[100px] w-[150px] h-[100px] bg-white text-white px-2 py-1 rounded transition-all ease-in-out duration-300 animate-fadeOut text-center  flex flex-col justify-center items-center ">
-                <div className="hover:bg-gray-300 flex justify-around items-center w-full max-h-[40px] hover:cursor-pointer">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="w-6 h-6 text-black"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
-                    />
-                  </svg>
-
-                  <Link to={`/dashboard/admin/${1}`}>
-                    <a href="#" className="text-black">
-                      Profile
-                    </a>
-                  </Link>
-                </div>
-                <div className="hover:bg-gray-300 flex justify-around items-center w-full max-h-[40px] hover:cursor-pointer">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="w-6 h-6 text-black"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"
-                    />
-                  </svg>
-                  <Link to="/" className="text-black">
-                    Log out
-                  </Link>
-                </div>
-              </div>
-            )}
+          <div className="adminImg h-10 w-10  rounded-full p-1 bg-white relative before:w-[40px] before:absolute before:top-[33px] before:right-[7px] before:content-[''] before:h-[20px] before:bg-black before:opacity-0 ">
+            <Popover trigger="hover" content={content}>
+              <figure>
+                <img
+                  src={avt}
+                  className="rounded-full w-full h-full border border-solid cursor-pointer box__shadow  "
+                ></img>
+              </figure>
+            </Popover>
           </div>
         </div>
       </div>

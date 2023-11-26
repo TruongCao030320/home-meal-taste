@@ -1,0 +1,173 @@
+import React, { useState } from "react";
+import {
+  Drawer,
+  Space,
+  Button,
+  Input,
+  Radio,
+  Row,
+  Col,
+  DatePicker,
+  TimePicker,
+  Select,
+  Tag,
+} from "antd";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { hideDrawer, refresh } from "../redux/ToggleDrawerMealSlice.js";
+import { toast } from "react-toastify";
+import {
+  getDishByMealId,
+  getSingleMealSessionById,
+  updateStatusMealSession,
+} from "../API/Admin.js";
+import { MdFeaturedPlayList } from "react-icons/md";
+const { TextArea } = Input;
+const CustomDrawer = ({ meal, onChange }) => {
+  const { mealSessionId, price, remainQuantity, quantity, status } = meal || {};
+  const { name, image, description } = meal?.mealDtoForMealSession || {};
+  const { areaName } =
+    meal?.sessionDtoForMealSession?.areaDtoForMealSession || {};
+  const dispatch = useDispatch();
+  const visible = useSelector((state) => state.mealDrawer.visible);
+  const [dishes, setDishes] = useState([]);
+  const onClose = () => {
+    dispatch(hideDrawer());
+  };
+  useEffect(() => {
+    getDishByMealId(meal?.mealDtoForMealSession?.mealId).then((res) => {
+      setDishes(res?.dishDto);
+    });
+  }, [mealSessionId]);
+  const confirmMealSession = (status) => {
+    updateStatusMealSession(mealSessionId, status)
+      .then((res) => {
+        dispatch(refresh());
+        toast.success("Update status successfully.");
+      })
+      .catch((error) => toast.error("Update failed!"));
+  };
+  // onChange({
+  //   meal,
+  // });
+  return (
+    <div>
+      {" "}
+      <Drawer
+        title={name}
+        placement="right"
+        size="large"
+        onClose={onClose}
+        open={visible}
+        extra={
+          <Space>
+            <Tag color="cyan-inverse" className="p-1 ">
+              {status}
+            </Tag>
+
+            <Button
+              onClick={onClose}
+              className="bg-red-600"
+              onClickCapture={() => confirmMealSession("Rejected")}
+              disabled={status?.includes("REJECTED")}
+            >
+              <span className="text-white">Reject</span>
+            </Button>
+            <Button
+              onClick={onClose}
+              className="bg-green-700 "
+              onClickCapture={() => confirmMealSession("Approved")}
+              disabled={status?.includes("APPROVED")}
+            >
+              <span className="text-white">Approve</span>
+            </Button>
+          </Space>
+        }
+      >
+        <form action="" className="p-5 grid gap-5">
+          <div className="form-item w-[100%] flex justify-center">
+            <img
+              src={image}
+              alt=""
+              className="rounded-lg shadow-md mb-3 w-[450px] h-[300px]"
+            />
+          </div>
+          <div className="form-item">
+            <label htmlFor="">Title</label>
+            <Input className="my-2 box__shadow h-[40px]" value={name} />
+          </div>
+          <div className="form-item">
+            <label htmlFor="">Meal include:</label>
+            <div className=" grid grid-cols-2 gap-2 p-4 bg-colorBg rounded-lg w-full">
+              {dishes?.map((item) => (
+                <div className="flex items-center gap-2 bg-white border w-[100%] p-2 rounded-lg shadow-inner">
+                  <img
+                    src={item.image}
+                    className="w-[100px] h-[100px] rounded-full box__shadow border"
+                  ></img>
+                  <div>
+                    <div className="py-1 px-1">
+                      <span className="font-bold">Food's Name:</span>{" "}
+                      {item.name}
+                    </div>
+                    <div className="py-1 px-1">
+                      <span className="font-bold">Food's Type:</span>{" "}
+                      <Tag>{item.dishType?.name}</Tag>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="form-item">
+            <Row className="w-full flex justify-between">
+              <Col span={24}>
+                <label htmlFor="">Price (VND)</label>
+                <Input className="my-2 box__shadow h-[40px]" value={price} />
+              </Col>
+            </Row>
+          </div>
+          <div className="form-item">
+            <Row className="w-full flex justify-between">
+              <Col span={11}>
+                <label htmlFor="">Selling quantity</label>
+                <Input
+                  className="my-2 box__shadow h-[40px]"
+                  type="number"
+                  min={1}
+                  max={8}
+                  defaultValue={1}
+                  value={quantity}
+                />
+              </Col>
+              <Col span={11}>
+                <label htmlFor="">Remain Quantity</label>
+                <Input
+                  className="my-2 box__shadow h-[40px]"
+                  value={remainQuantity}
+                />
+              </Col>
+            </Row>
+          </div>
+          <div className="form-item">
+            <label htmlFor="">Kitchen</label>
+            <Input
+              className="my-2 box__shadow h-[40px]"
+              value={meal?.kitchenDtoForMealSession?.name}
+            />
+          </div>
+          <div className="form-item">
+            <label htmlFor="">Area</label>
+            <Input className="my-2 box__shadow h-[40px]" value={areaName} />
+          </div>
+          <div className="form-item">
+            <label htmlFor="">Description</label>
+            <TextArea className="box__shadow h-[40px]" value={description} />
+          </div>
+        </form>
+      </Drawer>
+    </div>
+  );
+};
+
+export default CustomDrawer;

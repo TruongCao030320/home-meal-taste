@@ -15,87 +15,96 @@ import { Table } from "antd";
 import ProductList from "../../../Components/ProductList";
 import {
   getAllDistrict,
+  getAllFeedbackByKitchenId,
   getAllMealByKitchenId,
+  getAllMealSessionByKitchenId,
   getKitchenByKitchenId,
   getOrderByKitchenId,
+  getSingleMealSessionById,
 } from "../../../API/Admin";
+import { showDrawer } from "../../../redux/ToggleDrawerMealSlice.js";
+import { direction } from "../../../API/Direction";
+import { useDispatch } from "react-redux";
+import CustomDrawer from "../../../Components/MealDrawer";
 const KitchenDetail = () => {
+  const dispatch = useDispatch();
   const { id } = useParams();
   const [meal, setMeal] = useState();
   const [kitchen, setKitchen] = useState({});
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState([]);
   const [districtArray, setDistrictArray] = useState();
+  const [drawerData, setDrawerData] = useState({});
+  const [feedback, setFeedback] = useState([]);
   const { name, address, district } = kitchen;
-  const { email, phone } = kitchen.user || {};
+  const { email, phone } = kitchen.userDtoKitchenResponseModel || {};
+  const { balance } =
+    kitchen?.userDtoKitchenResponseModel?.walletDtoKitchenResponseModel || {};
+  const toggleDrawerType2 = async (mealSessionId) => {
+    await getSingleMealSessionById(mealSessionId)
+      .then((res) => setDrawerData(res))
+      .catch((error) => console.log(error));
+    dispatch(showDrawer(mealSessionId));
+  };
   const columns = [
     {
-      title: "Order ID",
+      title: "ID",
       dataIndex: "orderId",
-      render: (text) => <div className="font-bold">{text}</div>,
-    },
-    {
-      title: "User",
-      dataIndex: "name",
-      render: (_, record) => <div>{record?.customer?.name}</div>,
-      defaultSortOrder: "descend",
-      sorter: (a, b) => a.price - b.price,
-    },
-    {
-      title: "Amount/VND",
-      dataIndex: "promotionPrice",
-      render: (text) => <div className="min-w-[100px]">{text}</div>,
-    },
-    {
-      title: "Meal",
-      render: (_, record) => (
-        <div className="w-[100px] h-[100px] rounded-full overflow-hidden">
-          <img src={record?.meal?.image} className="w-[100px] h-[100px]"></img>
+      render: (text) => (
+        <div className="">
+          <p className="font-bold">{text}</p>
         </div>
       ),
     },
     {
-      title: "Create At",
-      dataIndex: "date",
-      render: (text) => <div className="min-w-[80px] font-bold">{text}</div>,
+      title: "User",
+      dataIndex: "customer",
+      // render: (name) => `${name.first} ${name.last}`
+      render: (_, record) => (
+        <p className="font-bold">{record.customer.name}</p>
+      ),
     },
     {
-      title: "Action",
-      key: "action",
-      render: (_, record) => (
-        <Space
-          size="middle"
-          className="p-1 border rounded-md hover:border-gray-600"
-        >
-          <Link to={`/dashboard/account/${record.userId}`}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-6 h-6"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-              />
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
-          </Link>
-        </Space>
-      ),
+      title: "Product",
+      dataIndex: "meal",
+      render: (_, record) => {
+        console.log(record);
+        return (
+          <p className="font-bold">
+            {record.mealSession?.mealDtoOrderResponse?.name}
+          </p>
+        );
+      },
+    },
+    {
+      title: "Create At",
+      dataIndex: "time",
+      render: (text) => <p className="font-bold">{text}</p>,
+    },
+    {
+      title: "Price/VND",
+      dataIndex: "totalPrice",
+      defaultSortOrder: "descend",
+      sorter: (a, b) => a.totalPrice - b.totalPrice,
+      render: (text) => <p className="font-bold">{text}</p>,
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      render: (text, record, index) => {
+        const finalText = text.toUpperCase();
+        return (
+          <Tag color="green" className="px-4 py-1">
+            <p className="font-bold">{finalText}</p>
+          </Tag>
+        );
+      },
     },
   ];
   const mealColumns = [
     {
       title: "Meal ID",
-      dataIndex: "mealId",
+      dataIndex: "mealSessionId",
       render: (text) => <div className="font-bold">{text}</div>,
     },
     {
@@ -103,20 +112,25 @@ const KitchenDetail = () => {
       dataIndex: "image",
       render: (_, record) => (
         <div className="w-[100px] h-[100px] rounded-full overflow-hidden">
-          <img src={record?.image} className="w-[100px] h-[100px]"></img>
+          <img
+            src={record?.mealDtoForMealSession?.image}
+            className="w-[100px] h-[100px]"
+          ></img>
         </div>
       ),
-      defaultSortOrder: "descend",
-      sorter: (a, b) => a.price - b.price,
     },
     {
       title: "Title",
       dataIndex: "name",
-      render: (text) => <div className="min-w-[80px] font-bold">{text}</div>,
+      render: (_, record) => (
+        <div className="min-w-[80px] font-bold">
+          {record?.mealDtoForMealSession?.name}
+        </div>
+      ),
     },
     {
       title: "Amount/VND",
-      dataIndex: "defaultPrice",
+      dataIndex: "price",
       render: (text) => <div className="min-w-[100px]">{text}</div>,
     },
     {
@@ -127,27 +141,85 @@ const KitchenDetail = () => {
           size="middle"
           className="p-1 border rounded-md hover:border-gray-600"
         >
-          <Link to={`/dashboard/product/${record.mealId}`}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-6 h-6"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-              />
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
-          </Link>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="w-6 h-6"
+            onClick={() => toggleDrawerType2(record.mealSessionId)}
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+            />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            />
+          </svg>
+        </Space>
+      ),
+    },
+  ];
+  const feedbackColumns = [
+    {
+      title: "Meal ID",
+      dataIndex: "feedbackId",
+      render: (text) => <div className="font-bold">{text}</div>,
+    },
+    {
+      title: "Customer",
+      dataIndex: "image",
+      render: (_, record) => (
+        <div className="">
+          <p className="font-bold text-xl">
+            {record?.customerDtoFeedbackReponseModel?.name}
+          </p>
+        </div>
+      ),
+    },
+    {
+      title: "Feedback Title",
+      dataIndex: "description",
+      render: (text) => <div className="min-w-[80px] font-bold">{text}</div>,
+    },
+    {
+      title: "Create At",
+      dataIndex: "createDate",
+      render: (text) => <div className="min-w-[100px]">{text}</div>,
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_, record) => (
+        <Space
+          size="middle"
+          className="p-1 border rounded-md hover:border-gray-600"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="w-6 h-6"
+            onClick={() => toggleDrawerType2(record.mealSessionId)}
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+            />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            />
+          </svg>
         </Space>
       ),
     },
@@ -173,24 +245,25 @@ const KitchenDetail = () => {
     {
       key: "3",
       label: "Feedback",
-      children: <div>Comments tag</div>,
+      children: <Table dataSource={feedback} columns={feedbackColumns} />,
     },
   ];
   useEffect(() => {
-    getAllMealByKitchenId(id).then((res) => {
-      console.log(res);
+    getAllMealSessionByKitchenId(id).then((res) => {
       setMeal(res);
     });
     getKitchenByKitchenId(id).then((res) => setKitchen(res));
     getAllDistrict().then((res) => setDistrictArray(res));
     getOrderByKitchenId(id).then((res) => setOrder(res));
+    getAllFeedbackByKitchenId(id).then((res) => setFeedback(res));
   }, []);
   return (
     <div className="w-full h-full p-4 ">
+      <CustomDrawer meal={drawerData || {}} />
       <div className="account-search h-[10%] flex items-center  justify-end mb-3">
         <div className="h-[40%] add-btn flex justify-between items-center w-full">
           <h1>Kitchen Information View</h1>
-          <Link to="/dashboard/kitchen">
+          <Link to={`/${direction.dashboard}/${direction.kitchen}`}>
             <Button className="border-none mr-3">Cancel</Button>
           </Link>
         </div>
@@ -208,7 +281,6 @@ const KitchenDetail = () => {
               </div>
             </Col>
           </Row>
-
           <Row className="flex justify-around my-4 h-[80px]">
             <Col className="" span={11}>
               <div>
@@ -234,6 +306,20 @@ const KitchenDetail = () => {
                     </Select.Option>
                   ))}
                 </Select>
+              </div>
+            </Col>
+          </Row>
+          <Row className="flex justify-around my-4 h-[80px]">
+            <Col className="" span={23}>
+              <div>
+                <label htmlFor="" className=" flex justify-start pb-2">
+                  Balance
+                </label>
+                <Input
+                  className="box__shadow"
+                  classNames="mt-2"
+                  value={balance}
+                />
               </div>
             </Col>
           </Row>

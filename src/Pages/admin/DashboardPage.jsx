@@ -14,7 +14,9 @@ import {
 } from "recharts";
 import { Component } from "react";
 import { getAllOrder } from "../../API/Admin";
+import { useNavigate } from "react-router-dom";
 const DashboardPage = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState();
   const [data5, setData5] = useState();
@@ -102,10 +104,12 @@ const DashboardPage = () => {
     },
   ];
   useEffect(() => {
-    getAllOrder().then((res) => {
-      console.log(res);
-      setData(res);
-    });
+    getAllOrder()
+      .then((res) => {
+        console.log(res);
+        setData(res);
+      })
+      .catch(() => navigate("/error"));
   }, []);
   //   const { id, description, price, thumbnail } = data;
   const columns = [
@@ -114,7 +118,10 @@ const DashboardPage = () => {
       dataIndex: "thumbnail",
       render: (_, record, index) => (
         <div className=" w-[100px] h-[100px] rounded-full overflow-hidden">
-          <img src={record.meal.image} className="w-full h-[100%]"></img>
+          <img
+            src={record.mealSessionDto1.mealDto1?.image}
+            className="w-full h-[100%]"
+          ></img>
         </div>
       ),
     },
@@ -122,8 +129,10 @@ const DashboardPage = () => {
       dataIndex: "title",
       render: (_, record, index) => (
         <div className="leading-7 md:overflow-auto md:w-[200px]">
-          <h1 className="font-normal">{record.meal.name}</h1>
-          <p className="text-gray-400">{record.description}</p>
+          <h1 className="font-bold">{record.mealSessionDto1.mealDto1?.name}</h1>
+          <p className="text-gray-400">
+            {record.mealSessionDto1.mealDto1.description}
+          </p>
           <p className="font-bold text-2xl">#{index + 1}</p>
           <p className="font-bold">{record.date}</p>
         </div>
@@ -132,10 +141,10 @@ const DashboardPage = () => {
       sorter: (a, b) => moment(a.date).unix() - moment(b.date).unix(),
     },
     {
-      dataIndex: "title",
+      dataIndex: "",
       render: (_, record) => (
         <div className="md:w-[200px]">
-          <h1 className="font-normal">{record.customer.name}</h1>
+          <h1 className="font-normal">{record.customerDto1?.name}</h1>
         </div>
       ),
     },
@@ -143,7 +152,7 @@ const DashboardPage = () => {
       dataIndex: "price",
       render: (_, record) => (
         <div className="">
-          <p className="font-bold">{record.promotionPrice}VND</p>
+          <p className="font-bold">{record.mealSessionDto1.price}VND</p>
         </div>
       ),
     },
@@ -189,6 +198,7 @@ const DashboardPage = () => {
       ),
     },
   ];
+
   return (
     <div className="w-full h-full p-4">
       <div className="account-search h-[10%] flex items-center  justify-end mb-3">

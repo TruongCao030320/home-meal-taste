@@ -2,7 +2,11 @@ import { Button } from "antd";
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Table, Input } from "antd";
+import { FaRegUserCircle } from "react-icons/fa";
 import { Row, Col } from "antd";
+import { direction } from "../../../API/Direction";
+import { getSingleUser } from "../../../API/Admin";
+import { login } from "../../../API/Login";
 const AdminProfile = () => {
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(false);
@@ -11,6 +15,7 @@ const AdminProfile = () => {
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
+  const [object, setObject] = useState({});
   const [formData, setFormData] = useState({
     password: "",
     email: "",
@@ -28,18 +33,21 @@ const AdminProfile = () => {
     // You can send the form data to an API or perform other actions here
     console.log(formData);
   };
+  const fetchAccount = () => {
+    getSingleUser(id)
+      .then((res) => {
+        setObject(res);
+      })
+      .catch((error) => console.log(error));
+  };
   useEffect(() => {
-    fetch(`https://dummyjson.com/users/${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setData(data);
-        setImage(data.image);
-        setDescription(data.description);
-        console.log(data);
-      });
-  }, [id]);
-  const { username, gender, phone } = data;
-  const { address } = data.address || {};
+    getSingleUser(id).then((data) => {
+      setData(data);
+      console.log(data);
+    });
+    fetchAccount();
+  }, []);
+  const { username, email, phone } = object;
 
   return (
     <div className="w-full h-full p-4 rounded-lg">
@@ -47,7 +55,7 @@ const AdminProfile = () => {
         <div className="h-[40%] add-btn flex justify-between items-center w-full">
           <h1>Admin's Account</h1>
           <div>
-            <Link to="/dashboard">
+            <Link to={`/${direction.dashboard}`}>
               <Button className="border-none mr-3">Cancel</Button>
             </Link>
             <Link to="#">
@@ -59,24 +67,21 @@ const AdminProfile = () => {
         </div>
       </div>
       <div className="bg-white p-4 rounded-lg flex justify-around">
-        <div className="w-[25%] border-r-2 flex flex-col justify-center items-center">
-          <div className="w-[200px] h-[200px] rounded-full overflow-hidden border shadow">
-            <img src={image}></img>
-          </div>
-          <div className="userName">
-            <label htmlFor="">Name</label>
-            <Input value={username}></Input>
-          </div>
-        </div>
-        <div className="w-[70%]">
+        <div className="w-[100%]">
+          <Row className="flex justify-between my-2">
+            <Col span={11}>
+              <label htmlFor="">User name</label>
+              <Input className="box__shadow" value={username}></Input>
+            </Col>
+          </Row>
           <Row className="flex justify-between">
             <Col span={11}>
               <label htmlFor="">Email</label>
-              <Input className="box__shadow"></Input>
+              <Input className="box__shadow" value={email}></Input>
             </Col>
             <Col span={11}>
               <label htmlFor="">Phone</label>
-              <Input className="box__shadow"></Input>
+              <Input className="box__shadow" value={phone}></Input>
             </Col>
           </Row>
         </div>

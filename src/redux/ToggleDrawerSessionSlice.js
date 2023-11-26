@@ -2,22 +2,19 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   visible: false,
-  productId: null,
-  type: null,
 };
-const drawerSlice = createSlice({
-  name: "drawer",
+const drawerSession = createSlice({
+  name: "sessionDrawer",
   initialState,
   reducers: {
     showDrawer: (state, action) => {
+      console.log("vào đc redux không");
       state.visible = true;
-      state.productId = action.payload;
-      state.type = action.payload;
     },
     hideDrawer: (state) => {
       state.visible = false;
     },
   },
 });
-export const { showDrawer, hideDrawer } = drawerSlice.actions;
-export default drawerSlice.reducer;
+export const { showDrawer, hideDrawer } = drawerSession.actions;
+export default drawerSession.reducer;

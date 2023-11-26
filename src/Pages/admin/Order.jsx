@@ -16,6 +16,7 @@ import { TbSearch } from "react-icons/tb";
 import { Link, useNavigate } from "react-router-dom";
 import { FilterFilled } from "@ant-design/icons";
 import { getAllOrder } from "../../API/Admin";
+import { direction } from "../../API/Direction";
 
 const Order = () => {
   const navigate = useNavigate();
@@ -33,53 +34,54 @@ const Order = () => {
       dataIndex: "orderId",
       render: (text) => (
         <div className="">
-          <p className="font-extralight">{text}</p>
+          <p className="font-bold">{text}</p>
         </div>
       ),
     },
     {
       title: "User",
       dataIndex: "customer",
-      sorter: true,
       // render: (name) => `${name.first} ${name.last}`
       render: (_, record) => (
-        <p className="font-extralight">{record.customer.name}</p>
+        <p className="font-bold">{record.customerDto1.name}</p>
       ),
     },
     {
       title: "Store",
       dataIndex: "meal",
       render: (_, record) => (
-        <p className="font-extralight">{record.meal.kitchen.name}</p>
+        <p className="font-bold">
+          {record.mealSessionDto1.mealDto1.kitchenDto1.name}
+        </p>
       ),
     },
     {
       title: "Product",
       dataIndex: "meal",
-      render: (text) => <p className="font-extralight">{text.name}</p>,
+      render: (_, record) => (
+        <p className="font-bold">{record.mealSessionDto1.mealDto1.name}</p>
+      ),
     },
     {
       title: "Create At",
-      dataIndex: "date",
-      render: (text) => <p className="font-extralight">{text}</p>,
+      dataIndex: "time",
+      render: (text) => <p className="font-bold">{text}</p>,
     },
     {
-      title: "Price",
-      dataIndex: "promotionPrice",
+      title: "Price/VND",
+      dataIndex: "price",
       defaultSortOrder: "descend",
       sorter: (a, b) => a.price - b.price,
-      render: (text) => <p className="font-extralight">{text}</p>,
+      render: (text) => <p className="font-bold">{text}</p>,
     },
     {
       title: "Status",
       dataIndex: "status",
       render: (text, record, index) => {
-        const isEven = index % 2 === 0;
-        const tagColor = isEven ? "geekblue" : "yellow"; // Define your colors here
-
+        const finalText = text.toUpperCase();
         return (
-          <Tag color={tagColor}>
-            <p className="font-extralight">{text}</p>
+          <Tag color="green" className="px-4 py-1">
+            <p className="font-bold">{finalText}</p>
           </Tag>
         );
       },
@@ -94,40 +96,43 @@ const Order = () => {
       })
       .catch((error) => console.log(error));
   }, []);
-  const onFinish = (values) => {
-    const [startDate, endDate] = selectedDateRange || [];
-    let filtered = data;
-    if (genderSelected) {
-      // Apply filtering based on the selected option
-      filtered = data.filter((item) => item.gender === genderSelected); // Replace 'category' with your data field
-    }
-
-    if (startDate && endDate) {
-      // Apply filtering based on the selected date range
-      if (filtered) {
-        filtered = filtered.filter((item) => {
-          const itemDate = new Date(item.birthDate); // Replace 'date' with your date field name
-          return itemDate >= startDate && itemDate <= endDate;
-        });
-      } else {
-        filtered = data.filter((item) => {
-          const itemDate = new Date(item.birthDate); // Replace 'date' with your date field name
-          return itemDate >= startDate && itemDate <= endDate;
-        });
-      }
-    }
-    if (search) {
-      filtered = filtered.filter((item) => {
-        return item.lastName.toLowerCase().includes(search.toLowerCase());
-      });
-    }
-    setFilteredData(filtered);
-  };
   useEffect(() => {
-    onFinish();
+    console.log(typeof search);
   }, [search]);
+  // const onFinish = (values) => {
+  //   const [startDate, endDate] = selectedDateRange || [];
+  //   let filtered = data;
+  //   if (genderSelected) {
+  //     // Apply filtering based on the selected option
+  //     filtered = data.filter((item) => item.gender === genderSelected); // Replace 'category' with your data field
+  //   }
+
+  //   if (startDate && endDate) {
+  //     // Apply filtering based on the selected date range
+  //     if (filtered) {
+  //       filtered = filtered.filter((item) => {
+  //         const itemDate = new Date(item.birthDate); // Replace 'date' with your date field name
+  //         return itemDate >= startDate && itemDate <= endDate;
+  //       });
+  //     } else {
+  //       filtered = data.filter((item) => {
+  //         const itemDate = new Date(item.birthDate); // Replace 'date' with your date field name
+  //         return itemDate >= startDate && itemDate <= endDate;
+  //       });
+  //     }
+  //   }
+  //   if (search) {
+  //     filtered = filtered.filter((item) => {
+  //       return item.lastName.includes(search));
+  //     });
+  //   }
+  //   setFilteredData(filtered);
+  // };
+  // useEffect(() => {
+  //   onFinish();
+  // }, [search]);
   const navigatePage = (id) => {
-    navigate(`/dashboard/order/${id}`);
+    navigate(`/${direction.dashboard}/${direction.order}/${id}`);
   };
   const resetFilter = () => {
     setFilteredData();
@@ -138,7 +143,7 @@ const Order = () => {
     <Form
       className="min-w-[300px] grid gap-5"
       name="filterForm"
-      onFinish={onFinish}
+      // onFinish={onFinish}
     >
       <Form.Item>
         <div className="flex w-full justify-between items-center">
@@ -149,8 +154,8 @@ const Order = () => {
             <Select
               className="w-full"
               options={[
-                { value: "1", label: "Yes" },
-                { value: "2", label: "No" },
+                { value: "1", label: "PAID" },
+                { value: "2", label: "CANCELLED" },
               ]}
             ></Select>
           </div>
@@ -159,7 +164,7 @@ const Order = () => {
       <Form.Item>
         <div className="flex w-full justify-between items-center">
           <div className="w-[20%]">
-            <h2>Store</h2>
+            <h2>Kitchen</h2>
           </div>
           <div className="w-[70%]">
             <Select
@@ -192,6 +197,15 @@ const Order = () => {
       </Form.Item>
     </Form>
   );
+
+  const newData = data?.filter((item) => {
+    if (search.length > 2) {
+      // Check if the phone number exists and includes the search string
+      return item.customerDto1?.phone == search;
+    } else {
+      return item.orderId == search;
+    }
+  });
   return (
     <div className="w-full h-full p-4 rounded-lg">
       <div className="account-search h-[10%] flex items-center  justify-end mb-3">
@@ -204,6 +218,7 @@ const Order = () => {
           <div className="account-search lg:flex items-center justify-between mb-5 lg:w-[100%] md:w-full md:grid md:grid-cols-2 md:gap-3">
             <div className="my-2">
               <Input
+                placeholder="Enter Order ID or Phone"
                 onChange={(e) => {
                   setSearch(e.target.value);
                 }}
@@ -242,7 +257,7 @@ const Order = () => {
             }}
           >
             <Table
-              dataSource={data}
+              dataSource={search ? newData : data}
               columns={columns}
               loading={loading}
               pagination={{ pageSize: 5 }}
