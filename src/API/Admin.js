@@ -123,12 +123,16 @@ export const getAllSession = async () => {
 export const createNewSession = async (values, toast) => {
   console.log("value la2", values);
   try {
-    await axios.post(
+    const response = await axios.post(
       "https://homemealtaste.azurewebsites.net/api/Session",
       values
     );
+    if (response.status == 200) {
+      toast.success("Create New Session Successfully.");
+    }
   } catch (error) {
     console.log("Create new session", error);
+    toast.error("Create New Session Failed.");
   }
 };
 export const getOrderByKitchenId = async (id) => {

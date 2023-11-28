@@ -27,11 +27,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { showDrawer } from "../redux/ToggleDrawerMealSlice.js";
 import CustomDrawer from "./MealDrawer";
 import { getSingleMealSessionById } from "../API/Admin";
+const normalizeString = (str) => {
+  return str
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+};
 const ProductList = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [modal, contextHolder] = Modal.useModal();
   const [drawerData, setDrawerData] = useState({});
+  const [search, setSearch] = useState("");
   const showToastMessage = () => {
     toast.success("Delete successfully.");
   };
@@ -127,9 +134,9 @@ const ProductList = () => {
       render: (_, record) => (
         <div className="flex  justify-between items-center">
           <div>
-            <h1>{record.mealDtoForMealSession.name}</h1>
+            <h1>{record.mealDtoForMealSession?.name}</h1>
             <p>Create At :{record.createDate}</p>
-            <p>{record.mealDtoForMealSession.description}</p>
+            <p>{record.mealDtoForMealSession?.description}</p>
           </div>
           <div>
             <Tag
@@ -222,6 +229,11 @@ const ProductList = () => {
     });
   };
 
+  const newData = data.filter((item) => {
+    const inforNormalize = normalizeString(item?.mealDtoForMealSession?.name);
+    const searchNormalize = normalizeString(search);
+    return inforNormalize.includes(searchNormalize);
+  });
   useEffect(() => {
     fetchAllMealSession();
   }, [refresh]);
@@ -275,7 +287,7 @@ const ProductList = () => {
             }}
           >
             <Table
-              dataSource={data}
+              dataSource={search ? newData : data}
               columns={columns}
               loading={loading}
               pagination={{ pageSize: 5 }}

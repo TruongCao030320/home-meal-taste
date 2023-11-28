@@ -134,7 +134,6 @@ const Session = () => {
   const addNewSession = async (values) => {
     createNewSession(values, toast)
       .then(() => {
-        toast.success("Create new session completed.");
         fetchSessionByArea(areaValue ? areaValue : areaDefault);
         setShowAddForm(false);
       })
