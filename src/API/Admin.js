@@ -349,3 +349,34 @@ export const getAllTransactionByUserId = async (id) => {
     console.log("Get all transaction", error);
   }
 };
+// transaction
+export const getAllTransactionOrdered = async () => {
+  try {
+    const response = await axios.get(
+      "https://homemealtaste.azurewebsites.net/api/Transaction/get-transaction-by-transaction-type-OREDER"
+    );
+    return response.data;
+  } catch (error) {
+    console.log("transaction order error", error);
+  }
+};
+export const getAllTransactionRecharge = async () => {
+  try {
+    const response = await axios.get(
+      "https://homemealtaste.azurewebsites.net/api/Transaction/get-transaction-by-transaction-type-RECHARGED"
+    );
+    return response.data;
+  } catch (error) {
+    console.log("get all transaction recharge", error);
+  }
+};
+export const AdminCancelledOrder = async (id) => {
+  try {
+    await axios.post(
+      "https://homemealtaste.azurewebsites.net/api/Order/refund-money-when-order-cancel",
+      id
+    );
+  } catch (error) {
+    console.log("cancelled order ", error);
+  }
+};

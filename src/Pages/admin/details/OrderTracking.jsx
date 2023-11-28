@@ -13,7 +13,8 @@ import {
 import buncha from "../../../assets/images/buncha.png";
 import { render } from "react-dom";
 import { direction } from "../../../API/Direction";
-import { getOrderById } from "../../../API/Admin";
+import { AdminCancelledOrder, getOrderById } from "../../../API/Admin";
+import { toast } from "react-toastify";
 const columns = [
   {
     title: "Meal ID",
@@ -80,6 +81,14 @@ const OrderTracking = () => {
       setData([res]);
     });
   };
+  const handleCancelledOrder = () => {
+    AdminCancelledOrder({ orderId: id })
+      .then((res) => {
+        fetchOrderDetail();
+        toast.success("Update status completed.");
+      })
+      .catch((error) => toast.error("Can not cancelled."));
+  };
   const navigateToUserDetail = () => {
     navigate(`/${direction.dashboard}/${direction.user}/${userId}`);
   };
@@ -101,6 +110,16 @@ const OrderTracking = () => {
           <h1>
             Status : <Tag className="px-3 py-1">{status}</Tag>
           </h1>
+          {orderDetail.status?.includes("CANCELLED") ? (
+            ""
+          ) : (
+            <Button
+              className="w-[120px] my-2"
+              onClick={() => handleCancelledOrder()}
+            >
+              Cancel Order
+            </Button>
+          )}
         </div>
         <div>
           <Link to={`/${direction.dashboard}/${direction.order}`}>

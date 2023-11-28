@@ -11,6 +11,8 @@ export const direction = {
   payment: "$2a$12$1pu5ZcmiskMnexj6UHgR2Obuz2wzgi46dRsnjOIxCM0DTQkM4ai",
   error: "$2a$12$tHsP0KcMZ6ACqnzNM2QNQthaSamhb3pag3AG7OgbDHHpvDUB803u",
   register: "$2a$12$otCGvzsH8MFRhVbolvBAOzJSQjnoD9eWrnXuJLY0xwPNKS6s3W",
+  chat: "$2a$12$sdsrzJKW7ljy6l3LXVS8INQf86a15EMCoIKtirWbK2ZA7e6HFma",
+  transaction: "$2a$12$pBdqrAIjJ46eIkSOa5UwMtY3NYEWW4ITPfoHLWgiqBSQGmKWwq",
   productCreating:
     "$2a$12$IaC7Wldy9fs0qSPLAEJSOowMoYHwD9i0r76ZvBHOwrQIkV80tdHC",
   accountCreating:

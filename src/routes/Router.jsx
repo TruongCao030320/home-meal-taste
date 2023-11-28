@@ -22,6 +22,7 @@ import ErrorPage from "../Pages/ErrorPage";
 import Area from "../Pages/admin/Area";
 import { direction } from "../API/Direction";
 import DishType from "../Pages/admin/DishType";
+import Transaction from "../Pages/admin/Transaction";
 const Router = () => {
   return (
     <>
@@ -53,7 +54,8 @@ const Router = () => {
           <Route path={`${direction.dishType}`} element={<DishType />} />
 
           <Route path={`${direction.area}`} element={<Area />} />
-          {/* <Route path="area" element={<Area />} /> */}
+          <Route path={`${direction.chat}`} element={<Chatbox />} />
+          <Route path={`${direction.transaction}`} element={<Transaction />} />
 
           <Route path={`${direction.payment}`} element={<Payment />} />
           <Route path={`${direction.order}`} element={<Order />} />

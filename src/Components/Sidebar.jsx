@@ -34,6 +34,7 @@ import { Link, NavLink } from "react-router-dom";
 import { Menu, Button } from "antd";
 import { direction } from "../API/Direction";
 import { TbCategory2 } from "react-icons/tb";
+import { FaHistory, FaTimes } from "react-icons/fa";
 function getItem(label, key, icon, children, type) {
   return {
     key,
@@ -90,6 +91,13 @@ const Sidebar = () => {
       <Link to={`/${direction.dashboard}/${direction.order}`}>Order</Link>,
       "9",
       <FaMoneyBill />
+    ),
+    getItem(
+      <Link to={`/${direction.dashboard}/${direction.transaction}`}>
+        Transaction
+      </Link>,
+      "11",
+      <FaHistory />
     ),
   ];
   const [active, setActive] = useState(null);

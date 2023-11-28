@@ -3,12 +3,13 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Table, Input } from "antd";
 import { FaRegUserCircle } from "react-icons/fa";
-import { Row, Col } from "antd";
+import { Row, Col, ConfigProvider, Tag } from "antd";
 import { direction } from "../../../API/Direction";
-import { getSingleUser } from "../../../API/Admin";
+import { getAllTransactionRecharge, getSingleUser } from "../../../API/Admin";
 import { login } from "../../../API/Login";
 const AdminProfile = () => {
   const [data, setData] = useState({});
+  const [transaction, setTransaction] = useState([]);
   const [loading, setLoading] = useState(false);
   const { id } = useParams();
   const [image, setImage] = useState("");
@@ -73,6 +74,13 @@ const AdminProfile = () => {
               <label htmlFor="">User name</label>
               <Input className="box__shadow" value={username}></Input>
             </Col>
+            <Col span={11}>
+              <label htmlFor="">Wallet</label>
+              <Input
+                className="box__shadow"
+                value={`${data.walletDto?.balance} VND`}
+              ></Input>
+            </Col>
           </Row>
           <Row className="flex justify-between">
             <Col span={11}>
@@ -112,6 +120,38 @@ const AdminProfile = () => {
           </form>
         </div>
       </div>
+      {/* <div className="w-full h-full overflow-auto no-scrollbar">
+        <ConfigProvider
+          theme={{
+            components: {
+              Table: {
+                headerBg: "#F7F5FF",
+                headerBorderRadius: 8,
+                headerSplitColor: "none",
+                fontSize: 20,
+                fontWeightStrong: 700,
+                footerBg: "black",
+              },
+            },
+          }}
+        >
+          <Table
+            dataSource={transaction}
+            columns={columns}
+            loading={loading}
+            rowClassName={(record, index) =>
+              `custom-row ${index % 2 === 0 ? "even-row" : "odd-row"}`
+            }
+            // onRow={(record, index) => {
+            //   return {
+            //     onClick: (event) => {
+            //       navigatePage(record.orderId);
+            //     },
+            //   };
+            // }}
+          ></Table>
+        </ConfigProvider>
+      </div> */}
     </div>
   );
 };

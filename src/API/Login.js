@@ -8,7 +8,7 @@ export const login = async (values, navigate, message) => {
       values
     );
     const { token, userId, roleId } = response.data; // Assuming your API returns a token
-    if (roleId === 1) {
+    if (roleId == 1) {
       localStorage.setItem("userId", userId);
       message.success("Login completed.");
       navigate(`/${direction.dashboard}`);
