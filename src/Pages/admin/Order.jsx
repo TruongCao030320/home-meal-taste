@@ -11,6 +11,7 @@ import {
   Popover,
   Form,
 } from "antd";
+import moment from "moment";
 import toast from "react-hot-toast";
 import { TbSearch } from "react-icons/tb";
 import { Link, useNavigate } from "react-router-dom";
@@ -67,7 +68,9 @@ const Order = () => {
       dataIndex: "time",
       defaultSortOrder: "descend",
       sorter: (a, b) => {
-        return a.time - b.time;
+        const dateA = moment(a.time, "DD-MM-YYYY HH:mm");
+        const dateB = moment(b.time, "DD-MM-YYYY HH:mm");
+        return dateA - dateB;
       },
       render: (text) => <p className="font-bold">{text}</p>,
     },
@@ -103,38 +106,6 @@ const Order = () => {
   useEffect(() => {
     console.log(typeof search);
   }, [search]);
-  // const onFinish = (values) => {
-  //   const [startDate, endDate] = selectedDateRange || [];
-  //   let filtered = data;
-  //   if (genderSelected) {
-  //     // Apply filtering based on the selected option
-  //     filtered = data.filter((item) => item.gender === genderSelected); // Replace 'category' with your data field
-  //   }
-
-  //   if (startDate && endDate) {
-  //     // Apply filtering based on the selected date range
-  //     if (filtered) {
-  //       filtered = filtered.filter((item) => {
-  //         const itemDate = new Date(item.birthDate); // Replace 'date' with your date field name
-  //         return itemDate >= startDate && itemDate <= endDate;
-  //       });
-  //     } else {
-  //       filtered = data.filter((item) => {
-  //         const itemDate = new Date(item.birthDate); // Replace 'date' with your date field name
-  //         return itemDate >= startDate && itemDate <= endDate;
-  //       });
-  //     }
-  //   }
-  //   if (search) {
-  //     filtered = filtered.filter((item) => {
-  //       return item.lastName.includes(search));
-  //     });
-  //   }
-  //   setFilteredData(filtered);
-  // };
-  // useEffect(() => {
-  //   onFinish();
-  // }, [search]);
   const navigatePage = (id) => {
     navigate(`/${direction.dashboard}/${direction.order}/${id}`);
   };
