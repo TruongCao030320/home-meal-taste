@@ -91,7 +91,10 @@ const DishType = () => {
         handleClose(true);
         toast.success("Delete successfully.");
       })
-      .catch((error) => toast.error("Something wrong ! Try again."));
+      .catch((error) => {
+        handleClose(true);
+        toast.error("Can not delete dish type.");
+      });
   };
   useEffect(() => {
     fetchAllDishType();

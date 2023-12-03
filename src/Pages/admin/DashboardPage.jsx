@@ -13,7 +13,7 @@ import {
   LineChart,
 } from "recharts";
 import { Component } from "react";
-import { getAllOrder } from "../../API/Admin";
+import { getAllOrder, getAllRevenue } from "../../API/Admin";
 import { useNavigate } from "react-router-dom";
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -34,6 +34,7 @@ const DashboardPage = () => {
     { name: "Nov", Customer: 22, Order: 300 },
     { name: "Dec", Customer: 22, Order: 300 },
   ];
+  const [revenue, setRevenue] = useState({});
 
   const card = [
     {
@@ -54,7 +55,7 @@ const DashboardPage = () => {
         </svg>
       ),
       title: "Revenue",
-      number: 18000,
+      number: revenue.result,
       bgColor: "bg-green-300",
       bgCard: "bg-gray-400",
     },
@@ -75,7 +76,7 @@ const DashboardPage = () => {
           />
         </svg>
       ),
-      title: "Expense",
+      title: "Order",
       number: 18000,
       bgColor: "bg-yellow-200",
       bgCard: "bg-red-400",
@@ -103,6 +104,14 @@ const DashboardPage = () => {
       bgCard: "bg-light-400",
     },
   ];
+  const fetchAllRevenue = () => {
+    getAllRevenue().then((res) => {
+      setRevenue(res);
+    });
+  };
+  useEffect(() => {
+    fetchAllRevenue();
+  }, []);
   useEffect(() => {
     getAllOrder()
       .then((res) => {

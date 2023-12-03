@@ -63,6 +63,13 @@ const Transaction = () => {
     {
       title: "Create At",
       dataIndex: "date",
+      defaultSortOrder: "descend",
+      sorter: (a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        console.log(dateA);
+        return dateA - dateB;
+      },
       render: (text) => <p className="font-bold">{text}</p>,
     },
     {

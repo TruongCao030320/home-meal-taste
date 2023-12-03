@@ -1,6 +1,11 @@
 import "../styles/Pagination.css";
 import { Link, useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
+import dayjs from "dayjs";
+dayjs.extend(customParseFormat);
+
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { FilterFilled } from "@ant-design/icons";
 import { TbSearch } from "react-icons/tb";
@@ -27,13 +32,21 @@ import { useDispatch, useSelector } from "react-redux";
 import { showDrawer } from "../redux/ToggleDrawerMealSlice.js";
 import CustomDrawer from "./MealDrawer";
 import { getSingleMealSessionById } from "../API/Admin";
+import moment from "moment";
 const normalizeString = (str) => {
   return str
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
 };
+
 const ProductList = () => {
+  const dateFormatList = ["DD/MM/YYYY", "DD/MM/YY", "DD-MM-YYYY", "DD-MM-YY"];
+  const currentDate = moment().format("DD-MM-YYYY");
+  console.log("current date", dayjs().format(dateFormatList[0]));
+  const [selectedDate, setSelectedDate] = useState(
+    dayjs().format(dateFormatList[0])
+  );
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [modal, contextHolder] = Modal.useModal();
@@ -57,6 +70,7 @@ const ProductList = () => {
   const { RangePicker } = DatePicker;
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [newData, setNewData] = useState([]);
   const toggleDrawerType2 = async (mealSessionId) => {
     console.log("vao2 day96 khong6", mealSessionId);
     await getSingleMealSessionById(mealSessionId)
@@ -66,15 +80,6 @@ const ProductList = () => {
   };
   const [searchTerm, setSearchTerm] = useState("");
 
-  const productPerPage = 12;
-  const searchedProduct = data?.filter((item) => {
-    if (searchTerm === "") {
-      return item;
-    }
-    if (item.title.toLowerCase().includes(searchTerm.toLowerCase())) {
-      return item;
-    }
-  });
   const content2 = (
     <div className="min-w-[300px] grid gap-5">
       <div className="flex w-full justify-between items-center">
@@ -154,12 +159,20 @@ const ProductList = () => {
           </div>
         </div>
       ),
+      // defaultSortOrder: "descend",
+      // sorter: (a, b) => {
+      //   const dateA = new Date(a.createDate);
+      //   const dateB = new Date(b.createDate);
+
+      //   return dateA - dateB;
+      // },
       filters: [
         { text: "PROCESSING", value: "PROCESSING" },
         { text: "APPROVED", value: "APPROVED" },
         { text: "REJECTED", value: "REJECTED" },
       ],
       onFilter: (value, record) => record.status.includes(value),
+      // filterDropdownVisible: false,
     },
 
     {
@@ -229,11 +242,29 @@ const ProductList = () => {
     });
   };
 
-  const newData = data.filter((item) => {
-    const inforNormalize = normalizeString(item?.mealDtoForMealSession?.name);
-    const searchNormalize = normalizeString(search);
-    return inforNormalize.includes(searchNormalize);
-  });
+  useEffect(() => {
+    if (search) {
+      setNewData(
+        newData.filter((item) => {
+          const inforNormalize = normalizeString(
+            item?.mealDtoForMealSession?.name
+          );
+          const searchNormalize = normalizeString(search);
+          return inforNormalize.includes(searchNormalize);
+        })
+      );
+    } else if (selectedDate) {
+      setNewData(
+        data.filter((item) => {
+          console.log("vào đc filter k");
+          return item.createDate.includes(selectedDate);
+        })
+      );
+    } else {
+      setNewData(data);
+    }
+  }, [search, selectedDate]);
+
   useEffect(() => {
     fetchAllMealSession();
   }, [refresh]);
@@ -248,15 +279,24 @@ const ProductList = () => {
       </div>
       <div className="bg-white p-4 rounded-lg">
         <div className="account-search flex items-center justify-between mb-5 w-[100%]  lg:flex md:w-full md:grid md:grid-cols-2 md:gap-3 lg:w-[100%]">
-          <div className="my-2">
+          <div className="my-2 flex flex-row w-[40%] justify-between">
             <Input
               placeholder="Enter meal's name..."
               onChange={(e) => setSearch(e.target.value)}
               className="box__shadow"
               suffix={<TbSearch />}
             />
+            <DatePicker
+              // value={selectedDate}
+              defaultValue={dayjs()}
+              format="DD-MM-YYYY"
+              onChange={(date, dateString) => {
+                setSelectedDate(dateString);
+              }}
+              className="box__shadow !h-[50px] mx-3 !w-[300px]"
+            />
           </div>
-
+          <div className="my-2"></div>
           <div className="my-2">
             <Popover
               content={content2}
@@ -282,12 +322,14 @@ const ProductList = () => {
                   fontSize: 16,
                   fontWeightStrong: 700,
                   footerBg: "black",
+                  bodySortBg: "transparent",
+                  headerSortActiveBg: "#F7F5FF",
                 },
               },
             }}
           >
             <Table
-              dataSource={search ? newData : data}
+              dataSource={newData}
               columns={columns}
               loading={loading}
               pagination={{ pageSize: 5 }}

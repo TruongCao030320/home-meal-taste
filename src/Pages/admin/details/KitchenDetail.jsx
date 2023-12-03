@@ -80,6 +80,13 @@ const KitchenDetail = () => {
       title: "Create At",
       dataIndex: "time",
       render: (text) => <p className="font-bold">{text}</p>,
+      defaultSortOrder: "descend",
+      sorter: (a, b) => {
+        const dateA = new Date(a.time);
+        const dateB = new Date(b.time);
+
+        return dateA - dateB;
+      },
     },
     {
       title: "Price/VND",

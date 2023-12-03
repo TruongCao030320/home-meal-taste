@@ -65,6 +65,10 @@ const Order = () => {
     {
       title: "Create At",
       dataIndex: "time",
+      defaultSortOrder: "descend",
+      sorter: (a, b) => {
+        return a.time - b.time;
+      },
       render: (text) => <p className="font-bold">{text}</p>,
     },
     {
@@ -252,6 +256,8 @@ const Order = () => {
                   fontSize: 20,
                   fontWeightStrong: 700,
                   footerBg: "black",
+                  bodySortBg: "transparent",
+                  headerSortActiveBg: "#F7F5FF",
                 },
               },
             }}

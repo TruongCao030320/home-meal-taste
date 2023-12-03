@@ -125,7 +125,10 @@ const Area = () => {
         handleClose(true);
         toast.success("Delete successfully.");
       })
-      .catch((error) => toast.error("Something wrong ! Try again."));
+      .catch((error) => {
+        toast.error("Can not delete this area !");
+        handleClose(true);
+      });
   };
   useEffect(() => {
     fetchAllArea();
@@ -334,11 +337,12 @@ const Area = () => {
                 rules={[{ required: true, message: "Please select District!" }]}
               >
                 <Select
-                  defaultValue={district[0]?.districtId}
+                  placeholder="Select district"
                   options={district.map((item) => ({
                     value: item.districtId,
                     label: item.districtName,
                   }))}
+                  value
                 ></Select>
               </Form.Item>
             </Col>

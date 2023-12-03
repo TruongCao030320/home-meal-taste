@@ -1,5 +1,5 @@
 import { Button, Input, Form, message, Spin } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { UserOutlined } from "@ant-design/icons";
@@ -8,6 +8,7 @@ import { MdTableRestaurant } from "react-icons/md";
 import axios from "axios";
 import { login } from "../API/Login";
 import { direction } from "../API/Direction";
+import { getAllRevenue } from "../API/Admin";
 const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
@@ -22,14 +23,15 @@ const Login = () => {
     setLoading(true);
     login(values, navigate, message).then(() => setLoading(false));
   };
+
   return (
     <section
-      className={`bg-video h-screen bg-cover bg-center fixed top-0 left-0 w-full z-0 flex justify-around items-center ${
+      className={`md:flex md:justify-center md:items-center bg-video h-screen bg-cover bg-center fixed top-0 left-0 w-full z-0 flex justify-around items-center ${
         loading ? "fixed bg-white w-[vw] opacity-50" : ""
       }`}
     >
       <div className="w-[50%] h-full z-50 flex flex-col items-center justify-center relative">
-        <div className="border rounded-full bg-white p-10 flex flex-col items-center justify-center opacity-80 w-[500px] h-[500px]">
+        <div className="border rounded-full bg-white p-10 flex flex-col items-center justify-center opacity-80 w-[500px] h-[500px] md:hidden lg:flex">
           <h1 className="text-5xl font-festive flex text-orange-400 absolute top-10 left-10 gap-4">
             <div className=" inline-block">Home </div>
             <div className="">Meal</div>

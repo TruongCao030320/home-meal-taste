@@ -197,13 +197,9 @@ export const createNewArea = async (values, toast) => {
   }
 };
 export const deleteArea = async (id) => {
-  try {
-    await axios.delete(
-      `https://homemealtaste.azurewebsites.net/api/Area?areaid=${id}`
-    );
-  } catch (error) {
-    console.log(error);
-  }
+  await axios.delete(
+    `https://homemealtaste.azurewebsites.net/api/Area?areaid=${id}`
+  );
 };
 export const updateArea = async (values) => {
   try {
@@ -315,13 +311,9 @@ export const getAllDishType = async () => {
   }
 };
 export const deleteDishType = async (id) => {
-  try {
-    await axios.delete(
-      `https://homemealtaste.azurewebsites.net/api/DishType?id=${id}`
-    );
-  } catch (error) {
-    console.log("Delete dish type", error);
-  }
+  await axios.delete(
+    `https://homemealtaste.azurewebsites.net/api/DishType?id=${id}`
+  );
 };
 export const createNewDishType = async (values) => {
   try {
@@ -382,5 +374,15 @@ export const AdminCancelledOrder = async (id) => {
     );
   } catch (error) {
     console.log("cancelled order ", error);
+  }
+};
+export const getAllRevenue = async () => {
+  try {
+    const response = await axios.get(
+      "https://homemealtaste.azurewebsites.net/api/Wallet/get-revenue-in-system"
+    );
+    return response.data;
+  } catch (error) {
+    console.log("get all revenue ", error);
   }
 };
