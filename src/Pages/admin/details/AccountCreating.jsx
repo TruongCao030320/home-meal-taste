@@ -84,7 +84,7 @@ const AccountCreating = () => {
               className=" bg-bgBtnColor text-white"
               onClick={() => form.submit()}
             >
-              Update
+              Add
             </Button>
           </div>
         </div>
