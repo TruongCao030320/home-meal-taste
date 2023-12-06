@@ -234,10 +234,14 @@ export const getSingleMealSessionById = async (id) => {
 };
 export const getDishByMealId = async (id) => {
   try {
-    const response = await axios.get(
-      `https://homemealtaste.azurewebsites.net/api/Meal/get-single-meal-by-meal-id?mealid=${id}`
-    );
-    return response.data;
+    if (id) {
+      const response = await axios.get(
+        `https://homemealtaste.azurewebsites.net/api/Meal/get-single-meal-by-meal-id?mealid=${id}`
+      );
+      return response.data;
+    } else {
+      return;
+    }
   } catch (error) {
     console.log(error);
   }
@@ -255,9 +259,13 @@ export const deleteSession = async (id) => {
   }
 };
 export const updateStatusMealSession = async (id, status) => {
-  await axios.patch(
-    `https://homemealtaste.azurewebsites.net/api/MealSession/update-status-meal-session?mealSessionid=${id}&status=${status}`
-  );
+  try {
+    await axios.patch(
+      `https://homemealtaste.azurewebsites.net/api/MealSession/update-status-meal-session?mealSessionid=${id}&status=${status}`
+    );
+  } catch (error) {
+    console.log("update status ", error);
+  }
 };
 export const AddNewUser = async (values) => {
   console.log("add chef", values);

@@ -83,8 +83,14 @@ const Account = () => {
     setGenderSelected();
     setSelectedDateRange();
   };
-  const navigateToUserDetail = (id) => {
-    navigate(`/${direction.dashboard}/${direction.user}/${id}`);
+  const navigateToUserDetail = (id, roleId) => {
+    if (roleId == 2) {
+      navigate(`/${direction.dashboard}/${direction.user}/${id}`);
+    } else {
+      navigate(`/${direction.dashboard}/${direction.kitchen}/${id}`, {
+        roleId: roleId,
+      });
+    }
   };
   const content2 = (
     <Form

@@ -1,4 +1,10 @@
-import React, { useEffect, useState, createContext, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  createContext,
+  useRef,
+  useLayoutEffect,
+} from "react";
 import { FilterFilled } from "@ant-design/icons";
 import { TbBroadcast, TbSearch } from "react-icons/tb";
 import { AiTwotoneEdit, AiFillDelete } from "react-icons/ai";
@@ -41,13 +47,12 @@ const ExpandedContent = ({ sessionId }) => {
   const [drawerData, setDrawerData] = useState({});
   const refresh = useSelector((state) => state.mealDrawer.refresh);
   const [search, setSearch] = useState("");
-  const [data, setData] = useState([]);
   const [newData, setNewData] = useState([]);
+  const [data, setData] = useState([]);
   const dispatch = useDispatch();
   const dateFormatList = ["DD/MM/YYYY", "DD/MM/YY", "DD-MM-YYYY", "DD-MM-YY"];
-
   const [selectedDate, setSelectedDate] = useState(
-    dayjs().format(dateFormatList[0])
+    dayjs().format(dateFormatList[2])
   );
   const detailColumns = [
     {
@@ -71,13 +76,6 @@ const ExpandedContent = ({ sessionId }) => {
     },
     {
       dataIndex: "name",
-      defaultSortOrder: "descend",
-      sorter: (a, b) => {
-        const dateA = new Date(a.createDate);
-        const dateB = new Date(b.createDate);
-
-        return dateA - dateB;
-      },
       render: (_, record) => (
         <div className="flex  justify-between items-center">
           <div>
@@ -140,18 +138,28 @@ const ExpandedContent = ({ sessionId }) => {
     },
   ];
   const toggleDrawerType2 = async (mealSessionId) => {
-    console.log("vao2 day96 khong6", mealSessionId);
-    await getSingleMealSessionById(mealSessionId)
-      .then((res) => setDrawerData(res))
-      .catch((error) => console.log(error));
-    dispatch(showDrawer(mealSessionId));
+    console.log("mealsession id là", mealSessionId);
+    if (mealSessionId !== null) {
+      await getSingleMealSessionById(mealSessionId)
+        .then((res) => setDrawerData(res))
+        .catch((error) => console.log(error));
+      dispatch(showDrawer(mealSessionId));
+    } else {
+      return;
+    }
   };
 
   const fetchAllMealSessionBySessionId = () => {
     getAllMealSessionBySessionId(sessionId).then((res) => {
       setData(res);
+      setNewData(
+        res.filter((item) => {
+          return item.createDate.includes(selectedDate);
+        })
+      );
     });
   };
+  // fetchAllMealSessionBySessionId();
   useEffect(() => {
     if (search) {
       setNewData(
@@ -164,7 +172,7 @@ const ExpandedContent = ({ sessionId }) => {
         })
       );
     } else if (selectedDate) {
-      setNewData(
+      return setNewData(
         data.filter((item) => {
           return item.createDate.includes(selectedDate);
         })
@@ -178,7 +186,7 @@ const ExpandedContent = ({ sessionId }) => {
   }, [refresh]);
   return (
     <div className="overflow-auto w-full p-2 bg-white rounded-lg">
-      <CustomDrawer meal={drawerData || {}} />
+      {/* <CustomDrawer meal={drawerData || {}} /> */}
       <div className="account-search h-[10%] flex items-center  justify-end mb-3">
         <div className="h-[40%] add-btn flex justify-between items-center w-full py-3">
           <h1>Product In Session</h1>

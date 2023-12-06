@@ -23,33 +23,45 @@ import {
 } from "../API/Admin.js";
 import { MdFeaturedPlayList } from "react-icons/md";
 const { TextArea } = Input;
-const CustomDrawer = ({ meal, onChange }) => {
-  const { mealSessionId, price, remainQuantity, quantity, status } = meal || {};
-  const { name, image, description } = meal?.mealDtoForMealSession || {};
-  const { areaName } =
-    meal?.sessionDtoForMealSession?.areaDtoForMealSession || {};
+const CustomDrawer = () => {
   const dispatch = useDispatch();
+  const [meal1, setMeal1] = useState({});
+  const { price, remainQuantity, quantity, status } = meal1 || {};
+  const { name, image, description, mealId } =
+    meal1?.mealDtoForMealSession || {};
+  const { areaName } =
+    meal1?.sessionDtoForMealSession?.areaDtoForMealSession || {};
+
+  const mealsessionIDGetFromRedux = useSelector(
+    (state) => state.mealDrawer.mealId
+  );
   const visible = useSelector((state) => state.mealDrawer.visible);
   const [dishes, setDishes] = useState([]);
+  const refresh2 = useSelector((state) => state.mealDrawer.refresh);
   const onClose = () => {
     dispatch(hideDrawer());
   };
+  const fetchSingleMeal = () => {
+    console.log("mealsessionIDGetFromRedux", mealsessionIDGetFromRedux);
+    getSingleMealSessionById(mealsessionIDGetFromRedux).then((res) =>
+      setMeal1(res)
+    );
+  };
   useEffect(() => {
-    getDishByMealId(meal?.mealDtoForMealSession?.mealId).then((res) => {
+    getDishByMealId(mealId).then((res) => {
       setDishes(res?.dishDto);
     });
-  }, [mealSessionId]);
+    fetchSingleMeal();
+  }, [mealsessionIDGetFromRedux, refresh2]);
   const confirmMealSession = (status) => {
-    updateStatusMealSession(mealSessionId, status)
+    updateStatusMealSession(mealsessionIDGetFromRedux, status)
       .then((res) => {
         dispatch(refresh());
         toast.success("Update status successfully.");
       })
       .catch((error) => toast.error("Update failed!"));
   };
-  // onChange({
-  //   meal,
-  // });
+
   return (
     <div>
       {" "}
@@ -130,7 +142,7 @@ const CustomDrawer = ({ meal, onChange }) => {
           <div className="form-item">
             <Row className="w-full flex justify-between">
               <Col span={11}>
-                <label htmlFor="">Selling quantity</label>
+                <label htmlFor="">Selling Slot</label>
                 <Input
                   className="my-2 box__shadow h-[40px]"
                   type="number"
@@ -141,7 +153,7 @@ const CustomDrawer = ({ meal, onChange }) => {
                 />
               </Col>
               <Col span={11}>
-                <label htmlFor="">Remain Quantity</label>
+                <label htmlFor="">Remain Slot</label>
                 <Input
                   className="my-2 box__shadow h-[40px]"
                   value={remainQuantity}
@@ -153,7 +165,7 @@ const CustomDrawer = ({ meal, onChange }) => {
             <label htmlFor="">Kitchen</label>
             <Input
               className="my-2 box__shadow h-[40px]"
-              value={meal?.kitchenDtoForMealSession?.name}
+              value={meal1?.kitchenDtoForMealSession?.name}
             />
           </div>
           <div className="form-item">

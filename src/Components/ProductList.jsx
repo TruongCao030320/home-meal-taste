@@ -43,9 +43,9 @@ const normalizeString = (str) => {
 const ProductList = () => {
   const dateFormatList = ["DD/MM/YYYY", "DD/MM/YY", "DD-MM-YYYY", "DD-MM-YY"];
   const currentDate = moment().format("DD-MM-YYYY");
-  console.log("current date", dayjs().format(dateFormatList[0]));
+  console.log("current date", dayjs().format(dateFormatList[2]));
   const [selectedDate, setSelectedDate] = useState(
-    dayjs().format(dateFormatList[0])
+    dayjs().format(dateFormatList[2])
   );
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -238,6 +238,12 @@ const ProductList = () => {
     getAllMealSession().then((res) => {
       console.log(res);
       setData(res);
+      setNewData(
+        res.filter((item) => {
+          return item.createDate.includes(selectedDate);
+        })
+      );
+      // setNewData(res);
       setLoading(false);
     });
   };
@@ -267,6 +273,7 @@ const ProductList = () => {
 
   useEffect(() => {
     fetchAllMealSession();
+    setNewData(newData);
   }, [refresh]);
   return (
     <div className="h-full w-full p-4">
