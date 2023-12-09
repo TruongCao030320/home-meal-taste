@@ -19,10 +19,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { FilterFilled } from "@ant-design/icons";
 import {
   getAllOrder,
+  getAllTransaction,
   getAllTransactionOrdered,
   getAllTransactionRecharge,
 } from "../../API/Admin";
 import { direction } from "../../API/Direction";
+import { formatMoney } from "../../API/Money";
 
 const Transaction = () => {
   const navigate = useNavigate();
@@ -35,6 +37,13 @@ const Transaction = () => {
   const [genderSelected, setGenderSelected] = useState(null);
   const [selectedDateRange, setSelectedDateRange] = useState([]);
   const [data, setData] = useState([]);
+  const fetchAllTransaction = () => {
+    setLoading(true);
+    getAllTransaction().then((res) => {
+      setTransaction(res);
+      setLoading(false);
+    });
+  };
   const columns = [
     {
       title: "ID",
@@ -49,15 +58,27 @@ const Transaction = () => {
       title: "Order ID",
       dataIndex: "orderId",
       // render: (name) => `${name.first} ${name.last}`
-      render: (text) => <p className="font-bold">{text}</p>,
+      render: (_, record) => (
+        <p className="font-bold">
+          {record.orderDtoGetAllTransactions?.orderId}
+        </p>
+      ),
+    },
+    {
+      title: "Description",
+      // render: (name) => `${name.first} ${name.last}`
+      render: (_, record) => <p className="text-xs">{record.description}</p>,
     },
     {
       title: "User",
       dataIndex: "walletDtoGetAllTransaction",
       render: (_, record) => (
-        <p className="font-bold">
-          {record.walletDtoGetAllTransaction?.userDtoGetAllTransaction?.phone}
-        </p>
+        <div>
+          <p className="font-bold">
+            {record.userDtoGetAllTransactions?.username}
+          </p>
+          <p>{record.userDtoGetAllTransactions?.phone}</p>
+        </div>
       ),
     },
     {
@@ -65,9 +86,9 @@ const Transaction = () => {
       dataIndex: "date",
       defaultSortOrder: "descend",
       sorter: (a, b) => {
-        const dateA = new Date(a.date);
-        const dateB = new Date(b.date);
-        console.log(dateA);
+        const dateA = new Date(a.date.split("-").reverse().join("-")) || 0;
+        const dateB = new Date(b.date.split("-").reverse().join("-")) || 0;
+
         return dateA - dateB;
       },
       render: (text) => <p className="font-bold">{text}</p>,
@@ -75,9 +96,8 @@ const Transaction = () => {
     {
       title: "Amount/VNĐ",
       dataIndex: "amount",
-      defaultSortOrder: "descend",
       sorter: (a, b) => a.amount - b.amount,
-      render: (text) => <p className="font-bold">{text}</p>,
+      render: (text) => <p className="font-bold">{formatMoney(text)}</p>,
     },
     {
       title: "Status",
@@ -102,65 +122,26 @@ const Transaction = () => {
           </Tag>
         );
       },
-    },
-  ];
-  const columnsRecharge = [
-    {
-      title: "ID",
-      dataIndex: "transactionId",
-      render: (text) => (
-        <div className="">
-          <p className="font-bold">{text}</p>
-        </div>
-      ),
-    },
-    {
-      title: "User",
-      dataIndex: "walletDtoGetAllTransactionRECHARGED",
-      render: (_, record) => (
-        <p className="font-bold">
-          {
-            record.walletDtoGetAllTransactionRECHARGED
-              ?.userDtoGetAllTransactionRECHARGED?.phone
-          }
-        </p>
-      ),
-    },
-    {
-      title: "Create At",
-      dataIndex: "date",
-      render: (text) => <p className="font-bold">{text}</p>,
-    },
-    {
-      title: "Amount/VNĐ",
-      dataIndex: "amount",
-      defaultSortOrder: "descend",
-      sorter: (a, b) => a.amount - b.amount,
-      render: (text) => <p className="font-bold">{text}</p>,
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      render: (text) => {
-        const finalText = text.toUpperCase();
-        return (
-          <Tag color="green" className="px-4 py-1">
-            <p className="font-bold">{finalText}</p>
-          </Tag>
-        );
-      },
-    },
-    {
-      title: "Type",
-      dataIndex: "transactionType",
-      render: (text) => {
-        const finalText = text.toUpperCase();
-        return (
-          <Tag color="green" className="px-4 py-1">
-            <p className="font-bold">{finalText}</p>
-          </Tag>
-        );
-      },
+      filters: [
+        {
+          text: "RECEIVE REVENUE",
+          value: "RR",
+        },
+        {
+          text: "ORDERED",
+          value: "ORDERED",
+        },
+        {
+          text: "TOTAL TRANSFER",
+          value: "TT",
+        },
+        {
+          text: "REFUNDED",
+          value: "REFUNDED",
+        },
+      ],
+      onFilter: (value, record) =>
+        record.transactionType.toUpperCase().includes(value),
     },
   ];
   const fetchAllTransactionRecharge = () => {
@@ -170,14 +151,15 @@ const Transaction = () => {
     });
   };
   useEffect(() => {
-    setLoading(true);
-    getAllTransactionOrdered()
-      .then((res) => {
-        setData(res);
-        setLoading(false);
-      })
-      .catch((error) => console.log(error));
-    fetchAllTransactionRecharge();
+    // setLoading(true);
+    // getAllTransactionOrdered()
+    //   .then((res) => {
+    //     setData(res);
+    //     setLoading(false);
+    //   })
+    //   .catch((error) => console.log(error));
+    // fetchAllTransactionRecharge();
+    fetchAllTransaction();
   }, []);
   useEffect(() => {
     console.log(typeof search);
@@ -261,14 +243,14 @@ const Transaction = () => {
                 className="box__shadow"
                 suffix={<TbSearch />}
               />
-              <div>
+              {/* <div>
                 <Switch
                   className="shadow-lg bg-gray-400"
                   checkedChildren="Order"
                   unCheckedChildren="Recharge"
                   onChange={() => setSwitchTran(!SwitchTran)}
                 ></Switch>
-              </div>
+              </div> */}
             </div>
 
             <div className="my-2">
@@ -286,72 +268,34 @@ const Transaction = () => {
             </div>
           </div>
         </div>
+        <div>
+          <h1 className="text-red-400">RR : Receive Revenue</h1>
+          <h1 className="text-red-400">TT : Total Transfer</h1>
+        </div>
         <div className="w-full h-full overflow-auto no-scrollbar">
-          {SwitchTran ? (
-            <ConfigProvider
-              theme={{
-                components: {
-                  Table: {
-                    headerBg: "#F7F5FF",
-                    headerBorderRadius: 8,
-                    headerSplitColor: "none",
-                    fontSize: 20,
-                    fontWeightStrong: 700,
-                    footerBg: "black",
-                  },
+          <ConfigProvider
+            theme={{
+              components: {
+                Table: {
+                  headerBg: "#F7F5FF",
+                  headerBorderRadius: 8,
+                  headerSplitColor: "none",
+                  fontSize: 20,
+                  fontWeightStrong: 700,
+                  footerBg: "black",
                 },
-              }}
-            >
-              <Table
-                dataSource={search ? newData : data}
-                columns={columns}
-                loading={loading}
-                rowClassName={(record, index) =>
-                  `custom-row ${index % 2 === 0 ? "even-row" : "odd-row"}`
-                }
-                onRow={(record, index) => {
-                  return {
-                    onClick: (event) => {
-                      navigatePage(record.orderId);
-                    },
-                  };
-                }}
-              ></Table>
-            </ConfigProvider>
-          ) : (
-            <div className="w-full h-full overflow-auto no-scrollbar">
-              <ConfigProvider
-                theme={{
-                  components: {
-                    Table: {
-                      headerBg: "#F7F5FF",
-                      headerBorderRadius: 8,
-                      headerSplitColor: "none",
-                      fontSize: 20,
-                      fontWeightStrong: 700,
-                      footerBg: "black",
-                    },
-                  },
-                }}
-              >
-                <Table
-                  dataSource={search ? newData2 : transaction}
-                  columns={columnsRecharge}
-                  loading={loading}
-                  rowClassName={(record, index) =>
-                    `custom-row ${index % 2 === 0 ? "even-row" : "odd-row"}`
-                  }
-                  // onRow={(record, index) => {
-                  //   return {
-                  //     onClick: (event) => {
-                  //       navigatePage(record.orderId);
-                  //     },
-                  //   };
-                  // }}
-                ></Table>
-              </ConfigProvider>
-            </div>
-          )}
+              },
+            }}
+          >
+            <Table
+              dataSource={transaction}
+              columns={columns}
+              loading={loading}
+              rowClassName={(record, index) =>
+                `custom-row ${index % 2 === 0 ? "even-row" : "odd-row"}`
+              }
+            ></Table>
+          </ConfigProvider>
         </div>
       </div>
     </div>

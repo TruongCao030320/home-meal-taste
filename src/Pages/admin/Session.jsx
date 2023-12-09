@@ -235,17 +235,24 @@ const Session = () => {
       key: "price",
       render: (_, record, index) => {
         const status = record.status === true ? "Inactive" : "Active";
-        const color = record.status === true ? "gray" : "green";
         return (
-          <Tag
-            color={color}
-            className="shadow-sm hover:cursor-pointer hover:opacity-40 py-2 px-6"
-            onClick={() => {
-              updateSessionStatus(record.sessionId);
-            }}
-          >
-            {status}
-          </Tag>
+          <div>
+            {record.status === true ? (
+              <Tag
+                color="green"
+                className="shadow-sm hover:cursor-pointer hover:opacity-40 py-2 px-6"
+                onClick={() => {
+                  updateSessionStatus(record.sessionId);
+                }}
+              >
+                {status}
+              </Tag>
+            ) : (
+              <Tag color="gray" className="shadow-sm py-2 px-6">
+                {status}
+              </Tag>
+            )}
+          </div>
         );
       },
     },

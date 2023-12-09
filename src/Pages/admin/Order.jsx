@@ -18,6 +18,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FilterFilled } from "@ant-design/icons";
 import { getAllOrder } from "../../API/Admin";
 import { direction } from "../../API/Direction";
+import { formatMoney } from "../../API/Money";
 
 const Order = () => {
   const navigate = useNavigate();
@@ -79,7 +80,7 @@ const Order = () => {
       dataIndex: "price",
       defaultSortOrder: "descend",
       sorter: (a, b) => a.price - b.price,
-      render: (text) => <p className="font-bold">{text}</p>,
+      render: (text) => <p className="font-bold">{formatMoney(text)}</p>,
     },
     {
       title: "Status",

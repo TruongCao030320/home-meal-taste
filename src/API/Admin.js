@@ -460,3 +460,13 @@ export const getTotalInSessionOfSingleKitchen = async (
     console.log("Error At get total in session of single kitchen", error);
   }
 };
+export const getAllTransaction = async () => {
+  try {
+    const response = await axios.get(
+      "https://homemealtaste.azurewebsites.net/api/Transaction/get-all-transaction"
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error at get all transaction", error);
+  }
+};
