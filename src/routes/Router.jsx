@@ -23,6 +23,8 @@ import Area from "../Pages/admin/Area";
 import { direction } from "../API/Direction";
 import DishType from "../Pages/admin/DishType";
 import Transaction from "../Pages/admin/Transaction";
+import ManageChefInSession from "../Pages/admin/sessions/ManageChefInSession";
+import ManageMealSessionInKitchen from "../Pages/admin/sessions/ManageMealSessionInKitchen";
 const Router = () => {
   return (
     <>
@@ -50,7 +52,6 @@ const Router = () => {
           <Route path={`${direction.admin}/:id`} element={<AdminProfile />} />
           <Route path={`${direction.meal}/:id`} element={<ProductDetail />} />
           <Route path={`${direction.meal}`} element={<Product />} />
-          <Route path={`${direction.session}`} element={<Session />} />
           <Route path={`${direction.dishType}`} element={<DishType />} />
 
           <Route path={`${direction.area}`} element={<Area />} />
@@ -60,6 +61,16 @@ const Router = () => {
           <Route path={`${direction.payment}`} element={<Payment />} />
           <Route path={`${direction.order}`} element={<Order />} />
           <Route path={`${direction.order}/:id`} element={<OrderTracking />} />
+          <Route path={`${direction.session}`} element={<Session />} />
+          <Route
+            path={`${direction.session}/${direction.chefInSession}/:sessionId`}
+            element={<ManageChefInSession />}
+          />
+          <Route
+            path={`${direction.session}/${direction.chefInSession}/:sessionId/${direction.mealSessionInKitchen}/:kitchenId`}
+            element={<ManageMealSessionInKitchen />}
+          />
+
           <Route path="chatbox" element={<Chatbox />} />
         </Route>
       </Routes>

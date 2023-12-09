@@ -32,80 +32,110 @@ import dayjs from "dayjs";
 dayjs.extend(customParseFormat);
 import {
   getAllMealSessionBySessionId,
+  getAllOrderByMealSessionId,
   getSingleMealSessionById,
+  getTotalPriceInEveryMealSession,
 } from "../API/Admin";
 import { useDispatch, useSelector } from "react-redux";
 import { showDrawer } from "../redux/ToggleDrawerMealSlice.js";
 import CustomDrawer from "./MealDrawer";
+import { Background } from "victory";
+import { formatMoney } from "../API/Money.js";
 const normalizeString = (str) => {
   return str
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
 };
-const ExpandedContent = ({ sessionId }) => {
+const ExpandedContent = ({ mealSessionId }) => {
+  console.log("mealsessionid", mealSessionId);
   const [drawerData, setDrawerData] = useState({});
   const refresh = useSelector((state) => state.mealDrawer.refresh);
   const [search, setSearch] = useState("");
   const [newData, setNewData] = useState([]);
   const [data, setData] = useState([]);
   const dispatch = useDispatch();
+  const [totalPriceInEveryMealSession, setTotalPriceInEveryMealSession] =
+    useState();
   const dateFormatList = ["DD/MM/YYYY", "DD/MM/YY", "DD-MM-YYYY", "DD-MM-YY"];
   const [selectedDate, setSelectedDate] = useState(
     dayjs().format(dateFormatList[2])
   );
   const detailColumns = [
     {
-      title: "Menu",
-      dataIndex: "image",
+      title: "Order ID",
       render: (_, record) => (
-        <div className="w-full h-[120px] p-1 flex justify-center items-center">
-          <img
-            className="!rounded-2xl box__shadow bg-yellow-50 hover:scale-110 transition-all duration-500 h-full w-[120px] "
-            src={record.mealDtoForMealSession.image}
-          ></img>
+        <div className="">
+          <h1>{record.orderId}</h1>
         </div>
       ),
     },
     {
-      title: "",
+      title: "User",
       dataIndex: "",
       render: (_, record) => (
-        <Divider type="vertical" className="h-[70px] bg-slate-300" />
+        <div className="flex flex-row">
+          <h1>{record.cutomerDtoGetAllOrderByMealSessionId.name}</h1>
+          <Divider type="vertical" className="h-[30px] bg-slate-300" />
+          <h1>{record.cutomerDtoGetAllOrderByMealSessionId.phone}</h1>
+        </div>
       ),
     },
     {
-      dataIndex: "name",
+      title: "Create At",
+      dataIndex: "",
       render: (_, record) => (
-        <div className="flex  justify-between items-center">
-          <div>
-            <h1>{record.mealDtoForMealSession.name}</h1>
-            <p>Create At :{record.createDate}</p>
-            <p>{record.mealDtoForMealSession.description}</p>
-          </div>
-          <div>
-            <Tag
-              className="p-2 shadow-md min-w-[100px] text-center"
-              color={`${
-                record.status.includes("PROCESSING")
-                  ? "blue"
-                  : record.status.includes("APPROVED")
-                  ? "green"
-                  : "red"
-              }`}
-            >
-              <span className="font-bold">{record.status}</span>
-            </Tag>
-          </div>
+        <div className="">
+          <h1>{record.time}</h1>
         </div>
       ),
+    },
+    {
+      title: "Booking Slot",
+      dataIndex: "",
+      render: (_, record) => (
+        <div className="">
+          <h1>{record.quantity}</h1>
+        </div>
+      ),
+    },
+    {
+      title: "Status",
+      dataIndex: "totalPrice",
+      render: (_, record) => (
+        <div className="flex  justify-between items-center">
+          {/* <div>
+            <Tag
+              className="p-2"
+              color={record.status.includes("CANCELLED") ? "error" : "green"}
+            >
+              {record.status}
+            </Tag>
+          </div>
+          <div> */}
+          <Tag
+            className="p-2 shadow-md min-w-[100px] text-center"
+            color={`${
+              record.status.includes("PAID")
+                ? "blue"
+                : record.status.includes("COMPLETED")
+                ? "green"
+                : "red"
+            }`}
+          >
+            <span className="font-bold">{record.status}</span>
+          </Tag>
+        </div>
+        // </div>
+      ),
       filters: [
-        { text: "PROCESSING", value: "PROCESSING" },
-        { text: "APPROVED", value: "APPROVED" },
-        { text: "REJECTED", value: "REJECTED" },
+        { text: "PAID", value: "PAID" },
+        { text: "CANCELLED", value: "CANCELLED" },
+        { text: "COMPLETED", value: "COMPLETED" },
       ],
       onFilter: (value, record) => record.status.includes(value),
     },
+
     {
       dataIndex: "",
       render: (_, record) => (
@@ -114,26 +144,37 @@ const ExpandedContent = ({ sessionId }) => {
     },
     {
       key: "action",
-      render: (_, record) => (
-        <Space
-          size="middle"
-          className=" hover:border-gray-600 flex flex-col  w-[150px]"
-        >
-          <h1>{record.price} VND</h1>
-          <div className="flex justify-between w-[50px] items-center ">
-            <AiTwotoneEdit
-              size={20}
-              className="text-bgBtnColor hover:text-bgColorBtn "
-              onClick={() => toggleDrawerType2(record.mealSessionId)}
-            />
-            <AiFillDelete
-              size={20}
-              className="text-bgBtnColor hover:text-bgColorBtn"
-              onClick={confirm}
-            />
-          </div>
-        </Space>
-      ),
+      render: (_, record) => {
+        const formattedPrice = new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "VND",
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        })
+          .format(record.totalPrice)
+          .replace("₫", "");
+
+        return (
+          <Space
+            size="middle"
+            className=" hover:border-gray-600 flex flex-col  w-[150px]"
+          >
+            <h1>{formattedPrice} VND</h1>
+            {/* <div className="flex justify-between w-[50px] items-center ">
+              <AiTwotoneEdit
+                size={20}
+                className="text-bgBtnColor hover:text-bgColorBtn "
+                onClick={() => toggleDrawerType2(record.mealSessionId)}
+              />
+              <AiFillDelete
+                size={20}
+                className="text-bgBtnColor hover:text-bgColorBtn"
+                onClick={confirm}
+              />
+            </div> */}
+          </Space>
+        );
+      },
       sorter: (a, b) => a.price - b.price,
     },
   ];
@@ -148,48 +189,53 @@ const ExpandedContent = ({ sessionId }) => {
       return;
     }
   };
-
-  const fetchAllMealSessionBySessionId = () => {
-    getAllMealSessionBySessionId(sessionId).then((res) => {
+  const fetchOrderByMealSessionId = () => {
+    getAllOrderByMealSessionId(mealSessionId).then((res) => {
       setData(res);
       setNewData(
         res.filter((item) => {
-          return item.createDate.includes(selectedDate);
+          return item.time.includes(selectedDate);
         })
       );
     });
   };
+  const fetchTotalPriceEveryMealSession = () => {
+    getTotalPriceInEveryMealSession(mealSessionId).then((res) => {
+      setTotalPriceInEveryMealSession(res);
+    });
+  };
   // fetchAllMealSessionBySessionId();
   useEffect(() => {
-    if (search) {
-      setNewData(
-        newData.filter((item) => {
-          const inforNormalize = normalizeString(
-            item?.mealDtoForMealSession?.name
-          );
-          const searchNormalize = normalizeString(search);
-          return inforNormalize.includes(searchNormalize);
-        })
-      );
-    } else if (selectedDate) {
-      return setNewData(
-        data.filter((item) => {
-          return item.createDate.includes(selectedDate);
-        })
-      );
-    } else {
-      setNewData(data);
-    }
+    // if (search) {
+    //   setNewData(
+    //     newData.filter((item) => {
+    //       const inforNormalize = normalizeString(
+    //         item?.mealDtoForMealSession?.name
+    //       );
+    //       const searchNormalize = normalizeString(search);
+    //       return inforNormalize.includes(searchNormalize);
+    //     })
+    //   );
+    // } else if (selectedDate) {
+    //   return setNewData(
+    //     data.filter((item) => {
+    //       return item.time.includes(selectedDate);
+    //     })
+    //   );
+    // } else {
+    //   setNewData(data);
+    // }
   }, [search, selectedDate]);
   useEffect(() => {
-    fetchAllMealSessionBySessionId();
+    fetchOrderByMealSessionId();
+    fetchTotalPriceEveryMealSession();
   }, [refresh]);
   return (
     <div className="overflow-auto w-full p-2 bg-white rounded-lg">
       {/* <CustomDrawer meal={drawerData || {}} /> */}
       <div className="account-search h-[10%] flex items-center  justify-end mb-3">
         <div className="h-[40%] add-btn flex justify-between items-center w-full py-3">
-          <h1>Product In Session</h1>
+          <h1>Orders For Meal Session</h1>
         </div>
       </div>
       <div className="account-search flex items-center justify-between mb-5 lg:w-[100%] md:w-full md:gap-3 ">
@@ -200,7 +246,7 @@ const ExpandedContent = ({ sessionId }) => {
             className="box__shadow"
             suffix={<TbSearch />}
           />
-          <DatePicker
+          {/* <DatePicker
             // value={selectedDate}
             defaultValue={dayjs()}
             format="DD-MM-YYYY"
@@ -208,7 +254,7 @@ const ExpandedContent = ({ sessionId }) => {
               setSelectedDate(dateString);
             }}
             className="box__shadow !h-[50px] mx-3 !w-[300px]"
-          />
+          /> */}
         </div>
         {/* <div className="my-2">
           <Popover
@@ -224,11 +270,37 @@ const ExpandedContent = ({ sessionId }) => {
           </Popover>
         </div> */}
       </div>
-      <Table
-        columns={detailColumns}
-        dataSource={newData}
-        pagination={{ pageSize: 5 }}
-      ></Table>
+      <ConfigProvider
+        theme={{
+          components: {
+            Table: {
+              headerBg: "#F7F5FF",
+              headerBorderRadius: 8,
+              headerSplitColor: "none",
+              fontSize: 20,
+              fontWeightStrong: 700,
+              footerBg: "white",
+            },
+          },
+        }}
+      >
+        <Table
+          columns={detailColumns}
+          dataSource={data}
+          pagination={{ pageSize: 5 }}
+          footer={(record, index) => {
+            return (
+              <div className=" h-10 flex justify-end text-red-500 text-xl font-bold">
+                Total:{" "}
+                {totalPriceInEveryMealSession
+                  ? formatMoney(totalPriceInEveryMealSession)
+                  : 0}{" "}
+                VND
+              </div>
+            );
+          }}
+        ></Table>
+      </ConfigProvider>
     </div>
   );
 };

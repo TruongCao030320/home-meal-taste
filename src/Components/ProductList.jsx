@@ -33,6 +33,7 @@ import { showDrawer } from "../redux/ToggleDrawerMealSlice.js";
 import CustomDrawer from "./MealDrawer";
 import { getSingleMealSessionById } from "../API/Admin";
 import moment from "moment";
+import { formatMoney } from "../API/Money.js";
 const normalizeString = (str) => {
   return str
     .toLowerCase()
@@ -188,7 +189,7 @@ const ProductList = () => {
           size="middle"
           className=" hover:border-gray-600 flex flex-col  w-[150px]"
         >
-          <h1>{record.price} VND</h1>
+          <h1>{formatMoney(record.price)} VND</h1>
           {/* <Link to={`/dashboard/account/${record.id}`}>
             <svg
               xmlns="http://www.w3.org/2000/svg"

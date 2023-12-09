@@ -5,13 +5,22 @@ export const login = async (values, navigate, message) => {
     // Make an API request to your authentication endpoint
     const response = await axios.post(
       "https://homemealtaste.azurewebsites.net/api/User/login",
-      values
+      values,
+      {
+        headers: {
+          "Content-Type": "application/json", // Adjust the content type as needed
+        },
+      }
     );
     const { token, userId, roleId } = response.data; // Assuming your API returns a token
-    if (roleId == 1) {
-      localStorage.setItem("userId", userId);
-      message.success("Login completed.");
-      navigate(`/${direction.dashboard}`);
+    if (response.data) {
+      if (roleId == 1) {
+        localStorage.setItem("userId", userId);
+        message.success("Login completed.");
+        navigate(`/${direction.dashboard}`);
+      } else {
+        message.error("Login failed. Your account can not log in.");
+      }
     } else {
       message.error("Login failed. Please check your credentials.");
     }

@@ -17,17 +17,13 @@ import {
   Col,
   Divider,
 } from "antd";
-import { AiTwotoneEdit, AiFillDelete } from "react-icons/ai";
 import { FilterFilled } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useNavigation } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
-import { showDrawer, hideDrawer } from "../../redux/ToggleDrawerMealSlice.js";
 import CustomDrawer from "../../Components/MealDrawer";
-import ModalConfirm from "../../Components/ModalConfirm";
 import { TiTick, TiDelete } from "react-icons/ti";
-import { TbBroadcast, TbSearch } from "react-icons/tb";
 import {
   getAllArea,
   getAllDistrict,
@@ -43,6 +39,13 @@ import SessionDrawer from "../../Components/SessionDrawer";
 import { Title } from "chart.js";
 import { useForm } from "antd/es/form/Form";
 import ExpandedContent from "../../Components/ExpandedContent.jsx";
+import { direction } from "../../API/Direction.js";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faDeleteLeft,
+  faEdit,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
 const { RangePicker } = DatePicker;
 const normalizeString = (str) => {
   return str
@@ -51,10 +54,9 @@ const normalizeString = (str) => {
     .replace(/[\u0300-\u036f]/g, "");
 };
 const Session = () => {
+  const navigate = useNavigate();
   const [form] = useForm();
-  const dispatch = useDispatch();
   const [showAddForm, setShowAddForm] = useState(false);
-  const [modal, contextHolder] = Modal.useModal();
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [area, setArea] = useState([]);
@@ -63,7 +65,6 @@ const Session = () => {
   const [areaDefault, setAreaDefault] = useState();
   const [areaValue, setAreaValue] = useState();
   const [selectedDateRange, setSelectedDateRange] = useState([]);
-
   const [drawerData, setDrawerData] = useState({});
   const refresh = useSelector((state) => state.mealDrawer.refresh);
   // function section
@@ -80,6 +81,10 @@ const Session = () => {
         expandedRowKeys.filter((key) => key !== record.sessionId)
       );
     }
+  };
+  const onRowClick = (record) => {
+    console.log("record gui di la", record);
+    navigate(`${direction.chefInSession}/${record.sessionId}`);
   };
   useEffect(() => {
     if (sessionIdIsChange) {
@@ -187,7 +192,7 @@ const Session = () => {
       dataIndex: "type",
       key: "title",
       render: (_, record) => (
-        <div className="font-bold">{record.sessionType}</div>
+        <div className="font-bold">{record.sessionName}</div>
       ),
       filters: [
         {
@@ -272,26 +277,23 @@ const Session = () => {
       title: "Action",
       key: "action",
       render: (_, record) => (
-        <Space
-          size="middle"
-          className="p-1 border rounded-md hover:border-gray-600"
-        >
+        <Space size="middle" className="p-1 border rounded-md">
+          <FontAwesomeIcon
+            icon={faEdit}
+            fontSize={22}
+            color="#FFAB01"
+            className="hover:text-green-500 "
+            onClick={() => onRowClick(record)}
+          />
+
           <Link to="#">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-6 h-6"
+            <FontAwesomeIcon
+              icon={faTrash}
+              fontSize={22}
+              color="#FFAB01"
+              className="hover:text-green-500 "
               onClick={() => onHandleShowModalDeleteSession(record.sessionId)}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
-              />
-            </svg>
+            />
           </Link>
         </Space>
       ),
@@ -384,24 +386,27 @@ const Session = () => {
           >
             <Table
               columns={columns}
-              expandable={{
-                expandedRowKeys: expandedRowKeys,
-                expandedRowRender: (record, index) => {
-                  // const [search, setSearch] = useState("");
-                  const dataExpand = rowDataExpand[record.sessionId] || [];
-                  return (
-                    <ExpandedContent
-                      dataExpand={dataExpand}
-                      sessionId={record.sessionId}
-                    />
-                  );
-                },
-                // rowExpandable: (record) => record.expandable !== "title",
-                onExpand: handleExpand,
-              }}
+              // expandable={{
+              //   expandedRowKeys: expandedRowKeys,
+              //   expandedRowRender: (record, index) => {
+              //     // const [search, setSearch] = useState("");
+              //     const dataExpand = rowDataExpand[record.sessionId] || [];
+              //     return (
+              //       <ExpandedContent
+              //         dataExpand={dataExpand}
+              //         sessionId={record.sessionId}
+              //       />
+              //     );
+              //   },
+              //   // rowExpandable: (record) => record.expandable !== "title",
+              //   onExpand: handleExpand,
+              // }}
               loading={loading}
               dataSource={session}
               rowKey={(record) => record.sessionId}
+              // onRow={(record) => ({
+              //   onClick: () => onRowClick(record),
+              // })}
               rowClassName={(record, index) =>
                 `custom-row ${index % 2 === 0 ? "even-row" : "odd-row"}`
               }
@@ -429,6 +434,17 @@ const Session = () => {
         cancelText="Cancel"
       >
         <Form form={form} onFinish={(values) => addNewSession(values)}>
+          <Row>
+            {" "}
+            <Col span={24}>
+              <Form.Item
+                name="sessionName"
+                rules={[{ required: true, message: "Please select area!" }]}
+              >
+                <Input placeholder="Enter Session Name"></Input>
+              </Form.Item>
+            </Col>
+          </Row>
           <Row className="flex justify-between">
             <Col span={11}>
               <Form.Item

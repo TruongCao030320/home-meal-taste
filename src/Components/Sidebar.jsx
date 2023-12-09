@@ -51,42 +51,6 @@ const Sidebar = () => {
       "1",
       <MdDashboardCustomize />
     ),
-    getItem(<Link to="#">Market</Link>, "2", <AiFillSchedule />, [
-      getItem(
-        <Link to={`/${direction.dashboard}/${direction.area}`}>Area</Link>,
-        "4",
-        <FaEarthEurope />
-      ),
-      getItem(
-        <Link to={`/${direction.dashboard}/${direction.dishType}`}>
-          Category
-        </Link>,
-        "10",
-        <TbCategory2 />
-      ),
-      getItem(
-        <Link to={`/${direction.dashboard}/${direction.session}`}>
-          Session
-        </Link>,
-        "5",
-        <FaClock />
-      ),
-      getItem(
-        <Link to={`/${direction.dashboard}/${direction.meal}`}>Meal</Link>,
-        "6",
-        <FaBowlFood />
-      ),
-    ]),
-    getItem(
-      <Link to={`/${direction.dashboard}/${direction.kitchen}`}>Kitchen</Link>,
-      "7",
-      <AiFillHome />
-    ),
-    getItem(
-      <Link to={`/${direction.dashboard}/${direction.user}`}>User</Link>,
-      "8",
-      <MdManageAccounts />
-    ),
     getItem(
       <Link to={`/${direction.dashboard}/${direction.order}`}>Order</Link>,
       "9",
@@ -98,6 +62,40 @@ const Sidebar = () => {
       </Link>,
       "11",
       <FaHistory />
+    ),
+    getItem(
+      <Link to={`/${direction.dashboard}/${direction.area}`}>Area</Link>,
+      "4",
+      <FaEarthEurope />
+    ),
+
+    getItem(
+      <Link to={`/${direction.dashboard}/${direction.session}`}>Session</Link>,
+      "5",
+      <FaClock />
+    ),
+    getItem(
+      <Link to={`/${direction.dashboard}/${direction.kitchen}`}>Kitchen</Link>,
+      "7",
+      <AiFillHome />
+    ),
+    getItem(
+      <Link to={`/${direction.dashboard}/${direction.meal}`}>Meal</Link>,
+      "6",
+      <FaBowlFood />
+    ),
+
+    getItem(
+      <Link to={`/${direction.dashboard}/${direction.dishType}`}>
+        Category
+      </Link>,
+      "10",
+      <TbCategory2 />
+    ),
+    getItem(
+      <Link to={`/${direction.dashboard}/${direction.user}`}>User</Link>,
+      "8",
+      <MdManageAccounts />
     ),
   ];
   const [active, setActive] = useState(null);

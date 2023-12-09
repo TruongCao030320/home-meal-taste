@@ -394,3 +394,69 @@ export const getAllRevenue = async () => {
     console.log("get all revenue ", error);
   }
 };
+export const getAllKitchenBySessionId = async (id) => {
+  try {
+    const response = await axios.get(
+      `https://homemealtaste.azurewebsites.net/api/Kitchen/get-all-kitchen-by-session-id?sessionid=${id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error At get all kitchen by session Id");
+  }
+};
+export const getSingleSessionById = async (id) => {
+  try {
+    const response = await axios.get(
+      `https://homemealtaste.azurewebsites.net/api/Session/get-single-session-by-session-id?sessionid=${id}`
+    );
+    return response.data.result;
+  } catch (error) {
+    console.log("Error at get single session by id", error);
+  }
+};
+export const getAllOrderByMealSessionId = async (id) => {
+  try {
+    const response = await axios.get(
+      `https://homemealtaste.azurewebsites.net/api/Order/get-all-order-by-mealsession-id?mealsessionid=${id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error at get all order by meal session id", error);
+  }
+};
+export const getTotalPriceInEveryMealSession = async (id) => {
+  try {
+    const response = await axios.get(
+      `https://homemealtaste.azurewebsites.net/api/Order/get-total-price-of-mealsession-by-meal-session-id?mealsessionid=${id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error at total price in evert meal session", error);
+  }
+};
+export const getAllMealSessionByKitchenInSession = async (
+  kitchenId,
+  sessionId
+) => {
+  try {
+    const response = await axios.get(
+      `https://homemealtaste.azurewebsites.net/api/MealSession/get-all-meal-session-by-kitchen-id-in-session?kitchenid=${kitchenId}&sessionid=${sessionId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error At get all meal session by kitchen in session", error);
+  }
+};
+export const getTotalInSessionOfSingleKitchen = async (
+  sessionId,
+  kitchenId
+) => {
+  try {
+    const response = await axios.get(
+      `https://homemealtaste.azurewebsites.net/api/Order/get-total-price-of-mealsession-by-session-id-and-kitchen-id?sessionId=${sessionId}&kitchenId=${kitchenId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error At get total in session of single kitchen", error);
+  }
+};

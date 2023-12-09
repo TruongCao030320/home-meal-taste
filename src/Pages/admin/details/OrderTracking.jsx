@@ -20,6 +20,14 @@ const columns = [
     title: "Meal ID",
     render: (_, record, index) => (
       <div className="flex justify-start items-center p-2">
+        <h1>{record.mealSessionDto2?.mealDto2?.mealId}</h1>
+      </div>
+    ),
+  },
+  {
+    title: "Meal ID",
+    render: (_, record, index) => (
+      <div className="flex justify-start items-center p-2">
         <img
           className="w-[100px] h-[100px] rounded-full mr-5"
           src={record.mealSessionDto2?.mealDto2?.image}
