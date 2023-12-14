@@ -9,7 +9,10 @@ import axios from "axios";
 import { login } from "../API/Login";
 import { direction } from "../API/Direction";
 import { getAllRevenue } from "../API/Admin";
+import { useDispatch } from "react-redux";
+import { getUserInfor } from "../redux/userSlice";
 const Login = () => {
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -22,6 +25,9 @@ const Login = () => {
   const onFinish = (values) => {
     setLoading(true);
     login(values, navigate, message)
+      .then((res) => {
+        dispatch(getUserInfor(res));
+      })
       .catch((err) => {
         console.log(err);
       })

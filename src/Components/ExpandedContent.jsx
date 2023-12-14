@@ -229,6 +229,13 @@ const ExpandedContent = ({ mealSessionId }) => {
   useEffect(() => {
     fetchOrderByMealSessionId();
     fetchTotalPriceEveryMealSession();
+    const intervalId = setInterval(() => {
+      console.log("CHạy đc kh");
+      fetchOrderByMealSessionId();
+    }, 5000);
+
+    // Clear the interval when the component is unmounted
+    return () => clearInterval(intervalId);
   }, [refresh]);
   return (
     <div className="overflow-auto w-full p-2 bg-white rounded-lg">

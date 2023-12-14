@@ -376,7 +376,7 @@ const ManageMealSessionInKitchen = () => {
                 expandedRowKeys: expandedRowKeys,
                 expandedRowRender: (record, index) => {
                   // const [search, setSearch] = useState("");
-                  const dataExpand = rowDataExpand[record.mealSessionId] || [];
+                  // const dataExpand = rowDataExpand[record.mealSessionId] || [];
                   return (
                     <div>
                       <ExpandedContent mealSessionId={record.mealSessionId} />

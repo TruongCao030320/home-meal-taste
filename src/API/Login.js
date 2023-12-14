@@ -1,5 +1,6 @@
 import axios from "axios";
 import { direction } from "./Direction";
+import { getUserInfor } from "../redux/userSlice";
 export let tokenAPI = "";
 export const login = async (values, navigate, message) => {
   try {
@@ -18,8 +19,10 @@ export const login = async (values, navigate, message) => {
     if (response.data) {
       if (roleId == 1) {
         localStorage.setItem("userId", userId);
+        // dispatch(getUserInfor(response.data))
         message.success("Login completed.");
         navigate(`/${direction.dashboard}`);
+        return response.data;
       } else {
         message.error("Login failed. Your account can not log in.");
       }

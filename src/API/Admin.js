@@ -45,7 +45,7 @@ export const getAllUser = async (toast, navigate) => {
 export const getOrderByUserId = async (id) => {
   try {
     const response = await axios.get(
-      `https://homemealtaste.azurewebsites.net/api/Order/get-order-by-customer-id?id=${id}`
+      `https://homemealtaste.azurewebsites.net/api/Order/get-all-order-by-user-id?userid=${id}`
     );
     return response.data;
   } catch (error) {

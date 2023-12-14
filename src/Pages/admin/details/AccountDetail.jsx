@@ -11,11 +11,13 @@ import {
 } from "../../../API/Admin";
 import { direction } from "../../../API/Direction";
 import { formatMoney } from "../../../API/Money";
-import { filter } from "fontawesome";
+// import { filter } from "fontawesome";
+import { useSelector } from "react-redux";
 const AccountDetail = () => {
   const [data, setData] = useState({});
   const [order, setOrder] = useState([]);
   const [loading, setLoading] = useState(false);
+  const user = useSelector((state) => state.userSlice.user);
   const { id } = useParams();
   const [image, setImage] = useState("");
   const [title, setTitle] = useState("");
