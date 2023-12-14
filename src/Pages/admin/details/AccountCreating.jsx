@@ -60,7 +60,6 @@ const AccountCreating = () => {
     getAllDistrict().then((res) => setDistrict(res));
   };
   const AddNewChef = (values) => {
-    console.log("vào đâ không", values);
     AddNewUser(values)
       .then((res) => {
         toast.success("Add new chef successfully.");
@@ -96,7 +95,7 @@ const AccountCreating = () => {
             <Col className="" span={11}>
               <div>
                 <label htmlFor="" className=" flex justify-start pb-2">
-                  Name
+                  Kitchen's Name
                 </label>
                 <Form.Item name="name">
                   <Input className="box__shadow" classNames="mt-2" />
@@ -178,7 +177,7 @@ const AccountCreating = () => {
                 <label htmlFor="" className=" flex justify-start pb-2">
                   Phone Number
                 </label>
-                <Form.Item name="phone">
+                <Form.Item name="phone" required>
                   <Input className="box__shadow mt-2 py-6" />
                 </Form.Item>
               </div>
@@ -188,7 +187,7 @@ const AccountCreating = () => {
                 <label htmlFor="" className=" flex justify-start pb-2">
                   Password
                 </label>
-                <Form.Item name="password">
+                <Form.Item name="password" required>
                   <Input.Password className="box__shadow mt-2" />
                 </Form.Item>
               </div>

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { direction } from "./Direction";
+export let tokenAPI = "";
 export const login = async (values, navigate, message) => {
   try {
     // Make an API request to your authentication endpoint
@@ -13,6 +14,7 @@ export const login = async (values, navigate, message) => {
       }
     );
     const { token, userId, roleId } = response.data; // Assuming your API returns a token
+    tokenAPI = token;
     if (response.data) {
       if (roleId == 1) {
         localStorage.setItem("userId", userId);

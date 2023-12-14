@@ -43,7 +43,6 @@ const normalizeString = (str) => {
 
 const ProductList = () => {
   const dateFormatList = ["DD/MM/YYYY", "DD/MM/YY", "DD-MM-YYYY", "DD-MM-YY"];
-  const currentDate = moment().format("DD-MM-YYYY");
   console.log("current date", dayjs().format(dateFormatList[2]));
   const [selectedDate, setSelectedDate] = useState(
     dayjs().format(dateFormatList[2])
@@ -305,7 +304,7 @@ const ProductList = () => {
             />
           </div>
           <div className="my-2"></div>
-          <div className="my-2">
+          {/* <div className="my-2">
             <Popover
               content={content2}
               title="Filter"
@@ -317,7 +316,7 @@ const ProductList = () => {
                 <span>Filter</span>
               </Button>
             </Popover>
-          </div>
+          </div> */}
         </div>
         <div className="w-full overflow-hidden">
           <ConfigProvider

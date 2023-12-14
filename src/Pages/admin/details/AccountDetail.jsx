@@ -10,6 +10,8 @@ import {
   getSingleUser,
 } from "../../../API/Admin";
 import { direction } from "../../../API/Direction";
+import { formatMoney } from "../../../API/Money";
+import { filter } from "fontawesome";
 const AccountDetail = () => {
   const [data, setData] = useState({});
   const [order, setOrder] = useState([]);
@@ -20,12 +22,11 @@ const AccountDetail = () => {
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
   const [transaction, setTransaction] = useState([]);
-
+  const [countOrder, setCountOrder] = useState();
   const navigate = useNavigate();
   const fetchAllTransaction = () => {
     getAllTransactionByUserId(id).then((res) => {
-      console.log(res);
-      setTransaction(res);
+      setTransaction(res.slice().reverse());
     });
   };
   useEffect(() => {
@@ -39,124 +40,215 @@ const AccountDetail = () => {
   }, [id]);
   useEffect(() => {
     getOrderByUserId(id)
-      .then((res) => setOrder(res))
+      .then((res) => {
+        setOrder(res);
+        setCountOrder(res.length);
+      })
       .catch((error) => console.log(error));
     fetchAllTransaction();
   }, []);
   const { username, email, phone, address, districtId, roleId } = data || {};
+  const { districtName } = data?.districtDto || {};
   const { balance } = data?.walletDto || {};
+  // const columns = [
+  //   {
+  //     title: "Order number",
+  //     dataIndex: "orderId",
+  //     render: (text) => (
+  //       <div className="rounded-full  flex justify-center items-center font-bold">
+  //         {text}
+  //       </div>
+  //     ),
+  //   },
+  //   {
+  //     title: "Products",
+  //     dataIndex: "meal",
+  //     render: (_, record, index) => (
+  //       <div className="w-[300px] h-[100px] flex justify-between items-center">
+  //         <img
+  //           src={record.mealSessionDto2?.mealDto2?.image}
+  //           className="w-[80px] h-[80px] rounded-full border"
+  //         ></img>
+  //         <p className="font-bold text-xl">
+  //           {record.mealSessionDto2?.mealDto2?.name}
+  //         </p>
+  //       </div>
+  //     ),
+  //   },
+  //   {
+  //     title: "Status",
+  //     dataIndex: "status",
+  //     render: (text) => (
+  //       <Tag color="geekblue" className="font-bold">
+  //         Paid
+  //       </Tag>
+  //     ),
+  //   },
+  //   {
+  //     title: "Amount",
+  //     dataIndex: "totalPrice",
+  //     render: (text) => <div className="font-bold">{text}</div>,
+  //     defaultSortOrder: "descend",
+  //     sorter: (a, b) => a.price - b.price,
+  //   },
+  //   {
+  //     title: "Chef",
+  //     dataIndex: "meal",
+  //     render: (_, record, index) => (
+  //       <div className="min-w-[100px] font-bold">
+  //         {record.mealSessionDto2?.mealDto2?.kitchenDto2?.name}
+  //       </div>
+  //     ),
+  //   },
+
+  //   {
+  //     title: "Create At",
+  //     dataIndex: "time",
+  //     render: (text) => <div className="min-w-[80px] font-bold">{text}</div>,
+  //   },
+  // ];
   const columns = [
     {
-      title: "Order number",
+      title: "ID",
       dataIndex: "orderId",
       render: (text) => (
-        <div className="rounded-full  flex justify-center items-center font-bold">
-          {text}
+        <div className="">
+          <p className="font-bold">{text}</p>
         </div>
       ),
     },
     {
-      title: "Products",
-      dataIndex: "meal",
-      render: (_, record, index) => (
-        <div className="w-[200px] h-[100px] flex justify-between items-center">
-          <img
-            src={record.mealSessionDto2?.mealDto2?.image}
-            className="w-[100px] h-[100px] rounded-full border"
-          ></img>
-          <p className="font-bold text-xl">
-            {record.mealSessionDto2?.mealDto2?.name}
-          </p>
+      title: "User",
+      dataIndex: "customer",
+      // render: (name) => `${name.first} ${name.last}`
+      render: (_, record) => (
+        <div className="flex flex-col">
+          <p className="font-bold">{record.customerDto2?.name}</p>
+          <p className="font-bold">{record.customerDto2?.phone}</p>
         </div>
       ),
+    },
+    {
+      title: "Store",
+      dataIndex: "meal",
+      render: (_, record) => (
+        <p className="font-bold">
+          {record.mealSessionDto2?.mealDto2?.kitchenDto2?.name}
+        </p>
+      ),
+    },
+    {
+      title: "Product",
+      dataIndex: "meal",
+      render: (_, record) => (
+        <p className="font-bold">{record.mealSessionDto2?.mealDto2?.name}</p>
+      ),
+    },
+    {
+      title: "Create At",
+      dataIndex: "time",
+      sorter: (a, b) => {
+        const dateA = moment(a.time, "DD-MM-YYYY HH:mm");
+        const dateB = moment(b.time, "DD-MM-YYYY HH:mm");
+        return dateA - dateB;
+      },
+      render: (text) => <p className="font-bold">{text}</p>,
+    },
+
+    {
+      title: "Price/VND",
+      dataIndex: "totalPrice",
+      sorter: (a, b) => a.price - b.price,
+      render: (text) => <p className="font-bold">{formatMoney(text)}</p>,
+    },
+    {
+      title: "Quantity/Slot",
+      dataIndex: "quantity",
+      render: (text) => <p className="font-bold">{formatMoney(text)}</p>,
     },
     {
       title: "Status",
       dataIndex: "status",
-      render: (text) => (
-        <Tag color="geekblue" className="font-bold">
-          Paid
-        </Tag>
-      ),
-    },
-    {
-      title: "Amount",
-      dataIndex: "totalPrice",
-      render: (text) => <div className="font-bold">{text}</div>,
-      defaultSortOrder: "descend",
-      sorter: (a, b) => a.price - b.price,
-    },
-    {
-      title: "Chef",
-      dataIndex: "meal",
-      render: (_, record, index) => (
-        <div className="min-w-[100px] font-bold">
-          {record.mealSessionDto2?.mealDto2?.kitchenDto2?.name}
-        </div>
-      ),
-    },
-
-    {
-      title: "Create At",
-      dataIndex: "time",
-      render: (text) => <div className="min-w-[80px] font-bold">{text}</div>,
+      render: (text, record, index) => {
+        const finalText = text.toUpperCase();
+        return (
+          <Tag color="green" className="px-4 py-1">
+            <p className="font-bold">{finalText}</p>
+          </Tag>
+        );
+      },
+      filters: [
+        {
+          text: "DONE",
+          value: "DONE",
+        },
+        {
+          text: "CANCELLED",
+          value: "CANCELLED",
+        },
+        {
+          text: "PAID",
+          value: "PAID",
+        },
+      ],
+      onFilter: (value, record) => record.status.toUpperCase().includes(value),
     },
   ];
   const transactionColumns = [
     {
       title: "Transaction ID",
       dataIndex: "transactionId",
-      render: (text) => (
-        <div className="rounded-full  flex justify-center items-center font-bold">
-          {text}
-        </div>
-      ),
+      render: (text) => <div className="font-bold">{text}</div>,
+    },
+
+    {
+      title: "Title",
+      dataIndex: "description",
+      render: (text) => <div className="min-w-[80px] font-bold">{text}</div>,
     },
     {
-      title: "Products",
-      dataIndex: "meal",
-      render: (_, record, index) => (
-        <div className="w-[200px] h-[100px] flex justify-between items-center">
-          <img
-            src={record.mealSessionDto2?.mealDto2?.image}
-            className="w-[100px] h-[100px] rounded-full border"
-          ></img>
-          <p className="font-bold text-xl">
-            {record.mealSessionDto2?.mealDto2?.name}
-          </p>
-        </div>
+      title: "Create At",
+      dataIndex: "date",
+      render: (text) => <div className="min-w-[100px] font-bold">{text}</div>,
+    },
+    {
+      title: "Amount/VNĐ",
+      dataIndex: "amount",
+      sorter: (a, b) => a.amount - b.amount,
+      render: (text) => <p className="font-bold">{formatMoney(text)}</p>,
+    },
+
+    {
+      title: "Type",
+      dataIndex: "transactionType",
+      render: (text) => (
+        <Tag color="green" className="px-4 py-1">
+          <p className="font-bold">{text}</p>
+        </Tag>
       ),
+      filters: [
+        {
+          text: "RECHARGE",
+          value: "RECHARGE",
+        },
+        {
+          text: "ORDERED",
+          value: "ORDERED",
+        },
+      ],
+      onFilter: (value, record) => record.transactionType.includes(value),
     },
     {
       title: "Status",
       dataIndex: "status",
-      render: (text) => (
-        <Tag color="geekblue" className="font-bold">
-          Paid
-        </Tag>
-      ),
-    },
-    {
-      title: "Amount",
-      dataIndex: "totalPrice",
-      render: (text) => <div className="font-bold">{text}</div>,
-      defaultSortOrder: "descend",
-      sorter: (a, b) => a.price - b.price,
-    },
-    {
-      title: "Chef",
-      dataIndex: "meal",
-      render: (_, record, index) => (
-        <div className="min-w-[100px] font-bold">
-          {record.mealSessionDto2?.mealDto2?.kitchenDto2?.name}
-        </div>
-      ),
-    },
-
-    {
-      title: "Create At",
-      dataIndex: "time",
-      render: (text) => <div className="min-w-[80px] font-bold">{text}</div>,
+      render: (text) => {
+        const finalText = text.toUpperCase();
+        return (
+          <Tag color="green" className="px-4 py-1">
+            <p className="font-bold">{finalText}</p>
+          </Tag>
+        );
+      },
     },
   ];
   return (
@@ -184,14 +276,14 @@ const AccountDetail = () => {
                 {roleId === 1 ? "Admin" : roleId === 2 ? "Customer" : "Chef"}
               </span>
             </div>
-            <div className="gender h-[15%] flex w-[90%] justify-between items-center">
+            {/* <div className="gender h-[15%] flex w-[90%] justify-between items-center">
               <p>Rank</p> <Tag className="m-0">Classic</Tag>
+            </div> */}
+            <div className="gender h-[15%] flex w-[90%] justify-between items-center">
+              <p>Total Order</p> <span>{countOrder}</span>
             </div>
             <div className="gender h-[15%] flex w-[90%] justify-between items-center">
-              <p>Total Order</p> <span>27</span>
-            </div>
-            <div className="gender h-[15%] flex w-[90%] justify-between items-center">
-              <p>Balance</p> <span>{balance}</span>
+              <p>Balance</p> <span>{formatMoney(balance)} VND</span>
             </div>
           </div>
         </div>
@@ -255,13 +347,7 @@ const AccountDetail = () => {
                 <label htmlFor="" className=" flex justify-start pb-2">
                   District
                 </label>
-                <Select
-                  defaultValue={districtId}
-                  value={districtId}
-                  className="w-full"
-                >
-                  <Select.Option>Quận 1</Select.Option>
-                </Select>
+                <Input value={districtName} className="w-full"></Input>
               </div>
             </Col>
           </Row>
@@ -279,7 +365,7 @@ const AccountDetail = () => {
       <div className="w-[100%] h-[30%]">
         <h1 className="my-3">Transactions</h1>
         <Table
-          dataSource={order}
+          dataSource={transaction}
           columns={transactionColumns}
           bordered
           loading={loading}

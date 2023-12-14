@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Axis } from "victory";
 import { direction } from "./Direction";
+import { tokenAPI } from "./Login";
 
 export const getSingleUser = async (id, navigate) => {
   try {
@@ -54,7 +55,12 @@ export const getOrderByUserId = async (id) => {
 export const getAllOrder = async () => {
   try {
     const response = await axios.get(
-      "https://homemealtaste.azurewebsites.net/api/Order/get-all-order"
+      "https://homemealtaste.azurewebsites.net/api/Order/get-all-order",
+      {
+        headers: {
+          Authorization: `Bearer ${tokenAPI}`,
+        },
+      }
     );
     return response.data;
   } catch (error) {
@@ -103,7 +109,7 @@ export const getAllMealByKitchenId = async (id) => {
 export const getKitchenByKitchenId = async (id) => {
   try {
     const response = await axios.get(
-      `https://homemealtaste.azurewebsites.net/api/Kitchen/get-all-kitchen-by-kitchen-id?id=${id}`
+      `https://homemealtaste.azurewebsites.net/api/Kitchen/get-single-kitchen-by-kitchen-id?id=${id}`
     );
     return response.data;
   } catch (error) {
@@ -247,36 +253,20 @@ export const getDishByMealId = async (id) => {
   }
 };
 export const deleteSession = async (id) => {
-  try {
-    const response = await axios.delete(
-      `https://homemealtaste.azurewebsites.net/api/Session?sessionid=${id}`
-    );
-    if (response.status === 200) {
-      console.log("thong canh", response.status);
-    }
-  } catch (error) {
-    console.log("Delete session", error);
-  }
+  await axios.delete(
+    `https://homemealtaste.azurewebsites.net/api/Session?sessionid=${id}`
+  );
 };
 export const updateStatusMealSession = async (id, status) => {
-  try {
-    await axios.patch(
-      `https://homemealtaste.azurewebsites.net/api/MealSession/update-status-meal-session?mealSessionid=${id}&status=${status}`
-    );
-  } catch (error) {
-    console.log("update status ", error);
-  }
+  await axios.patch(
+    `https://homemealtaste.azurewebsites.net/api/MealSession/update-status-meal-session?mealSessionid=${id}&status=${status}`
+  );
 };
 export const AddNewUser = async (values) => {
-  console.log("add chef", values);
-  try {
-    await axios.post(
-      "https://homemealtaste.azurewebsites.net/api/User/register-for-chef",
-      values
-    );
-  } catch (error) {
-    console.log("Add new user", error);
-  }
+  await axios.post(
+    "https://homemealtaste.azurewebsites.net/api/User/register-for-chef",
+    values
+  );
 };
 export const getOrderById = async (id) => {
   try {
@@ -460,13 +450,83 @@ export const getTotalInSessionOfSingleKitchen = async (
     console.log("Error At get total in session of single kitchen", error);
   }
 };
-export const getAllTransaction = async () => {
+export const getAllTransactionOrderType = async () => {
   try {
     const response = await axios.get(
-      "https://homemealtaste.azurewebsites.net/api/Transaction/get-all-transaction"
+      "https://homemealtaste.azurewebsites.net/api/Transaction/get-transaction-by-transaction-type-with-orderid"
     );
     return response.data;
   } catch (error) {
     console.log("Error at get all transaction", error);
+  }
+};
+export const getAllTransactionWithoutOrderType = async () => {
+  try {
+    const response = await axios.get(
+      "https://homemealtaste.azurewebsites.net/api/Transaction/get-transaction-by-transaction-type-without-orderid"
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error at get all transaction", error);
+  }
+};
+export const countAllOrder = async () => {
+  try {
+    const response = await axios.get(
+      "https://homemealtaste.azurewebsites.net/api/Order/count-order-in-system"
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error at count all order", error);
+  }
+};
+export const countCustomer = async () => {
+  try {
+    const response = await axios.get(
+      "https://homemealtaste.azurewebsites.net/api/User/count-all-user-with-roleid-2"
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error at count Customer", error);
+  }
+};
+export const getTotalIn12Month = async () => {
+  try {
+    const response = await axios.get(
+      "https://homemealtaste.azurewebsites.net/api/Order/total-price-of-order-in-system"
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error at get total 12 month", error);
+  }
+};
+export const getTop5Customer = async () => {
+  try {
+    const response = await axios.get(
+      "https://homemealtaste.azurewebsites.net/api/Order/get-top-5-customer-order-times"
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error at get top 5 customer");
+  }
+};
+export const getTop5Chef = async () => {
+  try {
+    const response = await axios.get(
+      "https://homemealtaste.azurewebsites.net/api/Order/get-top-5-chef-order-times"
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error at get top 5 chef", error);
+  }
+};
+export const getKitchenByUserId = async (id) => {
+  try {
+    const response = await axios.get(
+      `https://homemealtaste.azurewebsites.net/api/Kitchen/get-single-kitchen-by-user-id?userid=${id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error at get kitchen by user id", error);
   }
 };

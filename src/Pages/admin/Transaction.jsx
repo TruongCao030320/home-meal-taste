@@ -18,10 +18,10 @@ import { TbSearch } from "react-icons/tb";
 import { Link, useNavigate } from "react-router-dom";
 import { FilterFilled } from "@ant-design/icons";
 import {
-  getAllOrder,
-  getAllTransaction,
+  getAllTransactionOrderType,
   getAllTransactionOrdered,
   getAllTransactionRecharge,
+  getAllTransactionWithoutOrderType,
 } from "../../API/Admin";
 import { direction } from "../../API/Direction";
 import { formatMoney } from "../../API/Money";
@@ -33,15 +33,30 @@ const Transaction = () => {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [filteredData, setFilteredData] = useState();
-  const [transaction, setTransaction] = useState([]);
+  const [transactionOrder, setTransactionOrder] = useState([]);
+  const [transactionOther, setTransactionOther] = useState([]);
   const [genderSelected, setGenderSelected] = useState(null);
+  // const [newData, setNewData] = useState([]);
   const [selectedDateRange, setSelectedDateRange] = useState([]);
   const [data, setData] = useState([]);
-  const fetchAllTransaction = () => {
+  const fetchAllTransactionOrderType = () => {
     setLoading(true);
-    getAllTransaction().then((res) => {
-      setTransaction(res);
-      setLoading(false);
+    getAllTransactionOrderType()
+      .then((res) => {
+        setTransactionOrder(res.slice().reverse());
+      })
+      .catch((error) => {
+        console.error("Error fetching transactions:", error);
+        // Handle the error (e.g., show an error message)
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+  const fetchAllTransactionWithoutOrderId = () => {
+    getAllTransactionWithoutOrderType().then((res) => {
+      console.log("witout order id", res);
+      setTransactionOther(res.slice().reverse());
     });
   };
   const columns = [
@@ -58,11 +73,7 @@ const Transaction = () => {
       title: "Order ID",
       dataIndex: "orderId",
       // render: (name) => `${name.first} ${name.last}`
-      render: (_, record) => (
-        <p className="font-bold">
-          {record.orderDtoGetAllTransactions?.orderId}
-        </p>
-      ),
+      render: (_, record) => <p className="font-bold">{record.orderId}</p>,
     },
     {
       title: "Description",
@@ -73,18 +84,19 @@ const Transaction = () => {
       title: "User",
       dataIndex: "walletDtoGetAllTransaction",
       render: (_, record) => (
-        <div>
-          <p className="font-bold">
-            {record.userDtoGetAllTransactions?.username}
+        <div className="flex flex-col">
+          <p className="font-bold ">
+            {record.walletDtoGetAllTransaction?.userDtoGetAllTransaction?.name}
           </p>
-          <p>{record.userDtoGetAllTransactions?.phone}</p>
+          <p>
+            {record.walletDtoGetAllTransaction?.userDtoGetAllTransaction?.phone}
+          </p>
         </div>
       ),
     },
     {
       title: "Create At",
       dataIndex: "date",
-      defaultSortOrder: "descend",
       sorter: (a, b) => {
         const dateA = new Date(a.date.split("-").reverse().join("-")) || 0;
         const dateB = new Date(b.date.split("-").reverse().join("-")) || 0;
@@ -132,6 +144,88 @@ const Transaction = () => {
           value: "ORDERED",
         },
         {
+          text: "REFUNDED",
+          value: "REFUNDED",
+        },
+      ],
+      onFilter: (value, record) =>
+        record.transactionType.toUpperCase().includes(value),
+    },
+  ];
+  const columnsOther = [
+    {
+      title: "ID",
+      dataIndex: "transactionId",
+      render: (text) => (
+        <div className="">
+          <p className="font-bold">{text}</p>
+        </div>
+      ),
+    },
+    {
+      title: "Description",
+      // render: (name) => `${name.first} ${name.last}`
+      render: (_, record) => <p className="text-xs">{record.description}</p>,
+    },
+    {
+      title: "User",
+      dataIndex: "walletDtoGetAllTransaction",
+      render: (_, record) => (
+        <div>
+          <p className="font-bold">
+            {record.userDtoGetAllTransactions?.username}
+          </p>
+          <p>{record.userDtoGetAllTransactions?.phone}</p>
+        </div>
+      ),
+    },
+    {
+      title: "Create At",
+      dataIndex: "date",
+      // defaultSortOrder: "descend",
+      // sorter: (a, b) => {
+      //   const dateA = new Date(a.date.split("-").reverse().join("-")) || 0;
+      //   const dateB = new Date(b.date.split("-").reverse().join("-")) || 0;
+
+      //   return dateA - dateB;
+      // },
+      render: (text) => <p className="font-bold">{text}</p>,
+    },
+    {
+      title: "Amount/VNĐ",
+      dataIndex: "amount",
+      sorter: (a, b) => a.amount - b.amount,
+      render: (text) => <p className="font-bold">{formatMoney(text)}</p>,
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      render: (text) => {
+        const finalText = text.toUpperCase();
+        return (
+          <Tag color="green" className="px-4 py-1">
+            <p className="font-bold">{finalText}</p>
+          </Tag>
+        );
+      },
+    },
+    {
+      title: "Type",
+      dataIndex: "transactionType",
+      render: (text) => {
+        const finalText = text.toUpperCase();
+        return (
+          <Tag color="green" className="px-4 py-1">
+            <p className="font-bold">{finalText}</p>
+          </Tag>
+        );
+      },
+      filters: [
+        {
+          text: "RECHARGE",
+          value: "RECHARGE",
+        },
+        {
           text: "TOTAL TRANSFER",
           value: "TT",
         },
@@ -144,26 +238,11 @@ const Transaction = () => {
         record.transactionType.toUpperCase().includes(value),
     },
   ];
-  const fetchAllTransactionRecharge = () => {
-    getAllTransactionRecharge().then((res) => {
-      setTransaction(res);
-      setLoading(false);
-    });
-  };
+
   useEffect(() => {
-    // setLoading(true);
-    // getAllTransactionOrdered()
-    //   .then((res) => {
-    //     setData(res);
-    //     setLoading(false);
-    //   })
-    //   .catch((error) => console.log(error));
-    // fetchAllTransactionRecharge();
-    fetchAllTransaction();
+    fetchAllTransactionOrderType();
+    fetchAllTransactionWithoutOrderId();
   }, []);
-  useEffect(() => {
-    console.log(typeof search);
-  }, [search]);
   const navigatePage = (id) => {
     navigate(`/${direction.dashboard}/${direction.order}/${id}`);
   };
@@ -214,15 +293,10 @@ const Transaction = () => {
     </Form>
   );
 
-  const newData = data?.filter((item) => {
-    return item.walletDtoGetAllTransaction?.userDtoGetAllTransaction?.phone.includes(
-      search
-    );
-  });
-  const newData2 = transaction.filter((item) => {
-    return item.walletDtoGetAllTransactionRECHARGED?.userDtoGetAllTransactionRECHARGED?.phone.includes(
-      search
-    );
+  const newData = transactionOrder?.filter((item) => {
+    if (SwitchTran) {
+      return item.userDtoGetAllTransactions?.phone.includes(search);
+    }
   });
   return (
     <div className="w-full h-full p-4 rounded-lg">
@@ -243,17 +317,17 @@ const Transaction = () => {
                 className="box__shadow"
                 suffix={<TbSearch />}
               />
-              {/* <div>
+              <div>
                 <Switch
                   className="shadow-lg bg-gray-400"
                   checkedChildren="Order"
-                  unCheckedChildren="Recharge"
+                  unCheckedChildren="Other"
                   onChange={() => setSwitchTran(!SwitchTran)}
                 ></Switch>
-              </div> */}
+              </div>
             </div>
 
-            <div className="my-2">
+            {/* <div className="my-2">
               <Popover
                 content={content2}
                 title="Filter"
@@ -265,7 +339,7 @@ const Transaction = () => {
                   <span>Filter</span>
                 </Button>
               </Popover>
-            </div>
+            </div> */}
           </div>
         </div>
         <div>
@@ -287,14 +361,25 @@ const Transaction = () => {
               },
             }}
           >
-            <Table
-              dataSource={transaction}
-              columns={columns}
-              loading={loading}
-              rowClassName={(record, index) =>
-                `custom-row ${index % 2 === 0 ? "even-row" : "odd-row"}`
-              }
-            ></Table>
+            {SwitchTran ? (
+              <Table
+                dataSource={transactionOrder}
+                columns={columns}
+                loading={loading}
+                rowClassName={(record, index) =>
+                  `custom-row ${index % 2 === 0 ? "even-row" : "odd-row"}`
+                }
+              ></Table>
+            ) : (
+              <Table
+                dataSource={transactionOther}
+                columns={columnsOther}
+                loading={loading}
+                rowClassName={(record, index) =>
+                  `custom-row ${index % 2 === 0 ? "even-row" : "odd-row"}`
+                }
+              ></Table>
+            )}
           </ConfigProvider>
         </div>
       </div>

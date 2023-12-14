@@ -7,6 +7,7 @@ import { Row, Col, ConfigProvider, Tag } from "antd";
 import { direction } from "../../../API/Direction";
 import { getAllTransactionRecharge, getSingleUser } from "../../../API/Admin";
 import { login } from "../../../API/Login";
+import { formatMoney } from "../../../API/Money";
 const AdminProfile = () => {
   const [data, setData] = useState({});
   const [transaction, setTransaction] = useState([]);
@@ -78,7 +79,7 @@ const AdminProfile = () => {
               <label htmlFor="">Wallet</label>
               <Input
                 className="box__shadow"
-                value={`${data.walletDto?.balance} VND`}
+                value={`${formatMoney(data.walletDto?.balance)} VND`}
               ></Input>
             </Col>
           </Row>

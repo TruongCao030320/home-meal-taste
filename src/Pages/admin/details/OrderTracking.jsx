@@ -15,6 +15,7 @@ import { render } from "react-dom";
 import { direction } from "../../../API/Direction";
 import { AdminCancelledOrder, getOrderById } from "../../../API/Admin";
 import { toast } from "react-toastify";
+import { formatMoney } from "../../../API/Money";
 const columns = [
   {
     title: "Meal ID",
@@ -39,15 +40,13 @@ const columns = [
   {
     title: "Meal's Title",
     render: (_, record) => (
-      <p className="font-extralight">
-        {record.mealSessionDto2?.mealDto2?.name}
-      </p>
+      <p className="font-bold">{record.mealSessionDto2?.mealDto2?.name}</p>
     ),
   },
   {
     title: "Kitchen",
     render: (_, record) => (
-      <p className="font-extralight">
+      <p className="font-bold">
         {record.mealSessionDto2?.mealDto2?.kitchenDto2?.name}
       </p>
     ),
@@ -55,12 +54,12 @@ const columns = [
   {
     title: "Quantity",
     dataIndex: "quantity",
-    render: (text) => <p className="font-extralight">{text}</p>,
+    render: (text) => <p className="font-bold">{text}</p>,
   },
   {
     title: "Create At",
     dataIndex: "time",
-    render: (text) => <p className="font-extralight">{text}</p>,
+    render: (text) => <p className="font-bold">{text}</p>,
   },
   {
     title: "Price (VND)",
@@ -68,7 +67,7 @@ const columns = [
     defaultSortOrder: "descend",
     sorter: (a, b) => a.price - b.price,
     render: (_, record) => (
-      <p className="font-extralight">{record.mealSessionDto2.price}</p>
+      <p className="font-bold">{formatMoney(record.mealSessionDto2.price)}</p>
     ),
   },
 ];
@@ -195,7 +194,7 @@ const OrderTracking = () => {
               footer={(record, index) => {
                 return (
                   <div className=" h-10 flex justify-end text-red-500 text-xl font-bold">
-                    Total: {record[0]?.totalPrice} VND
+                    Total: {formatMoney(record[0]?.totalPrice)} VND
                   </div>
                 );
               }}

@@ -18,6 +18,9 @@ import {
   Divider,
 } from "antd";
 import { FilterFilled } from "@ant-design/icons";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import dayjs from "dayjs";
+dayjs.extend(customParseFormat);
 import { ToastContainer, toast } from "react-toastify";
 import { Link, useNavigate, useNavigation } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
@@ -64,9 +67,15 @@ const Session = () => {
   const [id, setId] = useState();
   const [areaDefault, setAreaDefault] = useState();
   const [areaValue, setAreaValue] = useState();
+  const [newData, setNewData] = useState([]);
+  console.log("area name", area[0]?.areaName);
   const [selectedDateRange, setSelectedDateRange] = useState([]);
   const [drawerData, setDrawerData] = useState({});
   const refresh = useSelector((state) => state.mealDrawer.refresh);
+  const dateFormatList = ["DD/MM/YYYY", "DD/MM/YY", "DD-MM-YYYY", "DD-MM-YY"];
+  const [selectedDate, setSelectedDate] = useState(
+    dayjs().format(dateFormatList[2])
+  );
   // function section
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const [dataExpand, setDataExpand] = useState([]);
@@ -103,11 +112,13 @@ const Session = () => {
   const onHandleDeleteSession = () => {
     deleteSession(id)
       .then((res) => {
-        setShow(false);
         toast.success("Delete completed.");
         fetchSessionByArea(areaValue ? areaValue : areaDefault);
       })
-      .catch((error) => toast.error(error));
+      .catch((error) => toast.error("Can't Delete Session !"))
+      .finally(() => {
+        setShow(false);
+      });
   };
   const handleClose = () => {
     setShow(false);
@@ -139,6 +150,7 @@ const Session = () => {
     createNewSession(values, toast)
       .then(() => {
         fetchSessionByArea(areaValue ? areaValue : areaDefault);
+        form.resetFields();
         setShowAddForm(false);
       })
       .catch((error) => toast.error("Create new session failed."));
@@ -317,7 +329,8 @@ const Session = () => {
           <Form.Item className="w-[100%] my-2">
             <Select
               className="w-full"
-              defaultValue={areaValue ? areaValue : areaDefault}
+              // defaultValue={areaValue ? areaValue : areaDefault}
+              value={areaValue}
               options={area?.map((item, index) => ({
                 value: item.areaId,
                 label: item.areaName,
@@ -340,6 +353,13 @@ const Session = () => {
     </div>
   );
 
+  useEffect(() => {
+    setNewData(
+      session?.filter((item) => {
+        return item.createDate.includes(selectedDate);
+      })
+    );
+  }, [selectedDate, session]);
   // end content section
   return (
     <div className="w-full h-full p-4">
@@ -360,8 +380,17 @@ const Session = () => {
 
       <div className="bg-white p-4 rounded-lg">
         <div className="account-search flex items-center justify-end mb-5 w-[100%]  lg:flex md:w-full md:grid md:grid-cols-2 md:gap-3 lg:w-[100%]">
-          <div>
-            <Popover
+          <div className="w-full flex flex-row justify-between items-center">
+            <DatePicker
+              // value={selectedDate}
+              defaultValue={dayjs()}
+              format="DD-MM-YYYY"
+              onChange={(date, dateString) => {
+                setSelectedDate(dateString);
+              }}
+              className="box__shadow !h-[50px] mx-3 !w-[300px]"
+            />
+            {/* <Popover
               content={content}
               title="Filter"
               trigger="click"
@@ -371,7 +400,25 @@ const Session = () => {
                 <FilterFilled />
                 <span>Filter</span>
               </Button>
-            </Popover>
+            </Popover> */}
+            <Select
+              className="w-[30%]"
+              value={
+                areaValue
+                  ? areaValue
+                  : {
+                      value: area[0]?.areaId,
+                      label: area[0]?.areaName,
+                    }
+              }
+              options={area?.map((item, index) => ({
+                value: item.areaId,
+                label: item.areaName,
+              }))}
+              onChange={(value) => {
+                setAreaValue(value);
+              }}
+            ></Select>
           </div>
         </div>
         <div className="w-full overflow-auto">
@@ -409,7 +456,7 @@ const Session = () => {
               //   onExpand: handleExpand,
               // }}
               loading={loading}
-              dataSource={session}
+              dataSource={selectedDate ? newData : session}
               rowKey={(record) => record.sessionId}
               // onRow={(record) => ({
               //   onClick: () => onRowClick(record),

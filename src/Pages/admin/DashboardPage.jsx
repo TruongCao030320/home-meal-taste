@@ -13,29 +13,38 @@ import {
   LineChart,
 } from "recharts";
 import { Component } from "react";
-import { getAllOrder, getAllRevenue } from "../../API/Admin";
+import {
+  countAllOrder,
+  countCustomer,
+  getAllOrder,
+  getAllRevenue,
+  getAllTransactionOrderType,
+  getTop5Chef,
+  getTop5Customer,
+  getTotalIn12Month,
+} from "../../API/Admin";
 import { useNavigate } from "react-router-dom";
+import { formatMoney } from "../../API/Money";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { paperclip } from "fontawesome";
+import { faNewspaper, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
+import { direction } from "../../API/Direction";
 const DashboardPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState();
-  const [data5, setData5] = useState();
-  const chartData = [
-    { name: "Feb", Customer: 10, Order: 150 },
-    { name: "Jan", Customer: 15, Order: 200 },
-    { name: "March", Customer: 7, Order: 200 },
-    { name: "April", Customer: 22, Order: 200 },
-    { name: "May", Customer: 22, Order: 200 },
-    { name: "June", Customer: 22, Order: 300 },
-    { name: "July", Customer: 22, Order: 300 },
-    { name: "Aug", Customer: 22, Order: 300 },
-    { name: "Sep", Customer: 22, Order: 300 },
-    { name: "Oct", Customer: 22, Order: 300 },
-    { name: "Nov", Customer: 22, Order: 300 },
-    { name: "Dec", Customer: 22, Order: 300 },
-  ];
+  const [kitchen, setKitchen] = useState();
+  const [topCustomer, setTopCustomer] = useState([]);
+  const [customer, setCustomer] = useState();
+  const [order, setOrder] = useState(0);
+  const [money, setMoney] = useState([
+    {
+      month: "",
+      money: 0,
+    },
+  ]);
   const [revenue, setRevenue] = useState({});
-
+  const [transaction, setTransaction] = useState([]);
   const card = [
     {
       icon: (
@@ -55,7 +64,7 @@ const DashboardPage = () => {
         </svg>
       ),
       title: "Revenue",
-      number: revenue.result,
+      number: formatMoney(revenue.result) + " VND",
       bgColor: "bg-green-300",
       bgCard: "bg-gray-400",
     },
@@ -77,7 +86,7 @@ const DashboardPage = () => {
         </svg>
       ),
       title: "Order",
-      number: 18000,
+      number: order,
       bgColor: "bg-yellow-200",
       bgCard: "bg-red-400",
     },
@@ -99,7 +108,7 @@ const DashboardPage = () => {
         </svg>
       ),
       title: "Happy Client",
-      number: 18000,
+      number: customer,
       bgColor: "bg-blue-300",
       bgCard: "bg-light-400",
     },
@@ -109,14 +118,91 @@ const DashboardPage = () => {
       setRevenue(res);
     });
   };
+  const fetchAllTransaction = () => {
+    getAllTransactionOrderType().then((res) => {
+      setTransaction(res?.slice().reverse());
+    });
+  };
+  const fetchCountAllOrder = () => {
+    countAllOrder().then((res) => {
+      setOrder(res);
+    });
+  };
+  const fetchCountCustomer = () => {
+    countCustomer()
+      .then((res) => {
+        setCustomer(res);
+      })
+      .catch((error) => console.log(error));
+  };
+  const fetchTop5Chef = () => {
+    getTop5Chef().then((res) => {
+      setKitchen(res).catch((error) => console.log(error));
+    });
+  };
+  const formatMonth = (monthNumber) => {
+    const months = [
+      "Jan",
+      "Feb",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    // Check if the monthNumber is valid (between 1 and 12)
+    if (monthNumber >= 1 && monthNumber <= 12) {
+      return months[monthNumber - 1];
+    } else {
+      return "Invalid Month";
+    }
+  };
+  const fetchTotal12Month = () => {
+    getTotalIn12Month()
+      .then((res) => {
+        setMoney(
+          res?.map((item) => {
+            return {
+              month: formatMonth(item?.month),
+              money: item?.totalPrice,
+            };
+          })
+        );
+      })
+      .catch((error) => console.log(error));
+  };
+  const fetchTop5Customer = () => {
+    getTop5Customer()
+      .then((res) => {
+        console.log(res);
+        setTopCustomer(res);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+  const handleUserTimelineClick = (id) => {
+    navigate(`/${direction.dashboard}/${direction.user}/${id}`);
+  };
   useEffect(() => {
     fetchAllRevenue();
+    fetchCountAllOrder();
+    fetchCountCustomer();
+    fetchAllTransaction();
+    fetchTotal12Month();
+    fetchTop5Customer();
+    fetchTop5Chef();
   }, []);
   useEffect(() => {
     getAllOrder()
       .then((res) => {
-        console.log(res);
-        setData(res);
+        setData(res.slice().reverse());
       })
       .catch(() => navigate("/error"));
   }, []);
@@ -126,9 +212,9 @@ const DashboardPage = () => {
       title: <p className="font-bold text-xl">Recent Orders</p>,
       dataIndex: "thumbnail",
       render: (_, record, index) => (
-        <div className=" w-[100px] h-[100px] rounded-full overflow-hidden">
+        <div className=" w-[100px] h-[100px] rounded-lg overflow-hidden">
           <img
-            src={record.mealSessionDto1.mealDto1?.image}
+            src={record.mealSessionDto1?.mealDto1?.image}
             className="w-full h-[100%]"
           ></img>
         </div>
@@ -138,22 +224,25 @@ const DashboardPage = () => {
       dataIndex: "title",
       render: (_, record, index) => (
         <div className="leading-7 md:overflow-auto md:w-[200px]">
-          <h1 className="font-bold">{record.mealSessionDto1.mealDto1?.name}</h1>
+          <h1 className="font-bold">
+            {record.mealSessionDto1?.mealDto1?.name}
+          </h1>
           <p className="text-gray-400">
-            {record.mealSessionDto1.mealDto1.description}
+            {record.mealSessionDto1?.mealDto1?.description}
           </p>
           <p className="font-bold text-2xl">#{index + 1}</p>
-          <p className="font-bold">{record.date}</p>
+          <p className="font-bold">{record.time}</p>
         </div>
       ),
-      defaultSortOrder: "descend",
-      sorter: (a, b) => moment(a.date).unix() - moment(b.date).unix(),
     },
     {
       dataIndex: "",
       render: (_, record) => (
         <div className="md:w-[200px]">
-          <h1 className="font-normal">{record.customerDto1?.name}</h1>
+          <h1 className=" font-bold">
+            <span className="text-red-400">{record.customerDto1?.userId}#</span>
+            {record.customerDto1?.name}
+          </h1>
         </div>
       ),
     },
@@ -161,7 +250,9 @@ const DashboardPage = () => {
       dataIndex: "price",
       render: (_, record) => (
         <div className="">
-          <p className="font-bold">{record.mealSessionDto1.price}VND</p>
+          <p className="font-bold">
+            {formatMoney(record.mealSessionDto1?.price)} VND
+          </p>
         </div>
       ),
     },
@@ -176,19 +267,13 @@ const DashboardPage = () => {
   ];
   const columns1 = [
     {
-      dataIndex: "id",
-      render: (text) => <div className="text-red-600">#{text}</div>,
+      render: (_, record, index) => (
+        <div className="text-red-600">#{index + 1}</div>
+      ),
     },
     {
       dataIndex: "title",
-      render: (_, record) => (
-        <div>
-          <img
-            src={record.thumbnail}
-            className="w-[60px] h-[60px] rounded-full"
-          ></img>
-        </div>
-      ),
+      render: (_, record) => <div>{record.customerDtoGetTop5?.name}</div>,
     },
     {
       dataIndex: "title",
@@ -201,13 +286,64 @@ const DashboardPage = () => {
     {
       dataIndex: "price",
       render: (_, record) => (
-        <div>
-          <p className="font-thin text-sm">{record.price} VND</p>
+        <div className="flex flex-row gap-3 justify-between">
+          <p className="font-bold text-sm">{record.orderTimes}</p>
+          <FontAwesomeIcon icon={faNewspaper} color="#F0E901" />
         </div>
       ),
     },
   ];
-
+  const columnsKitchen = [
+    {
+      render: (_, record, index) => (
+        <div className="text-red-600">#{index + 1}</div>
+      ),
+    },
+    {
+      dataIndex: "title",
+      render: (_, record) => <div>{record.chefDtoGetTop5?.name}</div>,
+    },
+    {
+      dataIndex: "title",
+      render: (_, record) => (
+        <div>
+          <h1 className="font-bold text-sm text-black">{record.title}</h1>
+        </div>
+      ),
+    },
+    {
+      dataIndex: "price",
+      render: (_, record) => (
+        <div className="flex flex-row gap-3 justify-between">
+          <p className="font-bold text-sm">{record.orderTimes}</p>
+          <FontAwesomeIcon icon={faNewspaper} color="#F0E901" />
+        </div>
+      ),
+    },
+  ];
+  const renderTimelineItems = (transactions) => {
+    return transactions.slice(0, 10).map((transaction) => (
+      <Timeline.Item key={transaction.id}>
+        <p
+          className="text-sm font-bold text-amber-400 underline hover:cursor-pointer hover:text-zinc-400"
+          onClick={() => {
+            handleUserTimelineClick(
+              transaction.walletDtoGetAllTransaction?.userDtoGetAllTransaction
+                ?.userId
+            );
+          }}
+        >
+          {"User #" +
+            transaction.walletDtoGetAllTransaction?.userDtoGetAllTransaction
+              ?.name}{" "}
+        </p>
+        <p className="font-bold">
+          {" "}
+          - {transaction.description} - {transaction.date}
+        </p>
+      </Timeline.Item>
+    ));
+  };
   return (
     <div className="w-full h-full p-4">
       <div className="account-search h-[10%] flex items-center  justify-end mb-3">
@@ -225,7 +361,7 @@ const DashboardPage = () => {
             </div>
             <div>
               <p className="font-bold text-base">{item.title}</p>
-              <p className="font-bold text-base">{item.number} VND</p>
+              <p className="font-bold text-base">{item.number}</p>
             </div>
           </div>
         ))}
@@ -233,29 +369,18 @@ const DashboardPage = () => {
       <div className="w-full flex justify-between p-4">
         <div className="w-[70%] flex flex-col">
           <div className="h-full lg:w-full lg:flex lg:flex-col lg:justify-start bg-white rounded-lg p-4 lg:overflow-auto lg:no-scrollbar md:overflow-auto md:no-scrollbar md:w-full sm:overflow-auto sm:no-scrollbar">
-            <h1>Revenue Statictical</h1>
-            <LineChart
-              className="w-full"
-              width={800}
-              height={400}
-              data={chartData}
-            >
+            <h1 className="my-5">Revenue Statictical</h1>
+            <LineChart className="w-full" width={800} height={400} data={money}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
+              <XAxis dataKey="month" />
               <YAxis />
               <Tooltip />
               <Legend />
               <Line
                 type="linear" // Set interpolation type to "linear" for straight lines
-                dataKey="Customer"
-                name="Customer"
+                dataKey="money"
+                name="Money"
                 stroke="rgba(75, 192, 192, 0.8)"
-              />
-              <Line
-                type="linear" // Set interpolation type to "linear" for straight lines
-                dataKey="Order"
-                name="Order"
-                stroke="rgba(75, 0, 192, 0.8)"
               />
             </LineChart>
           </div>
@@ -266,7 +391,7 @@ const DashboardPage = () => {
                   <div className="my-3">
                     <h1>Top Customer</h1>
                   </div>
-                  <div className="w-full h-full overflow-auto no-scrollbar p-1">
+                  <div className="w-full h-full no-scrollbar p-1">
                     <ConfigProvider
                       theme={{
                         components: {
@@ -281,7 +406,7 @@ const DashboardPage = () => {
                     >
                       <Table
                         showHeader={false}
-                        dataSource={data}
+                        dataSource={topCustomer}
                         loading={loading}
                         columns={columns1}
                         pagination={{ pageSize: 5, hideOnSinglePage: true }}
@@ -301,9 +426,9 @@ const DashboardPage = () => {
               <div className="account-search h-[10%] flex items-center  justify-end mb-3 p-3">
                 <div className="h-[40%]  add-btn flex flex-col justify-between items-center w-full">
                   <div className="my-3">
-                    <h1>Top Selling Food</h1>
+                    <h1>Top Kitchen</h1>
                   </div>
-                  <div className="w-full h-full overflow-auto no-scrollbar p-1">
+                  <div className="w-full h-full  no-scrollbar p-1">
                     <ConfigProvider
                       theme={{
                         components: {
@@ -318,9 +443,9 @@ const DashboardPage = () => {
                     >
                       <Table
                         showHeader={false}
-                        dataSource={data5}
+                        dataSource={kitchen}
                         loading={loading}
-                        columns={columns1}
+                        columns={columnsKitchen}
                         pagination={{ pageSize: 5, hideOnSinglePage: true }}
                         rowClassName={(record, index) =>
                           `custom-row ${
@@ -339,22 +464,7 @@ const DashboardPage = () => {
         <div className="w-[25%] h-full bg-white rounded-lg p-4">
           <h1>Recently Activities</h1>
           <div className="my-4">
-            <Timeline
-              items={[
-                {
-                  children: "Create a services site 2015-09-01",
-                },
-                {
-                  children: "Solve initial network problems 2015-09-01",
-                },
-                {
-                  children: "Technical testing 2015-09-01",
-                },
-                {
-                  children: "Network problems being solved 2015-09-01",
-                },
-              ]}
-            />
+            <Timeline>{renderTimelineItems(transaction)}</Timeline>
           </div>
         </div>
       </div>

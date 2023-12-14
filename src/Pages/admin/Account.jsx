@@ -87,9 +87,7 @@ const Account = () => {
     if (roleId == 2) {
       navigate(`/${direction.dashboard}/${direction.user}/${id}`);
     } else {
-      navigate(`/${direction.dashboard}/${direction.kitchen}/${id}`, {
-        roleId: roleId,
-      });
+      navigate(`/${direction.dashboard}/${direction.kitchen}/${id}`);
     }
   };
   const content2 = (
@@ -262,9 +260,9 @@ const Account = () => {
     getAllUser(toast, navigate)
       .then((res) => {
         setData(res);
+        setLoading(false);
       })
       .catch((error) => console.log(error));
-    setLoading(false);
   }, []);
   return (
     <div className="w-full h-full p-4 rounded-lg">

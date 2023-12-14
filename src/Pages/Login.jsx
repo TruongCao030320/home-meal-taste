@@ -21,7 +21,13 @@ const Login = () => {
   const navigate = useNavigate();
   const onFinish = (values) => {
     setLoading(true);
-    login(values, navigate, message).then(() => setLoading(false));
+    login(values, navigate, message)
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
@@ -93,7 +99,7 @@ const Login = () => {
             </div>
           </Form.Item>
         </Form>
-        <p className="mt-5 text-textColor text-center">
+        {/* <p className="mt-5 text-textColor text-center">
           Don&apos;t have an account?{" "}
           <Link
             to={`/${direction.register}`}
@@ -101,7 +107,7 @@ const Login = () => {
           >
             Register
           </Link>
-        </p>
+        </p> */}
       </div>
       <video
         autoPlay
@@ -109,7 +115,10 @@ const Login = () => {
         muted
         className="absolute top-0 left-0 w-full h-full object-cover z-10 opacity-80"
       >
-        <source src="../src/assets/images/pan.mp4" type="video/mp4" />
+        <source
+          src={`${"https://homemealtaste.blob.core.windows.net/video/309320ef-804a-4451-bfb0-95c205c9ea4b.mp4"}`}
+          type="video/mp4"
+        />
         {/* You can also add additional source elements for different video formats */}
         {/* <source src="path/to/your/background-video.webm" type="video/webm" /> */}
         {/* <source src="path/to/your/background-video.ogv" type="video/ogg" /> */}

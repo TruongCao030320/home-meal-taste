@@ -314,14 +314,14 @@ const ManageMealSessionInKitchen = () => {
             <FontAwesomeIcon icon={faKitchenSet} fontSize={25} />
             <h1>{kitchen?.name}</h1>
           </div>
-          <div className="my-2 flex flex-row w-[50%] justify-between">
+          <div className="my-2 flex flex-row  justify-between">
             <h1 className="underline">
               Total Revenue In Session :{formatMoney(totalInSessionOfKitchen)}{" "}
               VND
             </h1>
           </div>
           <Link
-            to={`/${direction.dashboard}/${direction.session}/${direction.chefInSession}/11`}
+            to={`/${direction.dashboard}/${direction.session}/${direction.chefInSession}/${sessionId}`}
           >
             <Button
             // onClick={() => setShowAddForm(true)}

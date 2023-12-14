@@ -72,30 +72,9 @@ const Kitchen = () => {
       ),
     },
     {
-      title: "Active",
-      dataIndex: "",
-      render: (_, record) => {
-        const status = record?.user?.status;
-        return (
-          <div className="font-bold">
-            {status == true ? <TiTick /> : <IoCloseSharp />}
-          </div>
-        );
-      },
-      filters: [
-        { text: "Yes", value: true },
-        { text: "No", value: false },
-      ],
-      onFilter: (value, record) => record.user.status === value,
-    },
-    {
       title: "Address",
       dataIndex: "",
-      render: (_, record) => (
-        <div className="font-bold">
-          {record.address} - {record.district}
-        </div>
-      ),
+      render: (_, record) => <div className="font-bold">{record.address}</div>,
     },
     {
       title: "Action",
@@ -104,30 +83,35 @@ const Kitchen = () => {
         <Space
           size="middle"
           className="p-1 border rounded-md hover:border-gray-600"
+          onClick={() => {
+            console.log("id là", record.userDtoKitchenResponseModel?.userId);
+            navigate(
+              `/${direction.dashboard}/${direction.kitchen}/${record.userDtoKitchenResponseModel?.userId}`,
+              {
+                id: record.userDtoKitchenResponseModel?.userId,
+              }
+            );
+          }}
         >
-          <Link
-            to={`/${direction.dashboard}/${direction.kitchen}/${record.kitchenId}`}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="w-6 h-6"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-6 h-6"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-              />
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
-          </Link>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+            />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            />
+          </svg>
         </Space>
       ),
     },

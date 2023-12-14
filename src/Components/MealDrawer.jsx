@@ -26,11 +26,11 @@ const { TextArea } = Input;
 const CustomDrawer = () => {
   const dispatch = useDispatch();
   const [meal1, setMeal1] = useState({});
-  const { price, remainQuantity, quantity, status } = meal1 || {};
-  const { name, image, description, mealId } =
-    meal1?.mealDtoForMealSession || {};
+  const { price, remainQuantity, quantity, status, createDate } = meal1 || {};
+  const { name, image, description, mealId, dishesDtoMealSession } =
+    meal1?.mealDtoForMealSessions || {};
   const { areaName } =
-    meal1?.sessionDtoForMealSession?.areaDtoForMealSession || {};
+    meal1?.sessionDtoForMealSessions?.areaDtoForMealSessions || {};
 
   const mealsessionIDGetFromRedux = useSelector(
     (state) => state.mealDrawer.mealId
@@ -43,14 +43,15 @@ const CustomDrawer = () => {
   };
   const fetchSingleMeal = () => {
     console.log("mealsessionIDGetFromRedux", mealsessionIDGetFromRedux);
-    getSingleMealSessionById(mealsessionIDGetFromRedux).then((res) =>
-      setMeal1(res)
-    );
+    getSingleMealSessionById(mealsessionIDGetFromRedux).then((res) => {
+      console.log(res);
+      setMeal1(res);
+    });
   };
   useEffect(() => {
-    getDishByMealId(mealId).then((res) => {
-      setDishes(res?.dishDto);
-    });
+    // getDishByMealId(mealId).then((res) => {
+    //   setDishes(res?.dishDto);
+    // });
     fetchSingleMeal();
   }, [mealsessionIDGetFromRedux, refresh2]);
   const confirmMealSession = (status) => {
@@ -59,7 +60,7 @@ const CustomDrawer = () => {
         dispatch(refresh());
         toast.success("Update status successfully.");
       })
-      .catch((error) => toast.error("Update failed!"));
+      .catch((error) => toast.error("Can not change status !"));
   };
 
   return (
@@ -104,14 +105,21 @@ const CustomDrawer = () => {
               className="rounded-lg shadow-md mb-3 w-[450px] h-[300px]"
             />
           </div>
-          <div className="form-item">
-            <label htmlFor="">Title</label>
-            <Input className="my-2 box__shadow h-[40px]" value={name} />
+          <div className="form-item flex flex-row justify-between">
+            <div className="w-[45%]">
+              <label htmlFor="">Title</label>
+              <Input className="my-2 box__shadow h-[40px]" value={name} />
+            </div>
+            <div className="w-[45%]">
+              <label htmlFor="">Create Date</label>
+              <Input className="my-2 box__shadow h-[40px]" value={createDate} />
+            </div>
           </div>
+
           <div className="form-item">
             <label htmlFor="">Meal include:</label>
             <div className=" grid grid-cols-2 gap-2 p-4 bg-colorBg rounded-lg w-full">
-              {dishes?.map((item) => (
+              {dishesDtoMealSession?.map((item) => (
                 <div className="flex items-center gap-2 bg-white border w-[100%] p-2 rounded-lg shadow-inner">
                   <img
                     src={item.image}
@@ -165,7 +173,7 @@ const CustomDrawer = () => {
             <label htmlFor="">Kitchen</label>
             <Input
               className="my-2 box__shadow h-[40px]"
-              value={meal1?.kitchenDtoForMealSession?.name}
+              value={meal1?.kitchenDtoForMealSessions?.name}
             />
           </div>
           <div className="form-item">

@@ -209,8 +209,9 @@ const ManageChefInSession = () => {
             </div>
           </div>
           <button
-            className="mx-1 btn rounded-xl py-3 bg-bgBtnColor"
+            className="mx-1 btn rounded-xl py-3 bg-bgBtnColor cursor-pointer"
             onClick={() => onHandleChangeSessionStatus()}
+            disabled={session.status == true ? false : true}
           >
             {session.status == true ? "Inactive" : "Active"}
           </button>

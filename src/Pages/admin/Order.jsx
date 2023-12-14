@@ -45,7 +45,10 @@ const Order = () => {
       dataIndex: "customer",
       // render: (name) => `${name.first} ${name.last}`
       render: (_, record) => (
-        <p className="font-bold">{record.customerDto1.name}</p>
+        <div className="flex flex-col">
+          <p className="font-bold">{record.customerDto1?.name}</p>
+          <p className="font-bold">{record.customerDto1?.phone}</p>
+        </div>
       ),
     },
     {
@@ -53,7 +56,7 @@ const Order = () => {
       dataIndex: "meal",
       render: (_, record) => (
         <p className="font-bold">
-          {record.mealSessionDto1.mealDto1.kitchenDto1.name}
+          {record.mealSessionDto1.mealDto1?.kitchenDto1?.name}
         </p>
       ),
     },
@@ -61,13 +64,12 @@ const Order = () => {
       title: "Product",
       dataIndex: "meal",
       render: (_, record) => (
-        <p className="font-bold">{record.mealSessionDto1.mealDto1.name}</p>
+        <p className="font-bold">{record.mealSessionDto1?.mealDto1?.name}</p>
       ),
     },
     {
       title: "Create At",
       dataIndex: "time",
-      defaultSortOrder: "descend",
       sorter: (a, b) => {
         const dateA = moment(a.time, "DD-MM-YYYY HH:mm");
         const dateB = moment(b.time, "DD-MM-YYYY HH:mm");
@@ -78,7 +80,6 @@ const Order = () => {
     {
       title: "Price/VND",
       dataIndex: "price",
-      defaultSortOrder: "descend",
       sorter: (a, b) => a.price - b.price,
       render: (text) => <p className="font-bold">{formatMoney(text)}</p>,
     },
@@ -93,13 +94,28 @@ const Order = () => {
           </Tag>
         );
       },
+      filters: [
+        {
+          text: "DONE",
+          value: "DONE",
+        },
+        {
+          text: "CANCELLED",
+          value: "CANCELLED",
+        },
+        {
+          text: "PAID",
+          value: "PAID",
+        },
+      ],
+      onFilter: (value, record) => record.status.toUpperCase().includes(value),
     },
   ];
   useEffect(() => {
     setLoading(true);
     getAllOrder()
       .then((res) => {
-        setData(res);
+        setData(res.slice().reverse());
         setLoading(false);
       })
       .catch((error) => console.log(error));
@@ -175,11 +191,9 @@ const Order = () => {
   );
 
   const newData = data?.filter((item) => {
-    if (search.length > 2) {
+    if (search) {
       // Check if the phone number exists and includes the search string
-      return item.customerDto1?.phone == search;
-    } else {
-      return item.orderId == search;
+      return item.customerDto1?.phone.includes(search);
     }
   });
   return (
@@ -194,7 +208,7 @@ const Order = () => {
           <div className="account-search lg:flex items-center justify-between mb-5 lg:w-[100%] md:w-full md:grid md:grid-cols-2 md:gap-3">
             <div className="my-2">
               <Input
-                placeholder="Enter Order ID or Phone"
+                placeholder="Enter Phone"
                 onChange={(e) => {
                   setSearch(e.target.value);
                 }}
@@ -202,7 +216,7 @@ const Order = () => {
                 suffix={<TbSearch />}
               />
             </div>
-            <div className="my-2">
+            {/* <div className="my-2">
               <Popover
                 content={content2}
                 title="Filter"
@@ -214,7 +228,7 @@ const Order = () => {
                   <span>Filter</span>
                 </Button>
               </Popover>
-            </div>
+            </div> */}
           </div>
         </div>
         <div className="w-full h-full overflow-auto no-scrollbar">

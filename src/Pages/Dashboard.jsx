@@ -65,8 +65,8 @@ const Dashboard = () => {
             <Sidebar></Sidebar>
           </Content>
         </Sider>
-        <Layout className="p-2 bg-white lg:w-full lg:h-full w-full h-full min-w-[500px]">
-          <Header className=" p-0 lg:w-full md:flex md:flex-row md:w-full">
+        <Layout className=" bg-white lg:w-full lg:h-full w-full h-full min-w-[500px]">
+          <Header className="p-0 lg:w-full md:flex md:flex-row md:w-full">
             <Top />
           </Header>
           <Content className=" lg:h-full lg:top-0 lg:left-0  lg:rounded-lg bg-colorBg lg:mt-4 flex lg:w-full lg:relative justify-center md:w-[90vw] md:fixed md:left-14 md:top-28 lg:min-h-[500px]">
