@@ -32,6 +32,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { showDrawer } from "../redux/ToggleDrawerMealSlice.js";
 import CustomDrawer from "./MealDrawer";
 import { getSingleMealSessionById } from "../API/Admin";
+import alternateImage from "../assets/images/buncha.png";
 import moment from "moment";
 import { formatMoney } from "../API/Money.js";
 const normalizeString = (str) => {
@@ -122,7 +123,11 @@ const ProductList = () => {
         <div className="lg:w-full md:w-[100px] h-[120px] p-1 flex justify-center items-center">
           <img
             className="!rounded-2xl box__shadow bg-yellow-50 hover:scale-110 transition-all duration-500 h-full w-[120px] "
-            src={record.mealDtoForMealSession.image}
+            src={
+              record.mealDtoForMealSession.image
+                ? record.mealDtoForMealSession.image
+                : alternateImage
+            }
           ></img>
         </div>
       ),
@@ -141,7 +146,13 @@ const ProductList = () => {
           <div>
             <h1>{record.mealDtoForMealSession?.name}</h1>
             <p>Create At :{record.createDate}</p>
-            <p>{record.mealDtoForMealSession?.description}</p>
+            <p>Description : {record.mealDtoForMealSession?.description}</p>
+            <div className="flex flex-row gap-5">
+              <p>Selling Slot : {record.quantity}</p>
+              <p>
+                Remain Slot : {record.remainQuantity}/{record.quantity}
+              </p>
+            </div>
           </div>
           <div>
             <Tag
@@ -236,7 +247,6 @@ const ProductList = () => {
   const fetchAllMealSession = () => {
     setLoading(true);
     getAllMealSession().then((res) => {
-      console.log(res);
       setData(res);
       setNewData(
         res.filter((item) => {

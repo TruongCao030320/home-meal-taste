@@ -13,6 +13,7 @@ import {
   Tag,
 } from "antd";
 import { useDispatch, useSelector } from "react-redux";
+import alternateImage from "../assets/images/buncha.png";
 import { useEffect } from "react";
 import { hideDrawer, refresh } from "../redux/ToggleDrawerMealSlice.js";
 import { toast } from "react-toastify";
@@ -100,7 +101,7 @@ const CustomDrawer = () => {
         <form action="" className="p-5 grid gap-5">
           <div className="form-item w-[100%] flex justify-center">
             <img
-              src={image}
+              src={image ? image : alternateImage}
               alt=""
               className="rounded-lg shadow-md mb-3 w-[450px] h-[300px]"
             />
@@ -132,7 +133,7 @@ const CustomDrawer = () => {
                     </div>
                     <div className="py-1 px-1">
                       <span className="font-bold">Food's Type:</span>{" "}
-                      <Tag>{item.dishType?.name}</Tag>
+                      <Tag>{item.dishTypeDtoMealSession?.name}</Tag>
                     </div>
                   </div>
                 </div>

@@ -29,6 +29,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { paperclip } from "fontawesome";
 import { faNewspaper, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import { direction } from "../../API/Direction";
+import alternateImage from "../../assets/images/buncha.png";
 const DashboardPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -136,9 +137,11 @@ const DashboardPage = () => {
       .catch((error) => console.log(error));
   };
   const fetchTop5Chef = () => {
-    getTop5Chef().then((res) => {
-      setKitchen(res).catch((error) => console.log(error));
-    });
+    getTop5Chef()
+      .then((res) => {
+        setKitchen(res);
+      })
+      .catch((error) => console.log(error));
   };
   const formatMonth = (monthNumber) => {
     const months = [
@@ -214,7 +217,11 @@ const DashboardPage = () => {
       render: (_, record, index) => (
         <div className=" w-[100px] h-[100px] rounded-lg overflow-hidden">
           <img
-            src={record.mealSessionDto1?.mealDto1?.image}
+            src={
+              record.mealSessionDto1?.mealDto1?.image
+                ? record.mealSessionDto1?.mealDto1?.image
+                : alternateImage
+            }
             className="w-full h-[100%]"
           ></img>
         </div>

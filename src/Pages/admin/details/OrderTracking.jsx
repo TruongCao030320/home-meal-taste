@@ -31,16 +31,17 @@ const columns = [
       <div className="flex justify-start items-center p-2">
         <img
           className="w-[100px] h-[100px] rounded-full mr-5"
-          src={record.mealSessionDto2?.mealDto2?.image}
+          src={record.mealSessionDto2.mealDto2.image}
         ></img>
-        <h1>{record.title}</h1>
       </div>
     ),
   },
   {
     title: "Meal's Title",
     render: (_, record) => (
-      <p className="font-bold">{record.mealSessionDto2?.mealDto2?.name}</p>
+      <div>
+        <p className="font-bold">{record.mealSessionDto2?.mealDto2?.name}</p>
+      </div>
     ),
   },
   {
@@ -80,7 +81,6 @@ const OrderTracking = () => {
 
   const [orderDetail, setOrderDetail] = useState({});
   const { orderId, time, status } = orderDetail;
-  console.log(orderDetail.customerDto2);
   const { name, phone, userId } = orderDetail.customerDto2 || {};
   const fetchOrderDetail = () => {
     getOrderById(id).then((res) => {
