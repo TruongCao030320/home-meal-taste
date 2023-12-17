@@ -230,7 +230,6 @@ const ExpandedContent = ({ mealSessionId }) => {
     fetchOrderByMealSessionId();
     fetchTotalPriceEveryMealSession();
     const intervalId = setInterval(() => {
-      console.log("CHạy đc kh");
       fetchOrderByMealSessionId();
     }, 5000);
 

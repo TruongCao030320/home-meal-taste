@@ -14,6 +14,7 @@ import {
 } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import alternateImage from "../assets/images/buncha.png";
+import { formatMoney } from "../API/Money.js";
 import { useEffect } from "react";
 import { hideDrawer, refresh } from "../redux/ToggleDrawerMealSlice.js";
 import { toast } from "react-toastify";
@@ -141,10 +142,14 @@ const CustomDrawer = () => {
             </div>
           </div>
           <div className="form-item">
+            {}
             <Row className="w-full flex justify-between">
               <Col span={24}>
                 <label htmlFor="">Price (VND)</label>
-                <Input className="my-2 box__shadow h-[40px]" value={price} />
+                <Input
+                  className="my-2 box__shadow h-[40px]"
+                  value={formatMoney(price)}
+                />
               </Col>
             </Row>
           </div>

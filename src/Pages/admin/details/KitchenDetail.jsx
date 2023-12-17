@@ -37,7 +37,7 @@ import { formatMoney } from "../../../API/Money.js";
 const KitchenDetail = () => {
   const dispatch = useDispatch();
   const { id } = useParams();
-  console.log("id lấy đc từ useparam là", id);
+  const refresh = useSelector((state) => state.mealDrawer.refresh);
   const [meal, setMeal] = useState();
   const [kitchen, setKitchen] = useState({});
   const [user, setUser] = useState({});
@@ -46,6 +46,7 @@ const KitchenDetail = () => {
   const [districtArray, setDistrictArray] = useState();
   const [drawerData, setDrawerData] = useState({});
   const [feedback, setFeedback] = useState([]);
+  const [newData, setNewData] = useState([]);
   const [transaction, setTransaction] = useState([]);
   const { name, address } = kitchen || {};
   const { districtName } = kitchen?.districtDtoGetKitchen || {};
@@ -60,17 +61,22 @@ const KitchenDetail = () => {
     getKitchenByUserId(id).then((res) => {
       setUser(res);
       getAllMealSessionByKitchenId(res.kitchenId).then((res) => {
-        setMeal(res);
+        setMeal(res.slice().reverse());
         setNewData(
-          res.filter((item) => {
-            return item.createDate.includes(selectedDate);
-          })
+          res
+            .slice()
+            .reverse()
+            .filter((item) => {
+              return item.createDate.includes(selectedDate);
+            })
         );
       });
       getKitchenByKitchenId(res?.kitchenId).then((res) => setKitchen(res));
       getAllDistrict().then((res) => setDistrictArray(res));
       getOrderByKitchenId(res?.kitchenId).then((res) => setOrder(res));
-      getAllFeedbackByKitchenId(res?.kitchenId).then((res) => setFeedback(res));
+      getAllFeedbackByKitchenId(res?.kitchenId).then((res) =>
+        setFeedback(res.slice().reverse())
+      );
       getAllTransactionByUserId(id).then((res) => {
         setTransaction(res.slice().reverse());
       });
@@ -78,7 +84,6 @@ const KitchenDetail = () => {
     });
   };
 
-  console.log("userid", id);
   const { balance } =
     kitchen?.userDtoKitchenResponseModel?.walletDtoKitchenResponseModel || {};
   const toggleDrawerType2 = async (mealSessionId) => {
@@ -110,7 +115,6 @@ const KitchenDetail = () => {
       title: "Product",
       dataIndex: "meal",
       render: (_, record) => {
-        console.log(record);
         return (
           <p className="font-bold">
             {record.mealSession?.mealDtoOrderResponse?.name}
@@ -519,7 +523,7 @@ const KitchenDetail = () => {
             }}
             className="box__shadow !h-[50px] mx-3 !w-[300px] my-5"
           />
-          <Table dataSource={meal} columns={mealColumns} />,
+          <Table dataSource={newData} columns={mealColumns} />,
         </div>
       ),
     },
@@ -532,16 +536,21 @@ const KitchenDetail = () => {
   useEffect(() => {
     fetchKitchenByUserId();
   }, [id]);
-  // useEffect(() => {
-  //   getAllMealSessionByKitchenId(res.kitchenId).then((res) => {
-  //     setMeal(res);
-  //     setNewData(
-  //       res.filter((item) => {
-  //         return item.createDate.includes(selectedDate);
-  //       })
-  //     );
-  //   });
-  // }, [selectedDate]);
+  useEffect(() => {
+    setLoading(true);
+    getAllMealSessionByKitchenId(user?.kitchenId).then((res) => {
+      setMeal(res);
+      setNewData(
+        res
+          .slice()
+          .reverse()
+          .filter((item) => {
+            return item.createDate.includes(selectedDate);
+          })
+      );
+      setLoading(false);
+    });
+  }, [selectedDate, refresh]);
   useEffect(() => {
     // getAllMealSessionByKitchenId(user.kitchenId).then((res) => {
     //   setMeal(res);

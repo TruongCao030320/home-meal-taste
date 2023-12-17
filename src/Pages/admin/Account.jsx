@@ -259,7 +259,7 @@ const Account = () => {
     setLoading(true);
     getAllUser(toast, navigate)
       .then((res) => {
-        setData(res);
+        setData(res.slice().reverse());
         setLoading(false);
       })
       .catch((error) => console.log(error));

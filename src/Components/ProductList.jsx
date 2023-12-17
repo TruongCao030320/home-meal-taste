@@ -247,11 +247,14 @@ const ProductList = () => {
   const fetchAllMealSession = () => {
     setLoading(true);
     getAllMealSession().then((res) => {
-      setData(res);
+      setData(res.slice().reverse());
       setNewData(
-        res.filter((item) => {
-          return item.createDate.includes(selectedDate);
-        })
+        res
+          .slice()
+          .reverse()
+          .filter((item) => {
+            return item.createDate.includes(selectedDate);
+          })
       );
       // setNewData(res);
       setLoading(false);
