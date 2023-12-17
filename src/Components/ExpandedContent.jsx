@@ -246,12 +246,12 @@ const ExpandedContent = ({ mealSessionId }) => {
       </div>
       <div className="account-search flex items-center justify-between mb-5 lg:w-[100%] md:w-full md:gap-3 ">
         <div className="my-2 flex flex-row w-[40%] justify-between">
-          <Input
+          {/* <Input
             placeholder="Enter data to find...."
             onChange={(e) => setSearch(e.target.value)}
             className="box__shadow"
             suffix={<TbSearch />}
-          />
+          /> */}
           {/* <DatePicker
             // value={selectedDate}
             defaultValue={dayjs()}

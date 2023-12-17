@@ -108,11 +108,14 @@ const ManageMealSessionInKitchen = () => {
   const fetchAllMealSessionByKitchenId = () => {
     setLoading(true);
     getAllMealSessionByKitchenInSession(kitchenId, sessionId).then((res) => {
-      setMealSessionOfKitchen(res);
+      setMealSessionOfKitchen(res.slice().reverse());
       setNewData(
-        res.filter((item) => {
-          return item.createDate.includes(selectedDate);
-        })
+        res
+          .slice()
+          .reverse()
+          .filter((item) => {
+            return item.createDate.includes(selectedDate);
+          })
       );
       setLoading(false);
     });

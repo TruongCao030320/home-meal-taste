@@ -15,8 +15,9 @@ import { TbSearch } from "react-icons/tb";
 
 import { TiTick } from "react-icons/ti";
 import { IoCloseSharp } from "react-icons/io5";
-import toast from "react-hot-toast";
-import { render } from "react-dom";
+// import toast from "react-hot-toast";
+import { toast } from "react-toastify";
+import * as reactDom from "react-dom";
 import { Modal } from "react-bootstrap";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ToastContainer } from "react-toastify";

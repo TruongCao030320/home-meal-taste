@@ -26,7 +26,13 @@ import { AiTwotoneEdit, AiFillDelete } from "react-icons/ai";
 import ModalConfirm from "./ModalConfirm";
 import context from "react-bootstrap/esm/AccordionContext";
 import { toast } from "react-toastify";
-import { getAllMeal, getAllMealSession, getSingleMeal } from "../API/Admin";
+import {
+  getAllArea,
+  getAllMeal,
+  getAllMealSession,
+  getAllSessionByAreaId,
+  getSingleMeal,
+} from "../API/Admin";
 import { direction } from "../API/Direction";
 import { useDispatch, useSelector } from "react-redux";
 import { showDrawer } from "../redux/ToggleDrawerMealSlice.js";
@@ -52,6 +58,11 @@ const ProductList = () => {
   const navigate = useNavigate();
   const [modal, contextHolder] = Modal.useModal();
   const [drawerData, setDrawerData] = useState({});
+  const [area, setArea] = useState([]);
+  const [areaValue, setAreaValue] = useState();
+  const [session, setSession] = useState([]);
+  const [sessionValue, setSessionValue] = useState();
+
   const [search, setSearch] = useState("");
   const showToastMessage = () => {
     toast.success("Delete successfully.");
@@ -79,39 +90,54 @@ const ProductList = () => {
       .catch((error) => console.log(error));
     dispatch(showDrawer(mealSessionId));
   };
+  const fetchAllAreaAndSession = () => {
+    getAllArea().then((res) => {
+      setArea(res);
+    });
+  };
   const [searchTerm, setSearchTerm] = useState("");
-
+  const handleResetFilters = () => {
+    setAreaValue(null);
+    setSessionValue(null);
+  };
   const content2 = (
     <div className="min-w-[300px] grid gap-5">
       <div className="flex w-full justify-between items-center">
         <div className="w-[20%]">
-          <h2>Status</h2>
+          <h2>Area</h2>
         </div>
         <div className="w-[70%]">
           <Select
             className="w-full"
-            options={[
-              { value: "1", label: "Approved" },
-              { value: "2", label: "Cancelled" },
-              { value: "3", label: "Pending" },
-            ]}
+            options={area?.map((item) => ({
+              value: item.areaId,
+              label: item.areaName,
+            }))}
+            value={areaValue}
+            onChange={(item) => {
+              setAreaValue(item);
+            }}
           ></Select>
         </div>
       </div>
       <div className="flex w-full justify-between items-center">
         <div className="w-[20%]">
-          <h2>Chef</h2>
+          <h2>Session</h2>
         </div>
         <div className="w-[70%]">
           <Select
             className="w-full"
-            options={[
-              { value: "1", label: "Approved" },
-              { value: "2", label: "Cancelled" },
-              { value: "3", label: "Pending" },
-            ]}
+            options={session?.map((item) => ({
+              value: item.sessionId,
+              label: item.sessionName,
+            }))}
+            value={sessionValue}
+            onChange={(item) => setSessionValue(item)}
           ></Select>
         </div>
+      </div>
+      <div className="flex w-full justify-end">
+        <Button onClick={handleResetFilters}>Reset Filters</Button>
       </div>
     </div>
   );
@@ -143,18 +169,34 @@ const ProductList = () => {
       dataIndex: "name",
       render: (_, record) => (
         <div className="flex  justify-between items-center">
-          <div>
-            <h1>{record.mealDtoForMealSession?.name}</h1>
-            <p>Create At :{record.createDate}</p>
-            <p>Description : {record.mealDtoForMealSession?.description}</p>
-            <div className="flex flex-row gap-5">
-              <p>Selling Slot : {record.quantity}</p>
+          <div className="flex flex-row justify-between w-[80%]">
+            <div className="">
+              <div className="">
+                <h1>{record.mealDtoForMealSession?.name}</h1>
+                <p>Create At :{record.createDate}</p>
+                <p>Kitchen :{record.kitchenDtoForMealSession?.name}</p>
+
+                {/* <p>Description : {record.mealDtoForMealSession?.description}</p> */}
+                <div className="flex flex-row gap-5">
+                  <p>Selling Slot : {record.quantity}</p>
+                  <p>
+                    Remain Slot : {record.remainQuantity}/{record.quantity}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className=" w-[40%]">
               <p>
-                Remain Slot : {record.remainQuantity}/{record.quantity}
+                Area :{" "}
+                {
+                  record.sessionDtoForMealSession?.areaDtoForMealSession
+                    ?.areaName
+                }
               </p>
+              <p>Session : {record.sessionDtoForMealSession?.sessionName}</p>
             </div>
           </div>
-          <div>
+          <div className="w-[15%]">
             <Tag
               className="p-2 shadow-md min-w-[100px] text-center"
               color={`${
@@ -261,33 +303,88 @@ const ProductList = () => {
     });
   };
 
-  useEffect(() => {
-    if (search) {
-      setNewData(
-        newData.filter((item) => {
-          const inforNormalize = normalizeString(
-            item?.mealDtoForMealSession?.name
-          );
-          const searchNormalize = normalizeString(search);
-          return inforNormalize.includes(searchNormalize);
-        })
-      );
-    } else if (selectedDate) {
-      setNewData(
-        data.filter((item) => {
-          console.log("vào đc filter k");
-          return item.createDate.includes(selectedDate);
-        })
-      );
-    } else {
-      setNewData(data);
-    }
-  }, [search, selectedDate]);
+  // useEffect(() => {
+  //   if (search) {
+  //     setNewData(
+  //       newData.filter((item) => {
+  //         const inforNormalize = normalizeString(
+  //           item?.mealDtoForMealSession?.name
+  //         );
+  //         const searchNormalize = normalizeString(search);
+  //         return inforNormalize.includes(searchNormalize);
+  //       })
+  //     );
+  //   } else if (selectedDate) {
+  //     setNewData(
+  //       data.filter((item) => {
+  //         console.log("vào đc filter k");
+  //         return item.createDate.includes(selectedDate);
+  //       })
+  //     );
+  //   } else {
+  //     setNewData(data);
+  //   }
+  // }, [search, selectedDate]);
 
   useEffect(() => {
     fetchAllMealSession();
     setNewData(newData);
   }, [refresh]);
+  useEffect(() => {
+    fetchAllAreaAndSession();
+  }, []);
+  const fetchAllSessionByAreaId = () => {
+    getAllSessionByAreaId(areaValue).then((res) => {
+      if (selectedDate) {
+        setSession(
+          res.filter((item) => {
+            return item?.createDate.includes(selectedDate);
+          })
+        );
+      } else {
+        setSession(res);
+      }
+    });
+  };
+  useEffect(() => {
+    fetchAllSessionByAreaId();
+    setSessionValue(null);
+  }, [areaValue, selectedDate]);
+  useEffect(() => {
+    let filteredData = data;
+    if (search) {
+      const searchNormalize = normalizeString(search);
+      filteredData = filteredData.filter((item) => {
+        const inforNormalize = normalizeString(
+          item?.mealDtoForMealSession?.name
+        );
+        return inforNormalize.includes(searchNormalize);
+      });
+    }
+
+    if (selectedDate) {
+      filteredData = filteredData.filter((item) =>
+        item.createDate.includes(selectedDate)
+      );
+    }
+
+    if (areaValue) {
+      filteredData = filteredData.filter(
+        (item) =>
+          item.sessionDtoForMealSession?.areaDtoForMealSession?.areaId ===
+          areaValue
+      );
+    }
+    if (sessionValue) {
+      filteredData = filteredData.filter(
+        (item) => item.sessionDtoForMealSession?.sessionId === sessionValue
+      );
+    }
+    // You can add more conditions as needed...
+
+    setNewData(filteredData);
+  }, [search, selectedDate, areaValue, sessionValue, data]);
+
   return (
     <div className="h-full w-full p-4">
       <CustomDrawer meal={drawerData || {}} />
@@ -317,7 +414,7 @@ const ProductList = () => {
             />
           </div>
           <div className="my-2"></div>
-          {/* <div className="my-2">
+          <div className="my-2">
             <Popover
               content={content2}
               title="Filter"
@@ -329,7 +426,7 @@ const ProductList = () => {
                 <span>Filter</span>
               </Button>
             </Popover>
-          </div> */}
+          </div>
         </div>
         <div className="w-full overflow-hidden">
           <ConfigProvider
