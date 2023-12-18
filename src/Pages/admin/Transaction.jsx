@@ -55,7 +55,6 @@ const Transaction = () => {
   };
   const fetchAllTransactionWithoutOrderId = () => {
     getAllTransactionWithoutOrderType().then((res) => {
-      console.log("witout order id", res);
       setTransactionOther(res.slice().reverse());
     });
   };
@@ -123,34 +122,34 @@ const Transaction = () => {
         );
       },
     },
-    {
-      title: "Type",
-      dataIndex: "transactionType",
-      render: (text) => {
-        const finalText = text.toUpperCase();
-        return (
-          <Tag color="green" className="px-4 py-1">
-            <p className="font-bold">{finalText}</p>
-          </Tag>
-        );
-      },
-      filters: [
-        {
-          text: "RECEIVE REVENUE",
-          value: "RR",
-        },
-        {
-          text: "ORDERED",
-          value: "ORDERED",
-        },
-        {
-          text: "REFUNDED",
-          value: "REFUNDED",
-        },
-      ],
-      onFilter: (value, record) =>
-        record.transactionType.toUpperCase().includes(value),
-    },
+    // {
+    //   title: "Type",
+    //   dataIndex: "transactionType",
+    //   render: (text) => {
+    //     const finalText = text.toUpperCase();
+    //     return (
+    //       <Tag color="green" className="px-4 py-1">
+    //         <p className="font-bold">{finalText}</p>
+    //       </Tag>
+    //     );
+    //   },
+    //   filters: [
+    //     {
+    //       text: "RECEIVE REVENUE",
+    //       value: "RR",
+    //     },
+    //     {
+    //       text: "ORDERED",
+    //       value: "ORDERED",
+    //     },
+    //     {
+    //       text: "REFUNDED",
+    //       value: "REFUNDED",
+    //     },
+    //   ],
+    //   onFilter: (value, record) =>
+    //     record.transactionType.toUpperCase().includes(value),
+    // },
   ];
   const columnsOther = [
     {
@@ -217,34 +216,34 @@ const Transaction = () => {
         );
       },
     },
-    {
-      title: "Type",
-      dataIndex: "transactionType",
-      render: (text) => {
-        const finalText = text.toUpperCase();
-        return (
-          <Tag color="green" className="px-4 py-1">
-            <p className="font-bold">{finalText}</p>
-          </Tag>
-        );
-      },
-      filters: [
-        {
-          text: "RECHARGE",
-          value: "RECHARGE",
-        },
-        {
-          text: "TOTAL TRANSFER",
-          value: "TT",
-        },
-        {
-          text: "REFUNDED",
-          value: "REFUNDED",
-        },
-      ],
-      onFilter: (value, record) =>
-        record.transactionType.toUpperCase().includes(value),
-    },
+    // {
+    //   title: "Type",
+    //   dataIndex: "transactionType",
+    //   render: (text) => {
+    //     const finalText = text.toUpperCase();
+    //     return (
+    //       <Tag color="green" className="px-4 py-1">
+    //         <p className="font-bold">{finalText}</p>
+    //       </Tag>
+    //     );
+    //   },
+    //   filters: [
+    //     {
+    //       text: "RECHARGE",
+    //       value: "RECHARGE",
+    //     },
+    //     {
+    //       text: "TOTAL TRANSFER",
+    //       value: "TT",
+    //     },
+    //     {
+    //       text: "REFUNDED",
+    //       value: "REFUNDED",
+    //     },
+    //   ],
+    //   onFilter: (value, record) =>
+    //     record.transactionType.toUpperCase().includes(value),
+    // },
   ];
 
   useEffect(() => {
