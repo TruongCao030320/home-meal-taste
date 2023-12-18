@@ -401,6 +401,7 @@ const Transaction = () => {
             {SwitchTran ? (
               <Table
                 dataSource={search ? filteredData : transactionOrder}
+                // dataSource={transactionOrder}
                 columns={columns}
                 loading={loading}
                 rowClassName={(record, index) =>

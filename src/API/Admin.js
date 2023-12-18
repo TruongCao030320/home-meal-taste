@@ -463,7 +463,7 @@ export const getAllTransactionOrderType = async () => {
 export const getAllTransactionWithoutOrderType = async () => {
   try {
     const response = await axios.get(
-      "https://homemealtaste.azurewebsites.net/api/Transaction/get-transaction-by-transaction-type-without-orderid"
+      "https://homemealtaste.azurewebsites.net/api/Transaction/get-all-transaction"
     );
     return response.data;
   } catch (error) {
