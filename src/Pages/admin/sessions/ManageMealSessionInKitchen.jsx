@@ -269,11 +269,11 @@ const ManageMealSessionInKitchen = () => {
               className="text-bgBtnColor hover:text-bgColorBtn "
               onClick={() => toggleDrawerType2(record.mealSessionId)}
             />
-            <AiFillDelete
+            {/* <AiFillDelete
               size={20}
               className="text-bgBtnColor hover:text-bgColorBtn"
               onClick={confirm}
-            />
+            /> */}
           </div>
         </Space>
       ),
