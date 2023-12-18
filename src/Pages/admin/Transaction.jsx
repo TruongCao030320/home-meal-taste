@@ -171,18 +171,8 @@ const Transaction = () => {
       dataIndex: "walletDtoGetAllTransaction",
       render: (_, record) => (
         <div>
-          <p className="font-bold">
-            {
-              record.walletDtoGetAllTransactionRECHARGED
-                ?.userDtoGetAllTransactionRECHARGED?.username
-            }
-          </p>
-          <p>
-            {
-              record.walletDtoGetAllTransactionRECHARGED
-                ?.userDtoGetAllTransactionRECHARGED?.phone
-            }
-          </p>
+          <p className="font-bold">{record.userDtoGetAllTransactions?.name}</p>
+          <p>{record.userDtoGetAllTransactions?.phone}</p>
         </div>
       ),
     },
@@ -324,11 +314,8 @@ const Transaction = () => {
     } else {
       let filteredArray = transactionOther || [];
       if (search) {
-        console.log("filter array", filteredArray[0]);
         filteredArray = filteredArray.filter((item) => {
-          return item.walletDtoGetAllTransactionRECHARGED?.userDtoGetAllTransactionRECHARGED?.phone?.includes(
-            search
-          );
+          return item.userDtoGetAllTransactions?.phone?.includes(search);
         });
       }
       setFilteredData(filteredArray);
