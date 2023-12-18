@@ -9,6 +9,7 @@ import {
   DatePicker,
   Radio,
   Form,
+  Spin,
 } from "antd";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -26,6 +27,7 @@ const AccountCreating = () => {
     console.log("radio checked", e.target.value);
     setValue(e.target.value);
   };
+  const [loading, setLoading] = useState(false);
 
   const [data, setData] = useState({});
   const [form] = Form.useForm();
@@ -60,13 +62,22 @@ const AccountCreating = () => {
     getAllDistrict().then((res) => setDistrict(res));
   };
   const AddNewChef = (values) => {
-    AddNewUser(values)
-      .then((res) => {
-        toast.success("Add new chef successfully.");
-        navigate(`/${direction.dashboard}/${direction.user}`);
-      })
-      .catch((res) => toast.error("Add new chef failed!"));
+    if (values.email && values.phone && values.password) {
+      setLoading(true);
+      AddNewUser(values)
+        .then((res) => {
+          toast.success("Add new chef successfully.");
+          navigate(`/${direction.dashboard}/${direction.user}`);
+        })
+        .catch((res) => toast.error("Add new chef failed!"))
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      toast.error("Please enter full fields.");
+    }
   };
+
   useEffect(() => {
     fetchAllDistrict();
   }, []);
@@ -83,7 +94,7 @@ const AccountCreating = () => {
               className=" bg-bgBtnColor text-white"
               onClick={() => form.submit()}
             >
-              Add
+              {loading ? <Spin /> : "Add"}
             </Button>
           </div>
         </div>
@@ -136,8 +147,22 @@ const AccountCreating = () => {
                 <label htmlFor="" className=" flex justify-start pb-2">
                   Email
                 </label>
-                <Form.Item name="email">
-                  <Input className="box__shadow" classNames="mt-2" />
+                <Form.Item
+                  name="email"
+                  rules={[
+                    { required: true, message: "Please enter email!" },
+                    {
+                      type: "email",
+                      message: "Please enter a valid email address!",
+                    },
+                  ]}
+                >
+                  <Input
+                    className="box__shadow"
+                    classNames="mt-2"
+                    required
+                    type="email"
+                  />
                 </Form.Item>
               </div>
             </Col>
@@ -177,7 +202,19 @@ const AccountCreating = () => {
                 <label htmlFor="" className=" flex justify-start pb-2">
                   Phone Number
                 </label>
-                <Form.Item name="phone" required>
+                <Form.Item
+                  name="phone"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please enter phone number!",
+                    },
+                    {
+                      pattern: /^\d{10}$/,
+                      message: "Please enter a valid 10-digit phone number!",
+                    },
+                  ]}
+                >
                   <Input className="box__shadow mt-2 py-6" />
                 </Form.Item>
               </div>
@@ -187,7 +224,15 @@ const AccountCreating = () => {
                 <label htmlFor="" className=" flex justify-start pb-2">
                   Password
                 </label>
-                <Form.Item name="password" required>
+                <Form.Item
+                  name="password"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please enter password!",
+                    },
+                  ]}
+                >
                   <Input.Password className="box__shadow mt-2" />
                 </Form.Item>
               </div>

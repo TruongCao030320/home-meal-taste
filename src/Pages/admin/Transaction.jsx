@@ -173,9 +173,17 @@ const Transaction = () => {
       render: (_, record) => (
         <div>
           <p className="font-bold">
-            {record.userDtoGetAllTransactions?.username}
+            {
+              record.walletDtoGetAllTransactionRECHARGED
+                ?.userDtoGetAllTransactionRECHARGED?.username
+            }
           </p>
-          <p>{record.userDtoGetAllTransactions?.phone}</p>
+          <p>
+            {
+              record.walletDtoGetAllTransactionRECHARGED
+                ?.userDtoGetAllTransactionRECHARGED?.phone
+            }
+          </p>
         </div>
       ),
     },
@@ -298,6 +306,35 @@ const Transaction = () => {
       return item.userDtoGetAllTransactions?.phone.includes(search);
     }
   });
+  useEffect(() => {
+    if (SwitchTran) {
+      let filteredArray = transactionOrder || [];
+      if (search) {
+        console.log("filter array", filteredArray[0]);
+        filteredArray = filteredArray.filter((item) => {
+          console.log(
+            "item.walletDtoGetAllTransactionRECHARGED?.userDtoGetAllTransactionRECHARGED?.phone",
+            item.walletDtoGetAllTransaction?.userDtoGetAllTransaction?.phone
+          );
+          return item.walletDtoGetAllTransaction?.userDtoGetAllTransaction?.phone.includes(
+            search
+          );
+        });
+      }
+      setFilteredData(filteredArray);
+    } else {
+      let filteredArray = transactionOther || [];
+      if (search) {
+        console.log("filter array", filteredArray[0]);
+        filteredArray = filteredArray.filter((item) => {
+          return item.walletDtoGetAllTransactionRECHARGED?.userDtoGetAllTransactionRECHARGED?.phone?.includes(
+            search
+          );
+        });
+      }
+      setFilteredData(filteredArray);
+    }
+  }, [search]);
   return (
     <div className="w-full h-full p-4 rounded-lg">
       <div className="account-search h-[10%] flex items-center  justify-end mb-3">
@@ -310,7 +347,7 @@ const Transaction = () => {
           <div className="account-search lg:flex items-center justify-between mb-5 lg:w-[100%] md:w-full md:grid md:grid-cols-2 md:gap-3">
             <div className="my-2 flex flex-row gap-2 justify-center items-center">
               <Input
-                placeholder="...."
+                placeholder="Enter user phone..."
                 onChange={(e) => {
                   setSearch(e.target.value);
                 }}
@@ -363,7 +400,7 @@ const Transaction = () => {
           >
             {SwitchTran ? (
               <Table
-                dataSource={transactionOrder}
+                dataSource={search ? filteredData : transactionOrder}
                 columns={columns}
                 loading={loading}
                 rowClassName={(record, index) =>
@@ -372,7 +409,7 @@ const Transaction = () => {
               ></Table>
             ) : (
               <Table
-                dataSource={transactionOther}
+                dataSource={search ? filteredData : transactionOther}
                 columns={columnsOther}
                 loading={loading}
                 rowClassName={(record, index) =>

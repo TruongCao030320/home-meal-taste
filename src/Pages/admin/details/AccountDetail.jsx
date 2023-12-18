@@ -43,7 +43,7 @@ const AccountDetail = () => {
   useEffect(() => {
     getOrderByUserId(id)
       .then((res) => {
-        setOrder(res);
+        setOrder(res.slice().reverse());
         setCountOrder(res.length);
       })
       .catch((error) => console.log(error));
@@ -149,18 +149,18 @@ const AccountDetail = () => {
     {
       title: "Create At",
       dataIndex: "time",
-      sorter: (a, b) => {
-        const dateA = moment(a.time, "DD-MM-YYYY HH:mm");
-        const dateB = moment(b.time, "DD-MM-YYYY HH:mm");
-        return dateA - dateB;
-      },
+      // sorter: (a, b) => {
+      //   const dateA = moment(a.time, "DD-MM-YYYY HH:mm");
+      //   const dateB = moment(b.time, "DD-MM-YYYY HH:mm");
+      //   return dateA - dateB;
+      // },
       render: (text) => <p className="font-bold">{text}</p>,
     },
 
     {
       title: "Price/VND",
       dataIndex: "totalPrice",
-      sorter: (a, b) => a.price - b.price,
+      sorter: (a, b) => a.totalPrice - b.totalPrice,
       render: (text) => <p className="font-bold">{formatMoney(text)}</p>,
     },
     {

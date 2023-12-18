@@ -117,7 +117,7 @@ const OrderTracking = () => {
           <h1>
             Status : <Tag className="px-3 py-1">{status}</Tag>
           </h1>
-          {orderDetail.status?.includes("CANCELLED") ? (
+          {/* {orderDetail.status?.includes("CANCELLED") ? (
             ""
           ) : (
             <Button
@@ -126,7 +126,7 @@ const OrderTracking = () => {
             >
               Cancel Order
             </Button>
-          )}
+          )} */}
         </div>
         <div>
           <Link to={`/${direction.dashboard}/${direction.order}`}>
