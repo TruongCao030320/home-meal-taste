@@ -56,7 +56,7 @@ const Login = () => {
           </p>
         </div>
       </div>
-      <div className="bg-white bg-opacity-70 p-5 rounded-lg  flex flex-col w-full h-[70%] lg:w-[40%] lg:h-[80%] lg:max-w-[570px]  lg:rounded-lg lg:shadow-2xl lg:flex lg:flex-col lg:justify-center md:p-10 z-50 md:w-[50%] before:block before:content-[''] before:transition-all before:duration-1000 before:animate-bigScale">
+      <div className="bg-white bg-opacity-70 p-5 rounded-lg  flex flex-col w-full h-[70%] lg:w-[40%] lg:h-[80%] lg:max-w-[570px]  lg:rounded-2xl lg:shadow-2xl lg:flex lg:flex-col lg:justify-center md:p-10 z-50 md:w-[50%] before:block before:content-[''] before:transition-all before:duration-1000 before:animate-bigScale">
         <h1 className="text-5xl font-festive flex text-bgBtnColor  justify-center gap-4 md:hidden lg:hidden">
           <div className=" inline-block">Home </div>
           <div className="">Meal</div>
