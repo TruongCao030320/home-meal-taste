@@ -20,7 +20,7 @@ import { Modal } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { getAllKitchen } from "../../API/Admin";
+import { getAllArea, getAllKitchen } from "../../API/Admin";
 import { direction } from "../../API/Direction";
 const normalizeString = (str) => {
   return str
@@ -33,6 +33,7 @@ const Kitchen = () => {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
+  const [area, setArea] = useState([]);
   const handleClose = () => {
     setShow(false);
     toast.success("Delete successfully.");
@@ -40,7 +41,11 @@ const Kitchen = () => {
   const handleShow = () => setShow(true);
   const [data, setData] = useState([]);
   // const goToKitchenDetail = (id,userId)=>{
-
+  const fetchAllArea = () => {
+    getAllArea().then((res) => {
+      setArea(res);
+    });
+  };
   // }
   const columns = [
     {
@@ -72,9 +77,16 @@ const Kitchen = () => {
       ),
     },
     {
-      title: "Address",
+      title: "Area",
       dataIndex: "",
-      render: (_, record) => <div className="font-bold">{record.address}</div>,
+      render: (_, record) => (
+        <div className="font-bold">{record.areaDtoGetKitchen?.areaName}</div>
+      ),
+      filters: area.map((item) => ({
+        text: item.areaName,
+        value: item.areaId,
+      })),
+      onFilter: (value, record) => record.areaDtoGetKitchen?.areaId === value,
     },
     {
       title: "Action",
@@ -127,6 +139,7 @@ const Kitchen = () => {
       setData(res.slice().reverse());
       setLoading(false);
     });
+    fetchAllArea();
   }, []);
   const { RangePicker } = DatePicker;
   return (
