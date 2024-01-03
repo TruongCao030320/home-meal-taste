@@ -207,7 +207,7 @@ const DashboardPage = () => {
       .then((res) => {
         setData(res.slice().reverse());
       })
-      .catch(() => navigate("/error"));
+      .catch((err) => console.log(err));
   }, []);
   //   const { id, description, price, thumbnail } = data;
   const columns = [
@@ -358,10 +358,10 @@ const DashboardPage = () => {
           <h1>Business Summary</h1>
         </div>
       </div>
-      <div className=" xl:flex mt-5 justify-between md:flex-col md:items-start lg:flex lg:flex-row lg:justify-between">
+      <div className=" xl:flex mt-5 justify-between  md:items-start lg:flex lg:flex-row lg:justify-between md:grid md:grid-cols-2">
         {card.map((item) => (
           <div
-            className={`lg:w-[30%] w-[30%] h-[120px] bg-bgColorBtn flex justify-start items-center box__shadow rounded-lg text-white md:w-[80%] md:my-5`}
+            className={`lg:w-[30%] w-full h-[120px] bg-bgColorBtn flex justify-start items-center box__shadow rounded-lg text-white md:w-[80%] my-5 `}
           >
             <div className={`p-3 border rounded-xl m-5 ${item.bgCard}`}>
               {item.icon}
@@ -373,11 +373,16 @@ const DashboardPage = () => {
           </div>
         ))}
       </div>
-      <div className="w-full flex justify-between p-4">
-        <div className="w-[70%] flex flex-col">
-          <div className="h-full lg:w-full lg:flex lg:flex-col lg:justify-start bg-white rounded-lg p-4 lg:overflow-auto lg:no-scrollbar md:overflow-auto md:no-scrollbar md:w-full sm:overflow-auto sm:no-scrollbar">
+      <div className="lg:w-full lg:flex lg:flex-row lg:justify-between lg:p-4 md:flex md:flex-col">
+        <div className="lg:w-[70%] lg:flex lg:flex-col md:w-full">
+          <div className="overflow-scroll h-full lg:w-full lg:flex lg:flex-col lg:justify-start bg-white rounded-lg p-4 lg:overflow-auto lg:no-scrollbar md:overflow-auto md:no-scrollbar md:w-full">
             <h1 className="my-5">Revenue Statictical</h1>
-            <LineChart className="w-full" width={800} height={400} data={money}>
+            <LineChart
+              className="w-full "
+              width={800}
+              height={400}
+              data={money}
+            >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" />
               <YAxis />
@@ -392,7 +397,7 @@ const DashboardPage = () => {
             </LineChart>
           </div>
           <div className="lg:w-full lg:flex lg:flex-row lg:justify-between  my-5 lg:gap-3 md:flex-col md:gap-3">
-            <div className="lg:w-[45%] h-full bg-white rounded-lg mr-5  md:w-full">
+            <div className="lg:w-[45%] h-full bg-white rounded-lg  md:w-full">
               <div className="account-search h-[10%] flex items-center  justify-end mb-3">
                 <div className="h-[40%] add-btn flex flex-col justify-between items-center w-full p-3">
                   <div className="my-3">
@@ -468,7 +473,7 @@ const DashboardPage = () => {
             </div>
           </div>
         </div>
-        <div className="w-[25%] h-full bg-white rounded-lg p-4">
+        <div className="lg:w-[25%] lg:h-full lg:bg-white lg:rounded-lg lg:p-4 w-full h-[100px] bg-white rounded-lg">
           <h1>Recently Activities</h1>
           <div className="my-4">
             <Timeline>{renderTimelineItems(transaction)}</Timeline>

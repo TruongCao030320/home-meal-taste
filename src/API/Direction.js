@@ -13,9 +13,13 @@ export const direction = {
   register: "$2a$12$otCGvzsH8MFRhVbolvBAOzJSQjnoD9eWrnXuJLY0xwPNKS6s3W",
   chat: "$2a$12$sdsrzJKW7ljy6l3LXVS8INQf86a15EMCoIKtirWbK2ZA7e6HFma",
   transaction: "$2a$12$pBdqrAIjJ46eIkSOa5UwMtY3NYEWW4ITPfoHLWgiqBSQGmKWwq",
-  chefInSession: "$2a$12$OfNiNwvvRFEeT5OmG25MevPPLA4EsqkmpApNn585qbcQLG0fEC2S",
+  areaInSession: "$2a$12$OfNiNwvvRFEeT5OmG25MevPPLA4EsqkmpApNn585qbcQLG0fEC2S",
+  sessionCreating:
+    "$2a$12$syybtqjv6Tv26BOi8Z3wW0C7OqjNFKeLEM3kd7a38jMpEeg8Hp4e",
+
   mealSessionInKitchen:
     "$2a$12$gQabnxJpuCWs7YZzJYIReYeEshGktzKqlBszj7XKCUJyBrLoO",
+  manageChefInArea: "$2a$12$L9TZbsqGmAeWjDgIc1soeEi0iwD9J3dctNxnSFxdzfJwuBa5EC",
   productCreating:
     "$2a$12$IaC7Wldy9fs0qSPLAEJSOowMoYHwD9i0r76ZvBHOwrQIkV80tdHC",
   accountCreating:

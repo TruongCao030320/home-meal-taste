@@ -34,7 +34,10 @@ import {
   deleteDishType,
   updateArea,
   createNewDishType,
+  updateDishType,
 } from "../../API/Admin";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faDeleteLeft, faEdit } from "@fortawesome/free-solid-svg-icons";
 
 const DishType = () => {
   const [form] = Form.useForm();
@@ -43,7 +46,11 @@ const DishType = () => {
   const [show, setShow] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showUpdateForm, setShowUpdateForm] = useState(false);
-  const [updateItem, setUpdateItem] = useState({});
+  const [updateItem, setUpdateItem] = useState({
+    dishTypeId: null,
+    name: "",
+    description: "",
+  });
   const [loading, setLoading] = useState(false);
   const [area, setArea] = useState([]);
   const [dishTypeId, setDishTypeId] = useState();
@@ -61,6 +68,9 @@ const DishType = () => {
     console.log("vào đây sao kh reset form");
     setShowAddForm(false);
     form.resetFields();
+  };
+  const handleCloseUpdateDishTypeForm = () => {
+    setShowUpdateForm(false);
   };
   const fetchAllDishType = () => {
     setLoading(true);
@@ -94,6 +104,28 @@ const DishType = () => {
       .catch((error) => {
         handleClose(true);
         toast.error("Can not delete dish type.");
+      });
+  };
+  const onHandleShowUpdate = (record) => {
+    setShowUpdateForm(true);
+    setUpdateItem({
+      ...updateItem,
+      dishTypeId: record.dishTypeId,
+      name: record.name,
+      description: record.description,
+    });
+  };
+  const onHandleUpdateDishType = () => {
+    setLoading(true);
+    console.log("on handle update dishtype", updateItem);
+    updateDishType(updateItem)
+      .then((res) => {
+        fetchAllDishType();
+        toast.success("Update Dish Type Success");
+      })
+      .finally(() => {
+        setShowUpdateForm(false);
+        setLoading(false);
       });
   };
   useEffect(() => {
@@ -134,7 +166,10 @@ const DishType = () => {
           size="middle"
           className="p-1 border rounded-md hover:border-gray-600"
         >
-          <Link to="#">
+          <Button onClick={() => onHandleShowUpdate(record)}>
+            <FontAwesomeIcon icon={faEdit} fontSize={18} />
+          </Button>
+          <Button>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -145,7 +180,6 @@ const DishType = () => {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log("default item", record);
                 setDefaultItem(record);
                 handleShow(record.dishTypeId);
               }}
@@ -156,7 +190,7 @@ const DishType = () => {
                 d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
               />
             </svg>
-          </Link>
+          </Button>
         </Space>
       ),
     },
@@ -379,6 +413,71 @@ const DishType = () => {
             rules={[{ required: true, message: "Please enter description!" }]}
           >
             <Input.TextArea placeholder="Description" />
+          </Form.Item>
+        </Form>
+      </Modal>
+      <Modal
+        title="Update Dish Type"
+        open={showUpdateForm}
+        onOk={() => form2.submit()}
+        onCancel={handleCloseUpdateDishTypeForm}
+        okText="Save"
+        cancelText="Cancel"
+      >
+        <Form form={form2} onFinish={(values) => onHandleUpdateDishType()}>
+          <Row className="flex justify-between">
+            <Col xs={24} md={11} lg={11}>
+              <Form.Item
+                name="id"
+                // rules={[{ required: true, message: "Please enter type name!" }]}
+              >
+                <Input
+                  disabled={true}
+                  value={updateItem?.dishTypeId}
+                  className="hidden"
+                />
+                <Input disabled={true} value={updateItem?.dishTypeId} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={11} lg={11}>
+              <Form.Item
+                name="name"
+                // rules={[{ required: true, message: "Please enter type name!" }]}
+              >
+                <Input
+                  placeholder="Dish type name"
+                  value={updateItem.name}
+                  className="hidden"
+                />
+                <Input
+                  placeholder="Dish type name"
+                  value={updateItem.name}
+                  onChange={(text) =>
+                    setUpdateItem({
+                      ...updateItem,
+                      name: text.target.value,
+                    })
+                  }
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item
+            name="description"
+            // rules={[{ required: true, message: "Please enter description!" }]}
+          >
+            <Input.TextArea
+              placeholder="Description"
+              value={updateItem.description}
+              onChange={(text) =>
+                setUpdateItem({ ...updateItem, description: text.target.value })
+              }
+            />
+            <Input.TextArea
+              className="hidden"
+              placeholder="Description"
+              value={updateItem.description}
+            />
           </Form.Item>
         </Form>
       </Modal>

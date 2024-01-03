@@ -16,7 +16,11 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { ToastContainer, toast } from "react-toastify";
 import { direction } from "../../../API/Direction";
-import { AddNewUser, getAllDistrict } from "../../../API/Admin";
+import {
+  AddNewUser,
+  getAllAreaByDistrict,
+  getAllDistrict,
+} from "../../../API/Admin";
 import ToggleDrawerMealSlice from "../../../redux/ToggleDrawerMealSlice.js";
 const { TextArea } = Input;
 const dateFormat = "YYYY/MM/DD";
@@ -37,6 +41,9 @@ const AccountCreating = () => {
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
   const [district, setDistrict] = useState([]);
+  const [districtId, setDistrictId] = useState(null);
+
+  const [area, setArea] = useState([]);
   const handleImageChange = (e) => {
     const file = e.target.files[0]; // Get the first selected file
 
@@ -61,6 +68,11 @@ const AccountCreating = () => {
   const fetchAllDistrict = () => {
     getAllDistrict().then((res) => setDistrict(res));
   };
+  const fetchAllAreaByDistrictId = () => {
+    getAllAreaByDistrict(districtId).then((res) => {
+      setArea(res);
+    });
+  };
   const AddNewChef = (values) => {
     if (values.email && values.phone && values.password) {
       setLoading(true);
@@ -81,6 +93,9 @@ const AccountCreating = () => {
   useEffect(() => {
     fetchAllDistrict();
   }, []);
+  useEffect(() => {
+    fetchAllAreaByDistrictId();
+  }, [districtId]);
   return (
     <div className="w-[100%] h-[100%] p-4">
       <div className="account-search h-[10%] flex items-center  justify-end mb-3">
@@ -100,10 +115,11 @@ const AccountCreating = () => {
         </div>
       </div>
       <div className="bg-white p-4 rounded-lg">
-        <Divider orientation="left">General Information</Divider>
-        <Form form={form} onFinish={AddNewChef}>
-          <Row className="flex justify-around my-4 h-[80px]">
-            <Col className="" span={11}>
+        <Form form={form} onFinish={AddNewChef} className="h-full">
+          <Row className="flex justify-around my-4  w-full h-[60%]">
+            <Divider orientation="left">General Information</Divider>
+
+            <Col className="" xs={24} md={11} lg={11}>
               <div>
                 <label htmlFor="" className=" flex justify-start pb-2">
                   Kitchen's Name
@@ -113,7 +129,7 @@ const AccountCreating = () => {
                 </Form.Item>
               </div>
             </Col>
-            <Col className="" span={11}>
+            <Col className="" xs={24} md={11} lg={11}>
               <label htmlFor="" className=" flex justify-start pb-2">
                 Role
               </label>
@@ -130,9 +146,7 @@ const AccountCreating = () => {
                 </Radio.Group>
               </div>
             </Col>
-          </Row>
-          <Row className="flex justify-around my-4 h-[80px]">
-            <Col className="" span={11}>
+            <Col className="" xs={24} md={11} lg={11}>
               <div>
                 <label htmlFor="" className=" flex justify-start pb-2">
                   User Name
@@ -142,7 +156,146 @@ const AccountCreating = () => {
                 </Form.Item>
               </div>
             </Col>
-            <Col className="" span={11}>
+            <Col className="" xs={24} md={11} lg={11}>
+              <div>
+                <label htmlFor="" className=" flex justify-start pb-2">
+                  Email
+                </label>
+                <Form.Item
+                  name="email"
+                  rules={[
+                    { required: true, message: "Please enter email!" },
+                    {
+                      type: "email",
+                      message: "Please enter a valid email address!",
+                    },
+                  ]}
+                >
+                  <Input
+                    className="box__shadow"
+                    classNames="mt-2"
+                    required
+                    type="email"
+                  />
+                </Form.Item>
+              </div>
+            </Col>
+            <Col className="" xs={24} md={11} lg={11}>
+              <div>
+                <label htmlFor="" className=" flex justify-start pb-2">
+                  District
+                </label>
+                <Form.Item
+                  name="districtId"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please enter district !",
+                    },
+                  ]}
+                >
+                  <Select
+                    className="w-full"
+                    options={district.map((item) => ({
+                      value: item.districtId,
+                      label: item.districtName,
+                    }))}
+                    onChange={(item) => {
+                      console.log("item là", item);
+                      setDistrictId(item);
+                    }}
+                  ></Select>
+                </Form.Item>
+              </div>
+            </Col>
+            <Col className="" xs={24} md={11} lg={11}>
+              <div>
+                <label htmlFor="" className=" flex justify-start pb-2">
+                  Area
+                </label>
+                <Form.Item
+                  name="areaId"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please enter area !",
+                    },
+                  ]}
+                >
+                  <Select
+                    className="w-full"
+                    options={area?.map((item) => ({
+                      value: item.areaId,
+                      label: item.areaName,
+                    }))}
+                  ></Select>
+                </Form.Item>
+              </div>
+            </Col>
+          </Row>
+          <Row className="flex justify-around h-[40%]">
+            <Divider orientation="left">Sign In Information</Divider>
+            <Col className="" xs={24} md={11} lg={11}>
+              <div>
+                <label htmlFor="" className=" flex justify-start pb-2">
+                  Phone Number
+                </label>
+                <Form.Item
+                  name="phone"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please enter phone number!",
+                    },
+                    {
+                      pattern: /^\d{10}$/,
+                      message: "Please enter a valid 10-digit phone number!",
+                    },
+                  ]}
+                >
+                  <Input className="box__shadow mt-2 py-6" />
+                </Form.Item>
+              </div>
+            </Col>
+            <Col className="" xs={24} md={11} lg={11}>
+              <div>
+                <label htmlFor="" className=" flex justify-start pb-2">
+                  Password
+                </label>
+                <Form.Item
+                  name="password"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please enter password!",
+                    },
+                  ]}
+                >
+                  <Input.Password className="box__shadow mt-2" />
+                </Form.Item>
+              </div>
+            </Col>
+          </Row>
+        </Form>
+      </div>
+    </div>
+  );
+};
+
+export default AccountCreating;
+{
+  /* <Row className="flex justify-around my-4 h-[80px]">
+            <Col className="" xs={23} md={11} lg={11}>
+              <div>
+                <label htmlFor="" className=" flex justify-start pb-2">
+                  User Name
+                </label>
+                <Form.Item name="username">
+                  <Input className="box__shadow" classNames="mt-2" />
+                </Form.Item>
+              </div>
+            </Col>
+            <Col className="" xs={23} md={11} lg={11}>
               <div>
                 <label htmlFor="" className=" flex justify-start pb-2">
                   Email
@@ -194,54 +347,5 @@ const AccountCreating = () => {
                 </Form.Item>
               </div>
             </Col>
-          </Row>
-          <Divider orientation="left">Sign In Information</Divider>
-          <Row className="flex justify-around my-4 h-[80px]">
-            <Col className="" span={11}>
-              <div>
-                <label htmlFor="" className=" flex justify-start pb-2">
-                  Phone Number
-                </label>
-                <Form.Item
-                  name="phone"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter phone number!",
-                    },
-                    {
-                      pattern: /^\d{10}$/,
-                      message: "Please enter a valid 10-digit phone number!",
-                    },
-                  ]}
-                >
-                  <Input className="box__shadow mt-2 py-6" />
-                </Form.Item>
-              </div>
-            </Col>
-            <Col className="" span={11}>
-              <div>
-                <label htmlFor="" className=" flex justify-start pb-2">
-                  Password
-                </label>
-                <Form.Item
-                  name="password"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter password!",
-                    },
-                  ]}
-                >
-                  <Input.Password className="box__shadow mt-2" />
-                </Form.Item>
-              </div>
-            </Col>
-          </Row>
-        </Form>
-      </div>
-    </div>
-  );
-};
-
-export default AccountCreating;
+          </Row> */
+}

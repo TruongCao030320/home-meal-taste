@@ -30,8 +30,10 @@ import {
   getAllArea,
   getAllMeal,
   getAllMealSession,
+  getAllSession,
   getAllSessionByAreaId,
   getSingleMeal,
+  updateStatusMultiMealSession,
 } from "../API/Admin";
 import { direction } from "../API/Direction";
 import { useDispatch, useSelector } from "react-redux";
@@ -50,7 +52,6 @@ const normalizeString = (str) => {
 
 const ProductList = () => {
   const dateFormatList = ["DD/MM/YYYY", "DD/MM/YY", "DD-MM-YYYY", "DD-MM-YY"];
-  console.log("current date", dayjs().format(dateFormatList[2]));
   const [selectedDate, setSelectedDate] = useState(
     dayjs().format(dateFormatList[2])
   );
@@ -58,17 +59,23 @@ const ProductList = () => {
   const navigate = useNavigate();
   const [modal, contextHolder] = Modal.useModal();
   const [drawerData, setDrawerData] = useState({});
-  const [area, setArea] = useState([]);
+
   const [areaValue, setAreaValue] = useState();
   const [session, setSession] = useState([]);
-  const [sessionValue, setSessionValue] = useState();
-
+  const [sessionValue, setSessionValue] = useState(0);
+  const [area, setArea] = useState([]);
+  const [values, setValues] = useState({
+    mealSessionIds: [],
+    status: "",
+  });
+  const [selectedRowIsActive, setSelectedRowIsActive] = useState(false);
   const [search, setSearch] = useState("");
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [selectedRows, setSelectedRows] = useState([]);
   const showToastMessage = () => {
     toast.success("Delete successfully.");
   };
   const refresh = useSelector((state) => state.mealDrawer.refresh);
-  console.log(refresh);
   const confirm = () => {
     modal.confirm({
       title: "Confirm",
@@ -84,16 +91,38 @@ const ProductList = () => {
   const [loading, setLoading] = useState(false);
   const [newData, setNewData] = useState([]);
   const toggleDrawerType2 = async (mealSessionId) => {
-    console.log("vao2 day96 khong6", mealSessionId);
     await getSingleMealSessionById(mealSessionId)
       .then((res) => setDrawerData(res))
       .catch((error) => console.log(error));
     dispatch(showDrawer(mealSessionId));
   };
-  const fetchAllAreaAndSession = () => {
-    getAllArea().then((res) => {
-      setArea(res);
-    });
+  // const fetchAllAreaAndSession = () => {
+  //   getAllArea().then((res) => {
+  //     setArea(res);
+  //   });
+  // };
+  const onHandleUpdateMulti = () => {
+    updateStatusMultiMealSession(values)
+      .then(() => {
+        toast.success("Update Status Successfully.");
+      })
+      .catch((error) => {
+        toast.warning("Update Status Failed.");
+      });
+  };
+  const onHandleUpdateStatusMultiMealSession = (status) => {
+    // console.log("Status nhận đc là", status);
+    // setValues({ ...values, status: status });
+    // onHandleUpdateMulti();
+    console.log("trước khi gửi đi", status, values.mealSessionIds);
+    updateStatusMultiMealSession(status, values.mealSessionIds)
+      .then(() => {
+        fetchAllMealSession();
+        toast.success("Update Status Successfully.");
+      })
+      .catch((error) => {
+        toast.warning("Update Status Failed.");
+      });
   };
   const [searchTerm, setSearchTerm] = useState("");
   const handleResetFilters = () => {
@@ -101,25 +130,7 @@ const ProductList = () => {
     setSessionValue(null);
   };
   const content2 = (
-    <div className="min-w-[300px] grid gap-5">
-      <div className="flex w-full justify-between items-center">
-        <div className="w-[20%]">
-          <h2>Area</h2>
-        </div>
-        <div className="w-[70%]">
-          <Select
-            className="w-full"
-            options={area?.map((item) => ({
-              value: item.areaId,
-              label: item.areaName,
-            }))}
-            value={areaValue}
-            onChange={(item) => {
-              setAreaValue(item);
-            }}
-          ></Select>
-        </div>
-      </div>
+    <div className=" grid gap-5 min-w-[400px]">
       <div className="flex w-full justify-between items-center">
         <div className="w-[20%]">
           <h2>Session</h2>
@@ -128,11 +139,30 @@ const ProductList = () => {
           <Select
             className="w-full"
             options={session?.map((item) => ({
-              value: item.sessionId,
-              label: item.sessionName,
+              value: item?.sessionId,
+              label: item?.sessionName,
             }))}
             value={sessionValue}
-            onChange={(item) => setSessionValue(item)}
+            onChange={(item) => {
+              console.log("sessopm va lue là", item);
+              setSessionValue(item);
+            }}
+          ></Select>
+        </div>
+      </div>
+      <div className="flex w-full justify-between items-center">
+        <div className="w-[20%]">
+          <h2>Area</h2>
+        </div>
+        <div className="w-[70%]">
+          <Select
+            className="w-full"
+            options={area?.map((item) => ({
+              value: item?.areaId,
+              label: item?.areaName,
+            }))}
+            value={areaValue}
+            onChange={(item) => setAreaValue(item)}
           ></Select>
         </div>
       </div>
@@ -146,9 +176,9 @@ const ProductList = () => {
       title: "Menu",
       dataIndex: "image",
       render: (_, record) => (
-        <div className="lg:w-full md:w-[100px] h-[120px] p-1 flex justify-center items-center">
+        <div className="lg:w-[100px] md:w-[100px] h-[120px] p-1 flex justify-center items-center">
           <img
-            className="!rounded-2xl box__shadow bg-yellow-50 hover:scale-110 transition-all duration-500 h-full w-[120px] "
+            className="!rounded-2xl box__shadow bg-yellow-50 hover:scale-110 transition-all duration-500 h-full min-w-[120px] "
             src={
               record.mealDtoForMealSession.image
                 ? record.mealDtoForMealSession.image
@@ -166,17 +196,45 @@ const ProductList = () => {
       ),
     },
     {
+      title: (
+        <div className="z-50 ">
+          {selectedRowIsActive ? (
+            <div className="flex flex-row">
+              <Tag
+                className="p-2 shadow-md min-w-[100px] text-center hover:cursor-pointer hover:border-blue-200"
+                color="red"
+                onClick={() => {
+                  onHandleUpdateStatusMultiMealSession("REJECTED");
+                }}
+              >
+                <span className="font-bold">REJECTED</span>
+              </Tag>
+              <Tag
+                className="p-2 shadow-md min-w-[100px] text-center hover:cursor-pointer hover:border-blue-200"
+                color="green"
+                onClick={() => {
+                  onHandleUpdateStatusMultiMealSession("APPROVED");
+                }}
+              >
+                <span className="font-bold">APPROVED</span>
+              </Tag>
+            </div>
+          ) : (
+            ""
+          )}
+        </div>
+      ),
       dataIndex: "name",
       render: (_, record) => (
         <div className="flex  justify-between items-center">
-          <div className="flex flex-row justify-between w-[80%]">
+          <div className="lg:flex lg:flex-row lg:justify-between lg:w-[80%] flex flex-col">
             <div className="">
               <div className="">
-                <h1>{record.mealDtoForMealSession?.name}</h1>
+                <h1>
+                  {record.mealDtoForMealSession?.name} #{record.mealSessionId}
+                </h1>
                 <p>Create At :{record.createDate}</p>
                 <p>Kitchen :{record.kitchenDtoForMealSession?.name}</p>
-
-                {/* <p>Description : {record.mealDtoForMealSession?.description}</p> */}
                 <div className="flex flex-row gap-5">
                   <p>Selling Slot : {record.quantity}</p>
                   <p>
@@ -185,7 +243,7 @@ const ProductList = () => {
                 </div>
               </div>
             </div>
-            <div className=" w-[40%]">
+            <div className=" lg:w-[40%] w-full">
               <p>
                 Area :{" "}
                 {
@@ -196,7 +254,21 @@ const ProductList = () => {
               <p>Session : {record.sessionDtoForMealSession?.sessionName}</p>
             </div>
           </div>
-          <div className="w-[15%]">
+        </div>
+      ),
+    },
+    {
+      title: "",
+      dataIndex: "",
+      render: (_, record) => (
+        <Divider type="vertical" className="h-[70px] bg-slate-300" />
+      ),
+    },
+    {
+      dataIndex: "name",
+      render: (_, record) => (
+        <div className="flex  justify-between items-center">
+          <div className="w-full">
             <Tag
               className="p-2 shadow-md min-w-[100px] text-center"
               color={`${
@@ -227,8 +299,8 @@ const ProductList = () => {
       onFilter: (value, record) => record.status.includes(value),
       // filterDropdownVisible: false,
     },
-
     {
+      title: "",
       dataIndex: "",
       render: (_, record) => (
         <Divider type="vertical" className="h-[70px] bg-slate-300" />
@@ -237,32 +309,8 @@ const ProductList = () => {
     {
       key: "action",
       render: (_, record) => (
-        <Space
-          size="middle"
-          className=" hover:border-gray-600 flex flex-col  w-[150px]"
-        >
+        <Space className="flex flex-col">
           <h1>{formatMoney(record.price)} VND</h1>
-          {/* <Link to={`/dashboard/account/${record.id}`}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-6 h-6"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-              />
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
-          </Link> */}
           <div
             onClick={() => console.log(record)}
             className="flex justify-between w-[50px] items-center "
@@ -272,11 +320,6 @@ const ProductList = () => {
               className="text-bgBtnColor hover:text-bgColorBtn "
               onClick={() => toggleDrawerType2(record.mealSessionId)}
             />
-            {/* <AiFillDelete
-              size={20}
-              className="text-bgBtnColor hover:text-bgColorBtn"
-              onClick={confirm}
-            /> */}
           </div>
         </Space>
       ),
@@ -325,19 +368,59 @@ const ProductList = () => {
   //     setNewData(data);
   //   }
   // }, [search, selectedDate]);
-
+  const onSelectChange = (newSelectedRowKeys) => {
+    console.log("newselected rowkesy là", newSelectedRowKeys);
+    if (newSelectedRowKeys.length > 0) {
+      setSelectedRowIsActive(true);
+    }
+    setSelectedRowKeys(newSelectedRowKeys);
+    setValues({ ...values, mealSessionIds: newSelectedRowKeys });
+  };
+  // const rowSelection = {
+  //   selectedRowKeys,
+  //   onChange: onSelectChange,
+  // };
+  const rowSelection = {
+    onChange: (selectedRowKeys, selectedRows) => {
+      // Handle selection changes
+      console.log("selectedRowKeys:", selectedRowKeys);
+      console.log("selectedRows:", selectedRows[0]?.status);
+      setSelectedRowKeys(selectedRowKeys);
+      setSelectedRows(selectedRows);
+      setValues({ ...values, mealSessionIds: selectedRowKeys });
+      if (selectedRows.length > 0) {
+        console.log("Nh mà có vào đc đây");
+        setSelectedRowIsActive(true);
+        const firstAttributeValue = selectedRows[0].status; // Change 'attribute' to the actual attribute you're checking
+        if (selectedRows.some((row) => row.status !== firstAttributeValue)) {
+          setSelectedRowIsActive(false);
+        }
+      } else {
+        setSelectedRowIsActive(false);
+      }
+    },
+    getCheckboxProps: (record) => ({
+      // Disable checkbox based on some condition (if needed)
+    }),
+  };
+  const hasSelected = selectedRowKeys.length > 0;
   useEffect(() => {
     fetchAllMealSession();
+    fetchAllSession();
     setNewData(newData);
   }, [refresh]);
   useEffect(() => {
-    fetchAllAreaAndSession();
+    // fetchAllAreaAndSession();
+    fetchAllSession();
   }, []);
+  // useEffect(() => {
+  //   onHandleUpdateStatusMultiMealSession();
+  // }, [values.status]);
   const fetchAllSessionByAreaId = () => {
     getAllSessionByAreaId(areaValue).then((res) => {
       if (selectedDate) {
         setSession(
-          res.filter((item) => {
+          res?.filter((item) => {
             return item?.createDate.includes(selectedDate);
           })
         );
@@ -346,12 +429,18 @@ const ProductList = () => {
       }
     });
   };
+  const fetchAllSession = () => {
+    getAllSession().then((res) => {
+      setSession(res);
+    });
+  };
   useEffect(() => {
     fetchAllSessionByAreaId();
     setSessionValue(null);
   }, [areaValue, selectedDate]);
   useEffect(() => {
     let filteredData = data;
+    let filtertedSessionData = session;
     if (search) {
       const searchNormalize = normalizeString(search);
       filteredData = filteredData.filter((item) => {
@@ -366,6 +455,16 @@ const ProductList = () => {
       filteredData = filteredData.filter((item) =>
         item.createDate.includes(selectedDate)
       );
+      getAllSession().then((res) => {
+        setSession(
+          res.filter((item) => {
+            return item?.endDate?.includes(selectedDate);
+          })
+        );
+      });
+      filtertedSessionData = filtertedSessionData?.filter((item) => {
+        item.endDate?.includes(selectedDate);
+      });
     }
 
     if (areaValue) {
@@ -379,10 +478,15 @@ const ProductList = () => {
       filteredData = filteredData.filter(
         (item) => item.sessionDtoForMealSession?.sessionId === sessionValue
       );
+      setArea(
+        session.find((item) => item.sessionId === sessionValue)
+          ?.areaDtoGetAllSession
+      );
     }
     // You can add more conditions as needed...
 
     setNewData(filteredData);
+    setSession(filtertedSessionData);
   }, [search, selectedDate, areaValue, sessionValue, data]);
 
   return (
@@ -395,8 +499,8 @@ const ProductList = () => {
         </div>
       </div>
       <div className="bg-white p-4 rounded-lg">
-        <div className="account-search flex items-center justify-between mb-5 w-[100%]  lg:flex md:w-full md:grid md:grid-cols-2 md:gap-3 lg:w-[100%]">
-          <div className="my-2 flex flex-row w-[40%] justify-between">
+        <div className="account-search flex items-center justify-between mb-5 w-[100%]  lg:flex md:w-full md:flex md:flex-row md:gap-3 lg:w-[100%]">
+          <div className="flex w-[70%] lg:my-2 lg:flex lg:flex-row lg:w-[40%] lg:justify-between  md:w-[50%] md:flex md:flex-row  flex-col gap-5">
             <Input
               placeholder="Enter meal's name..."
               onChange={(e) => setSearch(e.target.value)}
@@ -410,12 +514,12 @@ const ProductList = () => {
               onChange={(date, dateString) => {
                 setSelectedDate(dateString);
               }}
-              className="box__shadow !h-[50px] mx-3 !w-[300px]"
+              className="box__shadow !h-[50px] md:w-full md:ml-3 w-full"
             />
           </div>
-          <div className="my-2"></div>
-          <div className="my-2">
+          <div className="my-2 w-[50%]">
             <Popover
+              className="w-full"
               content={content2}
               title="Filter"
               trigger="click"
@@ -446,9 +550,12 @@ const ProductList = () => {
             }}
           >
             <Table
+              className="overflow-auto"
               dataSource={newData}
               columns={columns}
               loading={loading}
+              rowKey={(item) => item.mealSessionId}
+              rowSelection={rowSelection}
               pagination={{ pageSize: 5 }}
               rowClassName={(record, index) =>
                 `custom-row ${index % 2 === 0 ? "odd-row" : "even-row"}`

@@ -45,8 +45,11 @@ import {
 import {
   getAllMealSessionByKitchenId,
   getAllMealSessionByKitchenInSession,
+  getAllMealSessionInSessionByAreaAndKitchenId,
   getKitchenByKitchenId,
+  getSingleArea,
   getSingleMealSessionById,
+  getSingleSessionById,
   getTotalInSessionOfSingleKitchen,
 } from "../../../API/Admin.js";
 import { showDrawer } from "../../../redux/ToggleDrawerMealSlice.js.js";
@@ -59,9 +62,12 @@ const normalizeString = (str) => {
     .replace(/[\u0300-\u036f]/g, "");
 };
 const ManageMealSessionInKitchen = () => {
-  const { sessionId, kitchenId } = useParams();
-  console.log("infor là", sessionId, kitchenId);
-
+  const { kitchenId } = useParams();
+  // const sessionId = useSelector((state) => state.directionSlice.currentSession);
+  // const areaId = useSelector((state) => state.directionSlice.currentArea);
+  const sessionId = localStorage.getItem("sessionId");
+  const areaId = localStorage.getItem("areaId");
+  // console.log("sessionId và areaId", sessionId, areaId, kitchenId);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   // const { infor } = useParams();
@@ -69,7 +75,6 @@ const ManageMealSessionInKitchen = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [area, setArea] = useState([]);
   const [id, setId] = useState();
   const [drawerData, setDrawerData] = useState({});
   const refresh = useSelector((state) => state.mealDrawer.refresh);
@@ -80,12 +85,13 @@ const ManageMealSessionInKitchen = () => {
   const [mealSessionOfKitchen, setMealSessionOfKitchen] = useState([]);
   const [totalInSessionOfKitchen, setTotalInSessionOfKitchen] = useState();
   const [kitchen, setKitchen] = useState({});
+  const [session, setSession] = useState({});
   const [search, setSearch] = useState("");
+  const [area, setArea] = useState();
   const [newData, setNewData] = useState([]);
   const dateFormatList = ["DD/MM/YYYY", "DD/MM/YY", "DD-MM-YYYY", "DD-MM-YY"];
-
   const [selectedDate, setSelectedDate] = useState(
-    dayjs().format(dateFormatList[2])
+    dayjs().format("DD-MM-YYYY")
   );
   const handleExpand = (expanded, record) => {
     if (expanded) {
@@ -105,21 +111,21 @@ const ManageMealSessionInKitchen = () => {
     setShow(true);
     setId(id);
   };
-  const fetchAllMealSessionByKitchenId = () => {
-    setLoading(true);
-    getAllMealSessionByKitchenInSession(kitchenId, sessionId).then((res) => {
-      setMealSessionOfKitchen(res.slice().reverse());
-      setNewData(
-        res
-          .slice()
-          .reverse()
-          .filter((item) => {
-            return item.createDate.includes(selectedDate);
-          })
-      );
-      setLoading(false);
-    });
-  };
+  // const fetchAllMealSessionByKitchenId = () => {
+  //   setLoading(true);
+  //   getAllMealSessionByKitchenInSession(kitchenId, sessionId).then((res) => {
+  //     setMealSessionOfKitchen(res.slice().reverse());
+  //     setNewData(
+  //       res
+  //         .slice()
+  //         .reverse()
+  //         .filter((item) => {
+  //           return item.createDate.includes(selectedDate);
+  //         })
+  //     );
+  //     setLoading(false);
+  //   });
+  // };
   const fetchKitchenByKitchenId = () => {
     getKitchenByKitchenId(kitchenId).then((res) => {
       setKitchen(res);
@@ -130,29 +136,32 @@ const ManageMealSessionInKitchen = () => {
       setTotalInSessionOfKitchen(res);
     });
   };
-  const onHandleDeleteSession = () => {
-    // deleteSession(id)
-    //   .then((res) => {
-    //     setShow(false);
-    //     toast.success("Delete completed.");
-    //     fetchSessionByArea(areaValue ? areaValue : areaDefault);
-    //   })
-    //   .catch((error) => toast.error(error));
+  const fetchSingleSessionById = () => {
+    getSingleSessionById(sessionId).then((res) => {
+      setSession(res);
+      // setArea(res.areaDtoGetSingleSessionBySessionId);
+    });
   };
-  const handleClose = () => {
-    setShow(false);
+  const fetchSingleArea = () => {
+    getSingleArea(areaId).then((res) => {
+      setArea(res);
+    });
   };
-  const handleCloseAddSessionForm = () => {
-    setShowAddForm(false);
-    form.resetFields();
+  const fetchAllMealSessionInSessionByAreaAndKitchenId = () => {
+    setLoading(true);
+    getAllMealSessionInSessionByAreaAndKitchenId(areaId, sessionId, kitchenId)
+      .then((res) => {
+        setMealSessionOfKitchen(res);
+        setNewData(res);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
-
-  // end function section
-  // useeffect section
-  // column section
+  const onHandleNavigateToKitchenInformation = () => {
+    navigate(`/${direction.dashboard}/${direction.kitchen}/${kitchenId}`);
+  };
   const toggleDrawerType2 = async (mealSessionId) => {
-    console.log("mealsession id là", mealSessionId);
-
     if (mealSessionId !== null) {
       await getSingleMealSessionById(mealSessionId)
         .then((res) => setDrawerData(res))
@@ -170,7 +179,7 @@ const ManageMealSessionInKitchen = () => {
         <div className="lg:w-full md:w-[100px] h-[120px] p-1 flex justify-center items-center">
           <img
             className="!rounded-2xl box__shadow bg-yellow-50 hover:scale-110 transition-all duration-500 h-full w-[120px] "
-            src={record.mealDtoForMealSession.image}
+            src={record.mealDtoForMealSession?.image}
           ></img>
         </div>
       ),
@@ -197,9 +206,9 @@ const ManageMealSessionInKitchen = () => {
             <Tag
               className="p-2 shadow-md min-w-[100px] text-center"
               color={`${
-                record.status.includes("PROCESSING")
+                record.status?.includes("PROCESSING")
                   ? "blue"
-                  : record.status.includes("APPROVED")
+                  : record.status?.includes("APPROVED")
                   ? "green"
                   : "red"
               }`}
@@ -282,40 +291,82 @@ const ManageMealSessionInKitchen = () => {
   ];
   // content section
   // end content section
+
   useEffect(() => {
-    if (search) {
-      setNewData(
-        newData.filter((item) => {
-          const inforNormalize = normalizeString(
-            item?.mealDtoForMealSession?.name
-          );
-          const searchNormalize = normalizeString(search);
-          return inforNormalize.includes(searchNormalize);
-        })
-      );
-    } else if (selectedDate) {
-      return setNewData(
-        mealSessionOfKitchen?.filter((item) => {
-          return item.createDate.includes(selectedDate);
-        })
-      );
-    } else {
-      setNewData(mealSessionOfKitchen);
-    }
-  }, [search, selectedDate]);
-  useEffect(() => {
-    fetchAllMealSessionByKitchenId();
+    // fetchAllMealSessionByKitchenId();
     fetchKitchenByKitchenId();
     fetchTotalInSessionOfKitchen();
+    fetchAllMealSessionInSessionByAreaAndKitchenId();
   }, [kitchenId, refresh]);
+  useEffect(() => {
+    fetchSingleSessionById();
+    fetchSingleArea();
+    fetchAllMealSessionInSessionByAreaAndKitchenId();
+  }, []);
+  useEffect(() => {
+    let filteredData = [...mealSessionOfKitchen];
+    if (search) {
+      filteredData = filteredData.filter((item) => {
+        const inforNormalize = normalizeString(
+          item?.mealDtoForMealSession?.name
+        );
+        const searchNormalize = normalizeString(search);
+        return inforNormalize.includes(searchNormalize);
+      });
+    }
+    if (selectedDate) {
+      filteredData = filteredData?.filter((item) => {
+        return item.createDate.includes(selectedDate);
+      });
+    }
+    setNewData([...filteredData]);
+  }, [search, selectedDate]);
   return (
     <div className="w-full h-full p-4">
       <CustomDrawer meal={drawerData || {}} />
+      <Breadcrumb
+        items={[
+          {
+            title: (
+              <Link to={`/${direction.dashboard}/${direction.session}`}>
+                <p className="font-bold text-black underline">Session</p>
+              </Link>
+            ),
+          },
+          {
+            title: (
+              <Link
+                to={`/${direction.dashboard}/${direction.session}/${direction.areaInSession}/${sessionId}`}
+              >
+                <p className="font-bold text-black underline">
+                  {session?.sessionName}
+                </p>
+              </Link>
+            ),
+          },
+          {
+            title: (
+              <Link
+                to={`/${direction.dashboard}/${direction.session}/${direction.areaInSession}/${sessionId}/${direction.manageChefInArea}/${areaId}`}
+              >
+                <p className="font-bold text-black underline">
+                  {area?.areaName}
+                </p>
+              </Link>
+            ),
+          },
+        ]}
+      />
       <div className="account-search flex items-center  justify-end ">
         <div className="w-full h-[40%] add-btn flex justify-between items-center mb-3">
           <div className="flex flex-row justify-center items-center gap-2">
             <FontAwesomeIcon icon={faKitchenSet} fontSize={25} />
-            <h1>{kitchen?.name}</h1>
+            <h1
+              onClick={onHandleNavigateToKitchenInformation}
+              className="hover:cursor-pointer hover:text-bgBtnColor"
+            >
+              {kitchen?.name}
+            </h1>
           </div>
           <div className="my-2 flex flex-row  justify-between">
             <h1 className="underline">
@@ -323,15 +374,16 @@ const ManageMealSessionInKitchen = () => {
               VND
             </h1>
           </div>
-          <Link
+          {/* <Link
             to={`/${direction.dashboard}/${direction.session}/${direction.chefInSession}/${sessionId}`}
           >
             <Button
-            // onClick={() => setShowAddForm(true)}
+              // onClick={() => setShowAddForm(true)}
+              className="hidden md:hidden lg:hidden"
             >
               Leave
             </Button>
-          </Link>
+          </Link> */}
         </div>
       </div>
 
@@ -346,8 +398,8 @@ const ManageMealSessionInKitchen = () => {
             />
             <DatePicker
               // value={selectedDate}
-              defaultValue={dayjs()}
               format="DD-MM-YYYY"
+              defaultValue={dayjs()}
               onChange={(date, dateString) => {
                 setSelectedDate(dateString);
               }}
@@ -400,16 +452,6 @@ const ManageMealSessionInKitchen = () => {
           </ConfigProvider>
         </div>
       </div>
-      <Modal
-        title="Confirmation"
-        open={show}
-        onOk={onHandleDeleteSession}
-        onCancel={handleClose}
-        okText="Ok"
-        cancelText="Cancel"
-      >
-        <p>Are you sure to delete this record?</p>
-      </Modal>
     </div>
   );
 };

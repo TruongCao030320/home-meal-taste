@@ -10,6 +10,10 @@ import {
   ConfigProvider,
   Popover,
   Badge,
+  Breadcrumb,
+  Spin,
+  Modal,
+  Checkbox,
 } from "antd";
 import { TbSearch } from "react-icons/tb";
 
@@ -18,7 +22,6 @@ import { IoCloseSharp } from "react-icons/io5";
 // import toast from "react-hot-toast";
 import { toast } from "react-toastify";
 import * as reactDom from "react-dom";
-import { Modal } from "react-bootstrap";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -32,23 +35,60 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCircle,
   faCircleDot,
+  faClock,
   faDotCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import { FaCircle, FaDownLeftAndUpRightToCenter } from "react-icons/fa6";
+import { useDispatch, useSelector } from "react-redux";
+import { setCurrentArea } from "../../../redux/directionSlice";
 const normalizeString = (str) => {
   return str
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
 };
-const ManageChefInSession = () => {
-  const { sessionId } = useParams();
+const ManageAreaInSession = () => {
+  const dispatch = useDispatch();
+  // const { sessionId } = useParams();
+  // const sessionId = useSelector((state) => state.directionSlice.currentSession);
+  const sessionId = localStorage.getItem("sessionId");
+  console.log("sessionid là", sessionId);
   const navigate = useNavigate();
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [session, setSession] = useState({});
+  const [selectedSession, setSelectedSession] = useState();
+  const [checkboxAutoCreateNewSession, setCheckboxAutoCreateNewSession] =
+    useState(true);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const handleCloseAddSessionForm = () => {
+    setShowAddForm(false);
+    form.resetFields();
+  };
+  const onHandleOpenOffConfirmForm = () => {
+    setShowAddForm(true);
+  };
+  const updateSessionStatus = async () => {
+    console.log("sessionId hiện tại là", sessionId);
+    setLoading(true);
+    patchSessionStatus(sessionId, checkboxAutoCreateNewSession)
+      .then((res) => {
+        fetchSingleSessionById(sessionId);
+        toast.success(`Session Is Off.`);
+      })
+      .catch((error) => toast.error(`Fail To Off Session !`))
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+  const onHandleOffSession = () => {
+    // seshowAddForm(true);
+    updateSessionStatus();
+    setShowAddForm(false);
+  };
   const [kitchens, setKitchens] = useState([]);
+  const [area, setArea] = useState([]);
   const handleClose = () => {
     setShow(false);
     toast.success("Delete successfully.");
@@ -60,9 +100,6 @@ const ManageChefInSession = () => {
   // }
 
   const onRowClick = (record) => {
-    console.log("record gui di la ben maage chef", record);
-
-    console.log("r infor la cai gi ma gui qua kia", record.kitchenId);
     navigate(`${direction.mealSessionInKitchen}/${record.kitchenId}`, {
       kitchenId: record.kitchenId,
       sessionId: sessionId,
@@ -70,58 +107,19 @@ const ManageChefInSession = () => {
   };
   const columns = [
     {
-      title: "Store ID",
-      dataIndex: "kitchenId",
+      title: "Area ID",
+      dataIndex: "areaId",
       render: (text) => <div className="font-bold">{text}</div>,
     },
     {
-      title: "Name",
-      dataIndex: "name",
+      title: "Area Name",
+      dataIndex: "areaName",
       render: (text) => <div className="font-bold">{text}</div>,
     },
-    {
-      title: "Email",
-      dataIndex: "",
-      render: (_, record) => (
-        <div className="font-bold">
-          {record?.userDtoGetAllKitchenBySessionId?.email}
-        </div>
-      ),
-    },
-    {
-      title: "Phone",
-      dataIndex: "user",
-      render: (_, record) => (
-        <div className="font-bold">
-          {record?.userDtoGetAllKitchenBySessionId?.phone}
-        </div>
-      ),
-    },
-    // {
-    //   title: "Active",
-    //   dataIndex: "",
-    //   render: (_, record) => {
-    //     const status = record?.user?.status;
-    //     return (
-    //       <div className="font-bold">
-    //         {status == true ? <TiTick /> : <IoCloseSharp />}
-    //       </div>
-    //     );
-    //   },
-    //   filters: [
-    //     { text: "Yes", value: true },
-    //     { text: "No", value: false },
-    //   ],
-    //   onFilter: (value, record) => record.user.status === value,
-    // },
     {
       title: "Address",
       dataIndex: "",
-      render: (_, record) => (
-        <div className="font-bold">
-          {record.address} - {record.district}
-        </div>
-      ),
+      render: (_, record) => <div className="font-bold">{record.address}</div>,
     },
     {
       title: "Action",
@@ -130,7 +128,8 @@ const ManageChefInSession = () => {
         <Space
           size="middle"
           className="p-1 border rounded-md hover:border-gray-600"
-          onClick={() => onRowClick(record)}
+          // onClick={() => onRowClick(record)}
+          onClick={() => onHandleNavigateToAreaDetail(record)}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -165,6 +164,7 @@ const ManageChefInSession = () => {
   const fetchSingleSessionById = () => {
     getSingleSessionById(sessionId).then((res) => {
       setSession(res);
+      setArea(res.areaDtoGetSingleSessionBySessionId);
     });
   };
   const onHandleChangeSessionStatus = () => {
@@ -178,12 +178,26 @@ const ManageChefInSession = () => {
       .catch((error) => toast.error("Update Session Status Failed."));
   };
 
-  const newData = data?.filter((item) => {
+  const newData = area?.filter((item) => {
     const searchTermNormalized = normalizeString(search.toLowerCase());
-    const itemNormalized = normalizeString(item.name.toLowerCase());
+    const itemNormalized = normalizeString(item.areaName.toLowerCase());
     return itemNormalized.includes(searchTermNormalized);
   });
-
+  const onHandleNavigateToSessionDetail = () => {
+    navigate(
+      `/${direction.dashboard}/${direction.session}/${direction.sessionCreating}/${session?.sessionId}`,
+      {
+        sessionId: session?.sessionId,
+      }
+    );
+  };
+  const onHandleNavigateToAreaDetail = (record) => {
+    dispatch(setCurrentArea(record.areaId));
+    localStorage.setItem("areaId", record.areaId);
+    navigate(`${direction.manageChefInArea}/${record.areaId}`, {
+      areaId: record.areaId,
+    });
+  };
   useEffect(() => {
     // setLoading(true);
     // getAllKitchen(navigate).then((res) => {
@@ -196,26 +210,50 @@ const ManageChefInSession = () => {
   const { RangePicker } = DatePicker;
   return (
     <div className="w-[100%] h-[100%] p-4">
+      <Breadcrumb
+        items={[
+          {
+            title: (
+              <Link to={`/${direction.dashboard}/${direction.session}`}>
+                <h1 className="font-bold text-black underline">
+                  <FontAwesomeIcon icon={faClock} className="mr-1" />
+                  Session
+                </h1>
+              </Link>
+            ),
+          },
+        ]}
+      />
       <div className="account-search h-[10%] flex items-center  justify-end mb-3">
         <div className="h-[40%] add-btn flex justify-between items-center w-full">
           <div className="flex flex-row justify-center items-center">
             <div className=" flex justify-center items-center p-2 gap-2">
-              <h1 className="text-2xl m-0 p-0 ">{session?.sessionName}</h1>
+              <h1
+                className="text-2xl m-0 p-0 hover:cursor-pointer hover:text-bgBtnColor"
+                onClick={onHandleNavigateToSessionDetail}
+              >
+                {session?.sessionName}
+              </h1>
               <FontAwesomeIcon
                 icon={faCircle}
                 fontSize={10}
-                color={session.status == true ? "blue" : "gray"}
+                color={session?.status == true ? "blue" : "gray"}
                 className="animate-pulse mt-1"
               ></FontAwesomeIcon>
             </div>
           </div>
-          <button
-            className="mx-1 btn rounded-xl py-3 bg-bgBtnColor cursor-pointer"
-            onClick={() => onHandleChangeSessionStatus()}
-            disabled={session.status == true ? false : true}
-          >
-            {session.status == true ? "Inactive" : "Active"}
-          </button>
+          {session?.status == true ? (
+            <Button
+              className="btn rounded-2xl p-6 flex justify-center items-center bg-bgBtnColor cursor-pointer"
+              // onClick={() => onHandleChangeSessionStatus()}
+              onClick={() => onHandleOpenOffConfirmForm()}
+              disabled={loading ? true : false}
+            >
+              Inactive
+            </Button>
+          ) : (
+            ""
+          )}
         </div>
       </div>
       <div className="bg-white p-4 rounded-lg">
@@ -248,7 +286,7 @@ const ManageChefInSession = () => {
               }}
             >
               <Table
-                dataSource={kitchens}
+                dataSource={search ? newData : area}
                 columns={columns}
                 loading={loading}
                 rowClassName={(record, index) =>
@@ -259,8 +297,27 @@ const ManageChefInSession = () => {
           </div>
         </div>
       </div>
+      <Modal
+        title="Confirm On Off Session"
+        open={showAddForm}
+        onOk={onHandleOffSession}
+        onCancel={handleCloseAddSessionForm}
+        okText="Yes"
+        cancelText="No"
+      >
+        <div className="flex flex-row">
+          <Checkbox
+            className="mr-2"
+            checked={checkboxAutoCreateNewSession}
+            onChange={() =>
+              setCheckboxAutoCreateNewSession(!checkboxAutoCreateNewSession)
+            }
+          />
+          <p className="font-bold">Create new session for tomorrow ?</p>
+        </div>
+      </Modal>
     </div>
   );
 };
 
-export default ManageChefInSession;
+export default ManageAreaInSession;

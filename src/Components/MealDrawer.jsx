@@ -22,6 +22,7 @@ import {
   getDishByMealId,
   getSingleMealSessionById,
   updateStatusMealSession,
+  updateStatusMultiMealSession,
 } from "../API/Admin.js";
 import { MdFeaturedPlayList } from "react-icons/md";
 const { TextArea } = Input;
@@ -54,10 +55,12 @@ const CustomDrawer = () => {
     // getDishByMealId(mealId).then((res) => {
     //   setDishes(res?.dishDto);
     // });
-    fetchSingleMeal();
+    if (mealsessionIDGetFromRedux) {
+      fetchSingleMeal();
+    }
   }, [mealsessionIDGetFromRedux, refresh2]);
   const confirmMealSession = (status) => {
-    updateStatusMealSession(mealsessionIDGetFromRedux, status)
+    updateStatusMultiMealSession(status, [mealsessionIDGetFromRedux])
       .then((res) => {
         dispatch(refresh());
         toast.success("Update status successfully.");

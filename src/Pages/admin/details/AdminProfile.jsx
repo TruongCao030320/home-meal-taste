@@ -69,13 +69,13 @@ const AdminProfile = () => {
         </div>
       </div>
       <div className="bg-white p-4 rounded-lg flex justify-around">
-        <div className="w-[100%]">
-          <Row className="flex justify-between my-2">
-            <Col span={11}>
+        <div className="w-[100%] gap-2">
+          <Row className="flex justify-between my-2 gap-3">
+            <Col xs={24} md={11} lg={11}>
               <label htmlFor="">User name</label>
               <Input className="box__shadow" value={username}></Input>
             </Col>
-            <Col span={11}>
+            <Col xs={24} md={11} lg={11}>
               <label htmlFor="">Wallet</label>
               <Input
                 className="box__shadow"
@@ -83,12 +83,12 @@ const AdminProfile = () => {
               ></Input>
             </Col>
           </Row>
-          <Row className="flex justify-between">
-            <Col span={11}>
+          <Row className="flex justify-between gap-3">
+            <Col xs={24} md={11} lg={11}>
               <label htmlFor="">Email</label>
               <Input className="box__shadow" value={email}></Input>
             </Col>
-            <Col span={11}>
+            <Col xs={24} md={11} lg={11}>
               <label htmlFor="">Phone</label>
               <Input className="box__shadow" value={phone}></Input>
             </Col>
@@ -100,7 +100,7 @@ const AdminProfile = () => {
         <div className="profileForm h-full">
           <form className="" onSubmit={handleSubmit}>
             <Row className="my-2 gap-2">
-              <Col span={11} className="">
+              <Col xs={24} md={11} lg={11} className="">
                 <label className="">Current Password</label>
                 <Input.Password
                   className="box__shadow"
@@ -108,12 +108,12 @@ const AdminProfile = () => {
                 ></Input.Password>
               </Col>
             </Row>
-            <Row className="flex justify-between">
-              <Col span={11}>
+            <Row className="flex justify-between gap-4">
+              <Col xs={24} md={11} lg={11}>
                 <label htmlFor="">New Password</label>
                 <Input.Password className="box__shadow"></Input.Password>
               </Col>
-              <Col span={11}>
+              <Col xs={24} md={11} lg={11}>
                 <label htmlFor="">Confirm New Password</label>
                 <Input.Password className="box__shadow"></Input.Password>
               </Col>

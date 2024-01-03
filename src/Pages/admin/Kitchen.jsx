@@ -84,7 +84,6 @@ const Kitchen = () => {
           size="middle"
           className="p-1 border rounded-md hover:border-gray-600"
           onClick={() => {
-            console.log("id là", record.userDtoKitchenResponseModel?.userId);
             navigate(
               `/${direction.dashboard}/${direction.kitchen}/${record.userDtoKitchenResponseModel?.userId}`,
               {
@@ -125,7 +124,7 @@ const Kitchen = () => {
   useEffect(() => {
     setLoading(true);
     getAllKitchen(navigate).then((res) => {
-      setData(res);
+      setData(res.slice().reverse());
       setLoading(false);
     });
   }, []);

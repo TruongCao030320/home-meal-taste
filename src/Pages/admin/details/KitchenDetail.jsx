@@ -60,6 +60,7 @@ const KitchenDetail = () => {
     setLoading(true);
     getKitchenByUserId(id).then((res) => {
       setUser(res);
+      setKitchen(res);
       getAllMealSessionByKitchenId(res.kitchenId).then((res) => {
         setMeal(res.slice().reverse());
         setNewData(
@@ -71,7 +72,10 @@ const KitchenDetail = () => {
             })
         );
       });
-      getKitchenByKitchenId(res?.kitchenId).then((res) => setKitchen(res));
+      // getKitchenByKitchenId(res?.kitchenId).then((res) => {
+      //   console.log(res);
+      //   setKitchen(res);
+      // });
       getAllDistrict().then((res) => setDistrictArray(res));
       getOrderByKitchenId(res?.kitchenId).then((res) => setOrder(res));
       getAllFeedbackByKitchenId(res?.kitchenId).then((res) =>
@@ -540,13 +544,11 @@ const KitchenDetail = () => {
     setLoading(true);
     getAllMealSessionByKitchenId(user?.kitchenId).then((res) => {
       setMeal(res);
+      const reverseData = res?.slice().reverse();
       setNewData(
-        res
-          .slice()
-          .reverse()
-          .filter((item) => {
-            return item.createDate.includes(selectedDate);
-          })
+        reverseData?.filter((item) => {
+          return item.createDate.includes(selectedDate);
+        })
       );
       setLoading(false);
     });
@@ -592,12 +594,12 @@ const KitchenDetail = () => {
             <Col className="" span={11}>
               <div>
                 <label htmlFor="" className=" flex justify-start pb-2">
-                  Address
+                  Area
                 </label>
                 <Input
                   className="box__shadow"
                   classNames="mt-2"
-                  value={address}
+                  value={kitchen?.areaDtoGetKitchen?.areaName}
                 />
               </div>
             </Col>

@@ -36,7 +36,7 @@ const Account = () => {
     setLoading(true);
     changeIsActive(id, toast)
       .then((res) => {
-        setData(res);
+        setData(res.slice().reverse());
       })
       .catch((error) => {
         console.error(error);
@@ -303,7 +303,7 @@ const Account = () => {
             </Popover>
           </div> */}
         </div>
-        <div className="w-full md:overflow-auto">
+        <div className="overflow-auto w-full md:overflow-auto">
           <ConfigProvider
             theme={{
               components: {

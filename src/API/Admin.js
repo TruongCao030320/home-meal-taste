@@ -55,12 +55,7 @@ export const getOrderByUserId = async (id) => {
 export const getAllOrder = async () => {
   try {
     const response = await axios.get(
-      "https://homemealtaste.azurewebsites.net/api/Order/get-all-order",
-      {
-        headers: {
-          Authorization: `Bearer ${tokenAPI}`,
-        },
-      }
+      "https://homemealtaste.azurewebsites.net/api/Order/get-all-order"
     );
     return response.data;
   } catch (error) {
@@ -126,20 +121,35 @@ export const getAllSession = async () => {
     console.log(error);
   }
 };
-export const createNewSession = async (values, toast) => {
-  console.log("value la2", values);
-  try {
-    const response = await axios.post(
-      "https://homemealtaste.azurewebsites.net/api/Session",
-      values
-    );
-    if (response.status == 200) {
-      toast.success("Create New Session Successfully.");
+// export const createNewSession = async (values, toast) => {
+//   console.log("value la2", values);
+//   try {
+//     const response = await axios.post(
+//       "https://homemealtaste.azurewebsites.net/api/Session",
+//       values
+//     );
+//     if (response.status == 200) {
+//       toast.success("Create New Session Successfully.");
+//     }
+//   } catch (error) {
+//     console.log("Create new session", error);
+//     toast.error("Create New Session Failed.");
+//   }
+// };
+export const createNewSession = async (values) => {
+  console.log("values bên create session", values);
+  // const newObject = { sessionId, ...values };
+  // console.log("new object là", newObject);
+  const response = await axios.post(
+    "https://homemealtaste.azurewebsites.net/api/Session",
+    {
+      sessionType: values.sessionType,
+      areaIds: values.areaIds,
+      registerForMealStatus: values.registerForMealStatus,
+      bookingSlotStatus: values.bookingSlotStatus,
+      date: values.endDate,
     }
-  } catch (error) {
-    console.log("Create new session", error);
-    toast.error("Create New Session Failed.");
-  }
+  );
 };
 export const getOrderByKitchenId = async (id) => {
   try {
@@ -161,10 +171,11 @@ export const getSingleMeal = async (id) => {
     console.log(error);
   }
 };
-export const patchSessionStatus = async (id) => {
+export const patchSessionStatus = async (id, status) => {
+  console.log("id và status là", id, status);
   try {
     await axios.patch(
-      `https://homemealtaste.azurewebsites.net/api/Session/change-status-session?sessionid=${id}`
+      `https://homemealtaste.azurewebsites.net/api/Session/change-status-session?sessionid=${id}&status=${status}`
     );
     return getAllSession();
   } catch (error) {
@@ -399,7 +410,7 @@ export const getSingleSessionById = async (id) => {
     const response = await axios.get(
       `https://homemealtaste.azurewebsites.net/api/Session/get-single-session-by-session-id?sessionid=${id}`
     );
-    return response.data.result;
+    return response.data;
   } catch (error) {
     console.log("Error at get single session by id", error);
   }
@@ -528,5 +539,114 @@ export const getKitchenByUserId = async (id) => {
     return response.data;
   } catch (error) {
     console.log("Error at get kitchen by user id", error);
+  }
+};
+export const getAllKitchenInArea = async (id) => {
+  try {
+    const response = await axios.get(
+      `https://homemealtaste.azurewebsites.net/api/Kitchen/get-all-kitchen-by-area-id?areaId=${id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error at get all kitchen in area", error);
+  }
+};
+export const getSingleArea = async (id) => {
+  try {
+    const response = await axios.get(
+      `https://homemealtaste.azurewebsites.net/api/Area/get-single-area-by-area-id?areaid=${id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error at get single area", error);
+  }
+};
+export const getAllAreaByDistrict = async (id) => {
+  try {
+    const response = await axios.get(
+      `https://homemealtaste.azurewebsites.net/api/Area/get-area-by-district-id?districtid=${id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error at get all area by district", error);
+  }
+};
+export const getAllMealSessionInSessionByAreaAndKitchenId = async (
+  areaId,
+  sessionId,
+  kitchenId
+) => {
+  try {
+    const response = await axios.get(
+      `https://homemealtaste.azurewebsites.net/api/MealSession/get-all-meal-session-by-area-id-and-session-id-and-kitchen-id?areaId=${areaId}&sessionId=${sessionId}&kitchenId=${kitchenId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.log(
+      "Error at get all meal session in session by area and kitchen",
+      error
+    );
+  }
+};
+export const changeStatusOfRegisterForMeal = async (id) => {
+  await axios.patch(
+    `https://homemealtaste.azurewebsites.net/api/Session/change-status-register-for-meal?sessionid=${id}`
+  );
+};
+export const changeStatusOfBookingSlot = async (id) => {
+  try {
+    await axios.patch(
+      `https://homemealtaste.azurewebsites.net/api/Session/change-status-booking-slot?sessionid=${id}`
+    );
+  } catch (error) {
+    console.log("Error at change status of booking slot", error);
+  }
+};
+export const updateStatusMultiMealSession = async (status, mealSessionIds) => {
+  console.log("values nhận đc để change status là", status, mealSessionIds);
+  try {
+    await axios.patch(
+      "https://homemealtaste.azurewebsites.net/api/MealSession/update-status-meal-session",
+      {
+        mealSessionIds: mealSessionIds,
+        status: status,
+      }
+    );
+  } catch (error) {
+    console.log("Error at update status multi meal session", error);
+  }
+};
+export const updateSession = async (values) => {
+  console.log("values của update session", values);
+  try {
+    await axios.put(
+      "https://homemealtaste.azurewebsites.net/api/Session/update-session-and-area-in-session",
+      {
+        sessionId: values.sessionId,
+        endDate: values.endDate,
+        areaIds: values.areaIds,
+        bookingSlotStatus: values.bookingSlotStatus,
+        registerForMealStatus: values.registerForMealStatus,
+        sessionType: values.sessionType,
+        status: values.status,
+      }
+    );
+  } catch (error) {
+    console.log("Error at update session", error);
+  }
+};
+export const updateDishType = async (values) => {
+  console.log(values);
+  try {
+    await axios.put(
+      "https://homemealtaste.azurewebsites.net/api/DishType/update-dishtype",
+      {
+        dishTypeId: values.dishTypeId,
+        name: values.name,
+        description: values.description,
+      }
+    );
+  } catch (error) {
+    console.log("Error at update dish type", error);
   }
 };

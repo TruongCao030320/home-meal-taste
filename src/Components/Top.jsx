@@ -7,19 +7,35 @@ import avt from "../assets/images/avatar01.png";
 import logo from "../assets/images/logo.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { DownOutlined } from "@ant-design/icons";
-import { Dropdown, Popover, Space } from "antd";
+import { Dropdown, Popover, Space, Drawer, Button } from "antd";
 import NotificationTag from "./NotificationTag";
 import { Input } from "antd";
 import { useEffect } from "react";
 import { getSingleUser } from "../API/Admin";
 import { direction } from "../API/Direction";
+import Sidebar from "./Sidebar";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBars } from "@fortawesome/free-solid-svg-icons";
+import { useDispatch, useSelector } from "react-redux";
+import { hiddenSidebar, showSidebar } from "../redux/sidebarSlice";
 const Top = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const id = localStorage.getItem("userId");
-  console.log(id);
+  const visible = useSelector((state) => state.sidebarSlice.visible);
+  // const [open, setOpen] = useState(visible);
+  const showDrawer = () => {
+    // setOpen(true);
+    dispatch(showSidebar());
+  };
+  const onClose = () => {
+    // setOpen(false);
+    dispatch(hiddenSidebar());
+  };
   const [showLogout, setShowLogout] = useState(false);
   const toggleRef = useRef(null);
   const toggleRef2 = useRef(null);
+
   const toggleVisibility = () => {
     if (toggleRef.current) {
       toggleRef.current.classList.toggle("hidden");
@@ -98,14 +114,21 @@ const Top = () => {
     </div>
   );
   return (
-    <div className="h-full w-full sticky__header">
+    <div className="lg:h-full lg:w-full sticky__header w-full h-full md:w-full">
+      <Drawer placement="left" open={visible} onClose={onClose}>
+        <Sidebar />
+      </Drawer>
       <div
         className="w-full h-full headerSection  justify-between items-center fixed z-[99] top-0 left-0 bottom-0 right-0  opacity-30 hidden"
         onClick={toggleVisibility}
         ref={toggleRef2}
       ></div>
-      <div className="w-[100%] h-[100%] flex justify-between items-center rounded-lg box__shadow px-5">
-        <div className="title flex flex-col justify-center items-start">
+      <div className="w-[100%] h-[100%] flex justify-between items-center rounded-lg box__shadow px-5 md:flex md:flex-row md:justify-between md:w-full">
+        <Button className="lg:hidden" onClick={showDrawer}>
+          <FontAwesomeIcon icon={faBars} className="text-sm"></FontAwesomeIcon>
+        </Button>
+
+        <div className="lg:title lg:flex lg:flex-col lg:justify-center lg:items-start hidden">
           <h1 className="">
             Welcome to <span>Home Meal Taste</span> !
           </h1>
@@ -113,8 +136,7 @@ const Top = () => {
             Hello <span className="text-yellowColor">{}</span>, Welcome back !
           </p>
         </div>
-
-        <div className="adminDiv flex justify-between items-center gap-2">
+        <div className="adminDiv flex  items-center gap-2 h-full p-2">
           <Link to={`/${direction.dashboard}/${direction.chat}`}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -136,7 +158,7 @@ const Top = () => {
               className=" bg-black absolute top-[3rem] right-16 shadow rounded-lg z-[9999] h-[50%] w-[20%] hidden box__shadow"
               ref={toggleRef}
             >
-              <div className="bg-white rounded-lg border">
+              <div className="bg-white rounded-lg border w-[150%] md:w-full lg:w-full">
                 <h1 className="w-full text-center mt-2">Notification</h1>
                 {notiExample.map((item, index) => (
                   <NotificationTag tag={item} key={index} />
@@ -160,16 +182,18 @@ const Top = () => {
             </svg>
           </div>
 
-          <div className="adminImg h-10 w-10  rounded-full p-1 bg-white relative before:w-[40px] before:absolute before:top-[33px] before:right-[7px] before:content-[''] before:h-[20px] before:bg-black before:opacity-0 ">
-            <Popover trigger="hover" content={content}>
-              <figure>
-                <img
-                  src={avt}
-                  className="rounded-full w-full h-full border border-solid cursor-pointer box__shadow  "
-                ></img>
-              </figure>
-            </Popover>
-          </div>
+          {/* <div className="adminImg h-[20%] w-[20%]  rounded-full p-1 bg-white relative before:w-[40px] before:absolute before:top-[33px] before:right-[7px] before:content-[''] before:h-[20px] before:bg-black before:opacity-0"> */}
+          <Popover
+            trigger="hover"
+            content={content}
+            className="p-1 rounded-full w-[50%]"
+          >
+            <img
+              src={avt}
+              className="rounded-full w-[20%] h-[100%] border border-solid cursor-pointer box__shadow  "
+            ></img>
+          </Popover>
+          {/* </div> */}
         </div>
       </div>
     </div>

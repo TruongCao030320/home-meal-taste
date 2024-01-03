@@ -25,14 +25,8 @@ const Dashboard = () => {
   return (
     <div className=" mainContainer no-scrollbarflex w-full">
       <Layout className="lg:w-full md:w-full bg-white">
-        <Button
-          className="lg:hidden md:hidden bg-white mt-2"
-          onClick={showDrawer}
-        >
-          <FontAwesomeIcon icon={faBars} className="text-sm"></FontAwesomeIcon>
-        </Button>
-        <Sider className=" hidden !bg-white rounded-lg md:!bg-white lg:!bg-white md:!flex md:!justify-center md:relative">
-          <Button
+        <Sider className="md:hidden hidden !bg-white rounded-lg md:!bg-white lg:block lg:px-2 lg:bg-white  md:!justify-center md:relative">
+          {/* <Button
             className="lg:hidden md:block md:absolute md:top-5 md:left-[20%]"
             onClick={showDrawer}
           >
@@ -40,7 +34,7 @@ const Dashboard = () => {
               icon={faBars}
               className="text-sm"
             ></FontAwesomeIcon>
-          </Button>
+          </Button> */}
           <Header
             className="hidden md:hidden lg:block"
             style={{
@@ -61,22 +55,19 @@ const Dashboard = () => {
               </div>
             </div>
           </Header>
-          <Content className="mt-4 md:hidden lg:block hidden">
+          <Content className="mt-4 md:hidden lg:flex hidden ">
             <Sidebar></Sidebar>
           </Content>
         </Sider>
-        <Layout className=" bg-white lg:w-full lg:h-full w-full h-full min-w-[500px]">
-          <Header className="p-0 lg:w-full md:flex md:flex-row md:w-full">
+        <Layout className="!bg-white lg:bg-white lg:w-full lg:h-full w-full h-full md:w-full md:bg-white">
+          <Header className="md:w-full lg:w-full w-full px-0">
             <Top />
           </Header>
-          <Content className=" lg:h-full lg:top-0 lg:left-0  lg:rounded-lg bg-colorBg lg:mt-4 flex lg:w-full lg:relative justify-center md:w-[90vw] md:fixed md:left-14 md:top-28 lg:min-h-[500px]">
+          <Content className=" lg:h-full lg:top-0 lg:left-0  lg:rounded-lg bg-colorBg lg:mt-4 flex lg:w-full lg:relative justify-center md:w-full md:mt-2 md:rounded-lg lg:min-h-[500px] mt-2 rounded-lg">
             <Outlet />
           </Content>
         </Layout>
       </Layout>
-      <Drawer placement="left" open={open} onClose={onClose}>
-        <Sidebar />
-      </Drawer>
     </div>
   );
 };

@@ -23,8 +23,10 @@ import Area from "../Pages/admin/Area";
 import { direction } from "../API/Direction";
 import DishType from "../Pages/admin/DishType";
 import Transaction from "../Pages/admin/Transaction";
-import ManageChefInSession from "../Pages/admin/sessions/ManageChefInSession";
 import ManageMealSessionInKitchen from "../Pages/admin/sessions/ManageMealSessionInKitchen";
+import SessionCreating from "../Pages/admin/details/SessionCreating";
+import ManageAreaInSession from "../Pages/admin/sessions/ManageAreaInSession";
+import ManageChefInArea from "../Pages/admin/sessions/ManageChefInArea";
 const Router = () => {
   return (
     <>
@@ -63,11 +65,20 @@ const Router = () => {
           <Route path={`${direction.order}/:id`} element={<OrderTracking />} />
           <Route path={`${direction.session}`} element={<Session />} />
           <Route
-            path={`${direction.session}/${direction.chefInSession}/:sessionId`}
-            element={<ManageChefInSession />}
+            path={`${direction.session}/${direction.sessionCreating}/:sessionId`}
+            element={<SessionCreating />}
+          />
+
+          <Route
+            path={`${direction.session}/${direction.areaInSession}/:sessionId`}
+            element={<ManageAreaInSession />}
           />
           <Route
-            path={`${direction.session}/${direction.chefInSession}/:sessionId/${direction.mealSessionInKitchen}/:kitchenId`}
+            path={`${direction.session}/${direction.areaInSession}/:sessionId/${direction.manageChefInArea}/:areaId`}
+            element={<ManageChefInArea />}
+          />
+          <Route
+            path={`${direction.session}/${direction.areaInSession}/:sessionId/${direction.manageChefInArea}/:areaId/${direction.mealSessionInKitchen}/:kitchenId`}
             element={<ManageMealSessionInKitchen />}
           />
 

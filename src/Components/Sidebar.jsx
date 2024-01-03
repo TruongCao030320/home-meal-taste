@@ -35,6 +35,8 @@ import { Menu, Button } from "antd";
 import { direction } from "../API/Direction";
 import { TbCategory2 } from "react-icons/tb";
 import { FaHistory, FaTimes } from "react-icons/fa";
+import { useDispatch } from "react-redux";
+import { hiddenSidebar } from "../redux/sidebarSlice";
 function getItem(label, key, icon, children, type) {
   return {
     key,
@@ -45,55 +47,97 @@ function getItem(label, key, icon, children, type) {
   };
 }
 const Sidebar = () => {
+  const dispatch = useDispatch();
+  const handleHiddenSidebar = () => {
+    dispatch(hiddenSidebar());
+  };
   const items = [
     getItem(
-      <Link to={`/${direction.dashboard}`}>Dashboard</Link>,
+      <Link onClick={handleHiddenSidebar} to={`/${direction.dashboard}`}>
+        Dashboard
+      </Link>,
       "1",
       <MdDashboardCustomize />
     ),
     getItem(
-      <Link to={`/${direction.dashboard}/${direction.order}`}>Order</Link>,
+      <Link
+        onClick={handleHiddenSidebar}
+        to={`/${direction.dashboard}/${direction.order}`}
+      >
+        Order
+      </Link>,
       "9",
       <FaMoneyBill />
     ),
     getItem(
-      <Link to={`/${direction.dashboard}/${direction.transaction}`}>
+      <Link
+        onClick={handleHiddenSidebar}
+        to={`/${direction.dashboard}/${direction.transaction}`}
+      >
         Transaction
       </Link>,
       "11",
       <FaHistory />
     ),
     getItem(
-      <Link to={`/${direction.dashboard}/${direction.area}`}>Area</Link>,
+      <Link
+        onClick={handleHiddenSidebar}
+        to={`/${direction.dashboard}/${direction.area}`}
+      >
+        Area
+      </Link>,
       "4",
       <FaEarthEurope />
     ),
 
     getItem(
-      <Link to={`/${direction.dashboard}/${direction.session}`}>Session</Link>,
+      <Link
+        onClick={handleHiddenSidebar}
+        to={`/${direction.dashboard}/${direction.session}`}
+      >
+        Session
+      </Link>,
       "5",
       <FaClock />
     ),
     getItem(
-      <Link to={`/${direction.dashboard}/${direction.kitchen}`}>Kitchen</Link>,
+      <Link
+        onClick={handleHiddenSidebar}
+        to={`/${direction.dashboard}/${direction.kitchen}`}
+      >
+        Kitchen
+      </Link>,
       "7",
       <AiFillHome />
     ),
     getItem(
-      <Link to={`/${direction.dashboard}/${direction.meal}`}>Meal</Link>,
+      <Link
+        onClick={handleHiddenSidebar}
+        to={`/${direction.dashboard}/${direction.meal}`}
+      >
+        Meal
+      </Link>,
       "6",
       <FaBowlFood />
     ),
 
     getItem(
-      <Link to={`/${direction.dashboard}/${direction.dishType}`}>
+      <Link
+        onClick={handleHiddenSidebar}
+        to={`/${direction.dashboard}/${direction.dishType}`}
+      >
         Category
       </Link>,
       "10",
       <TbCategory2 />
     ),
     getItem(
-      <Link to={`/${direction.dashboard}/${direction.user}`}>User</Link>,
+      <Link
+        onClick={handleHiddenSidebar}
+        to={`/${direction.dashboard}/${direction.user}`}
+      >
+        User
+      </Link>,
       "8",
       <MdManageAccounts />
     ),

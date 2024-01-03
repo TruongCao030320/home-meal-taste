@@ -16,6 +16,8 @@ import {
   Row,
   Col,
   Divider,
+  Switch,
+  Checkbox,
 } from "antd";
 import { FilterFilled } from "@ant-design/icons";
 import customParseFormat from "dayjs/plugin/customParseFormat";
@@ -37,6 +39,8 @@ import {
   deleteSession,
   getAllMealSessionBySessionId,
   getSingleMealSessionById,
+  changeStatusOfRegisterForMeal,
+  changeStatusOfBookingSlot,
 } from "../../API/Admin";
 import SessionDrawer from "../../Components/SessionDrawer";
 import { Title } from "chart.js";
@@ -45,10 +49,13 @@ import ExpandedContent from "../../Components/ExpandedContent.jsx";
 import { direction } from "../../API/Direction.js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faCircle,
   faDeleteLeft,
   faEdit,
+  faEye,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
+import { setCurrentSession } from "../../redux/directionSlice.js";
 const { RangePicker } = DatePicker;
 const normalizeString = (str) => {
   return str
@@ -57,6 +64,7 @@ const normalizeString = (str) => {
     .replace(/[\u0300-\u036f]/g, "");
 };
 const Session = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [form] = useForm();
   const [showAddForm, setShowAddForm] = useState(false);
@@ -66,16 +74,20 @@ const Session = () => {
   const [session, setSession] = useState([]);
   const [id, setId] = useState();
   const [areaDefault, setAreaDefault] = useState();
+  const [selectedSession, setSelectedSession] = useState();
   const [areaValue, setAreaValue] = useState();
   const [newData, setNewData] = useState([]);
-  console.log("area name", area[0]?.areaName);
+  const [checkboxAutoCreateNewSession, setCheckboxAutoCreateNewSession] =
+    useState(true);
   const [selectedDateRange, setSelectedDateRange] = useState([]);
   const [drawerData, setDrawerData] = useState({});
   const refresh = useSelector((state) => state.mealDrawer.refresh);
   const dateFormatList = ["DD/MM/YYYY", "DD/MM/YY", "DD-MM-YYYY", "DD-MM-YY"];
-  const [selectedDate, setSelectedDate] = useState(
-    dayjs().format(dateFormatList[2])
-  );
+  // const [selectedDate, setSelectedDate] = useState(
+  //   dayjs().format(dateFormatList[2])
+  // );
+  const [selectedDate, setSelectedDate] = useState();
+
   // function section
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const [dataExpand, setDataExpand] = useState([]);
@@ -92,8 +104,11 @@ const Session = () => {
     }
   };
   const onRowClick = (record) => {
-    console.log("record gui di la", record);
-    navigate(`${direction.chefInSession}/${record.sessionId}`);
+    dispatch(setCurrentSession(record.sessionId));
+    localStorage.setItem("sessionId", record.sessionId);
+    navigate(`${direction.areaInSession}/${record.sessionId}`, {
+      sessionId: record.sessionId,
+    });
   };
   useEffect(() => {
     if (sessionIdIsChange) {
@@ -127,50 +142,77 @@ const Session = () => {
     setShowAddForm(false);
     form.resetFields();
   };
-  const fetchAllArea = async () => {
-    setLoading(true);
-    try {
-      const areaData = await getAllArea();
-      setArea(areaData);
-      if (areaData.length > 0) {
-        const defaultAreaId = areaData[0].areaId;
-        setAreaDefault(defaultAreaId);
-        await getAllSessionByAreaId(defaultAreaId)
-          .then((sessionData) => {
-            setSession(sessionData);
-            setLoading(false);
-          })
-          .catch((error) => console.log(error));
-      }
-    } catch (error) {
-      console.log(error);
-    }
+  const onHandleNavigateToCreateSessionPage = () => {
+    navigate(`${direction.sessionCreating}/${null}`);
   };
-  const addNewSession = async (values) => {
-    createNewSession(values, toast)
-      .then(() => {
-        fetchSessionByArea(areaValue ? areaValue : areaDefault);
-        form.resetFields();
-        setShowAddForm(false);
-      })
-      .catch((error) => toast.error("Create new session failed."));
-  };
-  const fetchSessionByArea = (id) => {
+  const onHandlePatchRegisterForMeal = (record) => {
     setLoading(true);
-    getAllSessionByAreaId(id)
-      .then((res) => setSession(res))
-      .catch((error) => console.log(error))
-      .finally(() => setLoading(false));
-  };
-  const updateSessionStatus = async (id) => {
-    setLoading(true);
-    patchSessionStatus(id)
+    changeStatusOfRegisterForMeal(record.sessionId)
       .then((res) => {
-        fetchSessionByArea(areaValue ? areaValue : areaDefault);
-        toast.success("Change Session Status Completed.");
+        fetchAllSession();
+        toast.success("Update status Meal Advance completed");
       })
-      .catch((error) => toast.error("Update Session Status Failed."));
+      .catch(() => {
+        toast.success("Update status Meal Advance completed");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
+  const onHandlePatchBookingSlot = (record) => {
+    changeStatusOfBookingSlot(record.sessionId)
+      .then((res) => {
+        fetchAllSession();
+        toast.success("Update status booking slot completed");
+      })
+      .catch(() => {
+        toast.success("Update status booking slot completed");
+      });
+  };
+  const fetchAllSession = async () => {
+    setLoading(true);
+    getAllSession()
+      .then((sessionData) => {
+        setSession(sessionData.slice().reverse());
+      })
+      .catch((error) => console.log(error))
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+  const onHandleOpenOffConfirmForm = (record) => {
+    setSelectedSession(record);
+    setShowAddForm(true);
+  };
+  // const onChangeCheckboxAutoCreateNewSession = () => {
+  //   setCheckboxAutoCreateNewSession(!checkboxAutoCreateNewSession);
+  //   console.log(checkboxAutoCreateNewSession);
+  // };
+
+  // const fetchSessionByArea = (id) => {
+  //   setLoading(true);
+  //   getAllSessionByAreaId(id)
+  //     .then((res) => setSession(res))
+  //     .catch((error) => console.log(error))
+  //     .finally(() => setLoading(false));
+  // };
+  const updateSessionStatus = async () => {
+    setLoading(true);
+    patchSessionStatus(selectedSession?.sessionId, checkboxAutoCreateNewSession)
+      .then((res) => {
+        fetchAllSession();
+        toast.success(`${selectedSession?.sessionName} Is Off.`);
+      })
+      .catch((error) =>
+        toast.error(`Fail To Off Session ${selectedSession?.sessionName} !`)
+      );
+  };
+  const onHandleOffSession = () => {
+    // seshowAddForm(true);
+    updateSessionStatus();
+    setShowAddForm(false);
+  };
+
   // end function section
   // useeffect section
   useEffect(() => {
@@ -182,13 +224,13 @@ const Session = () => {
     }
   }, [sessionIdIsChange]);
   useEffect(() => {
-    fetchAllArea();
+    fetchAllSession();
   }, [refresh]);
-  useEffect(() => {
-    getAllSessionByAreaId(areaValue)
-      .then((res) => setSession(res))
-      .catch((error) => console.log(error));
-  }, [areaValue]);
+  // useEffect(() => {
+  //   getAllSessionByAreaId(areaValue)
+  //     .then((res) => setSession(res))
+  //     .catch((error) => console.log(error));
+  // }, [areaValue]);
   // column section
   const columns = [
     {
@@ -222,29 +264,29 @@ const Session = () => {
       ],
       onFilter: (value, record) => record.sessionType.startsWith(value),
     },
-    {
-      title: "Status",
-      dataIndex: "status",
-      render: (_, record) => {
-        return (
-          <div className="font-bold">
-            {record.status === true ? (
-              <TiTick size={25} color="green" />
-            ) : (
-              <TiDelete size={25} color="red" />
-            )}
-          </div>
-        );
-      },
-      filters: [
-        { text: "Yes", value: true },
-        { text: "No", value: false },
-      ],
-      onFilter: (value, record) => record.status === value,
-    },
+    // {
+    //   title: "Status",
+    //   dataIndex: "status",
+    //   render: (_, record) => {
+    //     return (
+    //       <div className="font-bold">
+    //         {record.status === true ? (
+    //           <TiTick size={25} color="green" />
+    //         ) : (
+    //           <TiDelete size={25} color="red" />
+    //         )}
+    //       </div>
+    //     );
+    //   },
+    //   filters: [
+    //     { text: "Yes", value: true },
+    //     { text: "No", value: false },
+    //   ],
+    //   onFilter: (value, record) => record.status === value,
+    // },
     {
       title: "Is Active",
-      key: "price",
+      key: "status",
       render: (_, record, index) => {
         const status = record.status === true ? "Inactive" : "Active";
         return (
@@ -252,28 +294,93 @@ const Session = () => {
             {record.status === true ? (
               <Tag
                 color="green"
-                className="shadow-sm hover:cursor-pointer hover:opacity-40 py-2 px-6"
+                className="shadow-sm hover:cursor-pointer hover:opacity-40 py-2 px-6 flex flex-row justify-between items-center"
                 onClick={() => {
-                  updateSessionStatus(record.sessionId);
+                  onHandleOpenOffConfirmForm(record);
                 }}
               >
-                {status}
+                <p className="font-bold mr-2">{status}</p>
+                <FontAwesomeIcon
+                  icon={faCircle}
+                  fontSize={8}
+                  color="green"
+                  className="animate-pulse"
+                ></FontAwesomeIcon>
               </Tag>
             ) : (
-              <Tag color="gray" className="shadow-sm py-2 px-6">
-                {status}
+              <Tag
+                // color="gray"
+                className="shadow-sm py-2 px-6 flex flex-row justify-between items-center bg-gray-400"
+              >
+                <p className="font-bold">{status}</p>
+                <FontAwesomeIcon
+                  icon={faCircle}
+                  fontSize={8}
+                  color="gray"
+                  className="animate-pulse"
+                ></FontAwesomeIcon>
               </Tag>
             )}
           </div>
         );
       },
+      filters: [
+        { text: "ON", value: true },
+        { text: "OFF", value: false },
+      ],
+      defaultFilteredValue: ["true"],
+      onFilter: (value, record) => record.status === value,
     },
     {
-      title: "Create At",
+      title: "Meal Advance",
+      key: "registerForMealStatus",
+      render: (_, record, index) => {
+        return (
+          <div>
+            <Switch
+              className="bg-gray-400"
+              checkedChildren="On"
+              unCheckedChildren="Off"
+              defaultChecked={record.registerForMealStatus}
+              onClick={() => onHandlePatchRegisterForMeal(record)}
+            />
+          </div>
+        );
+      },
+      filters: [
+        { text: "OPEN", value: true },
+        { text: "CLOSED", value: false },
+      ],
+      onFilter: (value, record) => record.registerForMealStatus === value,
+    },
+    {
+      title: "Booking Status",
+      key: "bookingSlotStatus",
+      render: (_, record, index) => {
+        return (
+          <div>
+            <Switch
+              className="bg-yellow-200"
+              checkedChildren="On"
+              unCheckedChildren="Off"
+              defaultChecked={record.bookingSlotStatus}
+              onClick={() => onHandlePatchBookingSlot(record)}
+            />
+          </div>
+        );
+      },
+      filters: [
+        { text: "OPEN", value: true },
+        { text: "CLOSED", value: false },
+      ],
+      onFilter: (value, record) => record.bookingSlotStatus === value,
+    },
+    {
+      title: "Off Time",
       dataIndex: "session",
       key: "birthDate",
       render: (_, record) => (
-        <div className="min-w-[80px] font-bold">{record.createDate}</div>
+        <div className="min-w-[80px] font-bold">{record.endDate}</div>
       ),
     },
     {
@@ -298,14 +405,13 @@ const Session = () => {
       render: (_, record) => (
         <Space size="middle" className="p-1 border rounded-md">
           <FontAwesomeIcon
-            icon={faEdit}
+            icon={faEye}
             fontSize={22}
             color="#FFAB01"
             className="hover:text-green-500 "
             onClick={() => onRowClick(record)}
           />
-
-          <Link to="#">
+          {/* <Link to="#">
             <FontAwesomeIcon
               icon={faTrash}
               fontSize={22}
@@ -313,7 +419,7 @@ const Session = () => {
               className="hover:text-green-500 "
               onClick={() => onHandleShowModalDeleteSession(record.sessionId)}
             />
-          </Link>
+          </Link> */}
         </Space>
       ),
     },
@@ -356,7 +462,7 @@ const Session = () => {
   useEffect(() => {
     setNewData(
       session?.filter((item) => {
-        return item.createDate.includes(selectedDate);
+        return item.endDate.includes(selectedDate);
       })
     );
   }, [selectedDate, session]);
@@ -367,28 +473,30 @@ const Session = () => {
       <div className="account-search flex items-center  justify-end ">
         <div className="w-full h-[40%] add-btn flex justify-between items-center mb-3">
           <h1>Session Management</h1>
-          <Link to="">
-            <button
-              className="btn rounded-xl py-3 bg-bgBtnColor"
-              onClick={() => setShowAddForm(true)}
-            >
-              Add New Session
-            </button>
-          </Link>
+          <Button
+            disabled={loading ? true : false}
+            className="btn rounded-2xl p-6 flex justify-center items-center bg-bgBtnColor"
+            onClick={() => {
+              // setShowAddForm(true)
+              onHandleNavigateToCreateSessionPage();
+              // navigate(`${direction.area}`);
+            }}
+          >
+            Add New Session
+          </Button>
         </div>
       </div>
 
       <div className="bg-white p-4 rounded-lg">
-        <div className="account-search flex items-center justify-end mb-5 w-[100%]  lg:flex md:w-full md:grid md:grid-cols-2 md:gap-3 lg:w-[100%]">
-          <div className="w-full flex flex-row justify-between items-center">
+        <div className="account-search flex items-center justify-end mb-5 w-[100%]  lg:flex md:gap-3 lg:w-[100%]">
+          <div className="w-full flex flex-col justify-center items-center gap-2 md:flex md:w-full md:flex-row md:justify-between md:items-center">
             <DatePicker
               // value={selectedDate}
-              defaultValue={dayjs()}
               format="DD-MM-YYYY"
               onChange={(date, dateString) => {
                 setSelectedDate(dateString);
               }}
-              className="box__shadow !h-[50px] mx-3 !w-[300px]"
+              className="box__shadow !h-[50px] mx-3 w-full md:w-[40%]"
             />
             {/* <Popover
               content={content}
@@ -401,8 +509,8 @@ const Session = () => {
                 <span>Filter</span>
               </Button>
             </Popover> */}
-            <Select
-              className="w-[30%]"
+            {/* <Select
+              className="w-full md:w-[40%]"
               value={
                 areaValue
                   ? areaValue
@@ -418,7 +526,7 @@ const Session = () => {
               onChange={(value) => {
                 setAreaValue(value);
               }}
-            ></Select>
+            ></Select> */}
           </div>
         </div>
         <div className="w-full overflow-auto">
@@ -440,21 +548,6 @@ const Session = () => {
           >
             <Table
               columns={columns}
-              // expandable={{
-              //   expandedRowKeys: expandedRowKeys,
-              //   expandedRowRender: (record, index) => {
-              //     // const [search, setSearch] = useState("");
-              //     const dataExpand = rowDataExpand[record.sessionId] || [];
-              //     return (
-              //       <ExpandedContent
-              //         dataExpand={dataExpand}
-              //         sessionId={record.sessionId}
-              //       />
-              //     );
-              //   },
-              //   // rowExpandable: (record) => record.expandable !== "title",
-              //   onExpand: handleExpand,
-              // }}
               loading={loading}
               dataSource={selectedDate ? newData : session}
               rowKey={(record) => record.sessionId}
@@ -469,7 +562,7 @@ const Session = () => {
           </ConfigProvider>
         </div>
       </div>
-      <Modal
+      {/* <Modal
         title="Confirmation"
         open={show}
         onOk={onHandleDeleteSession}
@@ -478,70 +571,25 @@ const Session = () => {
         cancelText="Cancel"
       >
         <p>Are you sure to delete this record?</p>
-      </Modal>
+      </Modal> */}
       <Modal
-        title="Add New Session"
+        title="Confirm On Off Session"
         open={showAddForm}
-        onOk={() => form.submit()}
+        onOk={onHandleOffSession}
         onCancel={handleCloseAddSessionForm}
-        okText="Save"
-        cancelText="Cancel"
+        okText="Yes"
+        cancelText="No"
       >
-        <Form form={form} onFinish={(values) => addNewSession(values)}>
-          <Row>
-            {" "}
-            <Col span={24}>
-              <Form.Item
-                name="sessionName"
-                rules={[{ required: true, message: "Please select area!" }]}
-              >
-                <Input placeholder="Enter Session Name"></Input>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row className="flex justify-between">
-            <Col span={11}>
-              <Form.Item
-                name="areaId"
-                rules={[{ required: true, message: "Please select area!" }]}
-              >
-                <Select
-                  placeholder="Choose Area"
-                  options={area.map((item) => ({
-                    value: item.areaId,
-                    label: item.areaName,
-                  }))}
-                ></Select>
-              </Form.Item>
-            </Col>
-            <Col span={11}>
-              <Form.Item
-                name="sessionType"
-                rules={[
-                  { required: true, message: "Please select type of session!" },
-                ]}
-              >
-                <Select
-                  defaultValue="Please Choose Type"
-                  options={[
-                    {
-                      value: "Lunch",
-                      label: "Lunch",
-                    },
-                    {
-                      value: "Dinner",
-                      label: "Dinner",
-                    },
-                    {
-                      value: "Evening",
-                      label: "Evening",
-                    },
-                  ]}
-                ></Select>
-              </Form.Item>
-            </Col>
-          </Row>
-        </Form>
+        <div className="flex flex-row">
+          <Checkbox
+            className="mr-2"
+            checked={checkboxAutoCreateNewSession}
+            onChange={() =>
+              setCheckboxAutoCreateNewSession(!checkboxAutoCreateNewSession)
+            }
+          />
+          <p className="font-bold">Create new session for tomorrow ?</p>
+        </div>
       </Modal>
     </div>
   );

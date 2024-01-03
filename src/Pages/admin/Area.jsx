@@ -74,7 +74,6 @@ const Area = () => {
     form.resetFields();
   };
   const handleUpdateModal = () => {
-    console.log("vào đc đây");
     updateArea(updateItem).then((res) => {
       fetchAllArea();
       toast.success("Update completed.");
