@@ -355,9 +355,9 @@ const SessionCreating = () => {
       </div>
 
       <div className="bg-white p-4 rounded-lg flex justify-between w-full h-full">
-        <div className="w-[100%]">
+        <div className="w-[100%] h-full">
           <Divider orientation="left">Session Information</Divider>
-          <Row className="flex justify-around h-[10%]">
+          <Row className="flex justify-around h-[10%] my-5 lg:my-5">
             <Col className="" xs={24} md={11} lg={11}>
               <div>
                 <label htmlFor="" className=" flex justify-start pb-2">
@@ -420,7 +420,7 @@ const SessionCreating = () => {
               </div>
             </Col>
           </Row>
-          <Row className="flex justify-around h-[10%]">
+          <Row className="flex justify-around h-[10%] my-5 lg:my-5">
             <Col className="" xs={24} md={11} lg={11}>
               <div>
                 <label htmlFor="" className=" flex justify-start pb-2">

@@ -85,11 +85,15 @@ const ManageChefInArea = () => {
       dataIndex: "name",
       render: (text) => <div className="font-bold">{text}</div>,
     },
-    {
-      title: "Address",
-      dataIndex: "",
-      render: (_, record) => <div className="font-bold">{record.address}</div>,
-    },
+    // {
+    //   title: "Area",
+    //   dataIndex: "",
+    //   render: (_, record) => (
+    //     <div className="font-bold">
+    //       {record.areaDtoGetAllKitchenByAreaId?.areaName}
+    //     </div>
+    //   ),
+    // },
     {
       title: "Action",
       key: "action",
