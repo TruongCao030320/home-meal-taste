@@ -38,7 +38,12 @@ import {
 } from "../../API/Admin";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDeleteLeft, faEdit } from "@fortawesome/free-solid-svg-icons";
-
+const normalizeString = (str) => {
+  return str
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+};
 const DishType = () => {
   const [form] = Form.useForm();
   const [form2] = Form.useForm();
@@ -51,11 +56,17 @@ const DishType = () => {
     name: "",
     description: "",
   });
+  const [firstValueUpdate, setFirstValueUpdate] = useState({
+    dishTypeId: null,
+    name: "",
+    description: "",
+  });
   const [loading, setLoading] = useState(false);
   const [area, setArea] = useState([]);
   const [dishTypeId, setDishTypeId] = useState();
   const [district, setDistrict] = useState([]);
   const [dishType, setDishType] = useState([]);
+  const [disableUpdateSaveButton, setDisableUpdateSaveButton] = useState(true);
 
   const [defaultItem, setDefaultItem] = useState({});
   const showLargeDrawer = (id) => {
@@ -76,7 +87,7 @@ const DishType = () => {
     setLoading(true);
     getAllDishType()
       .then((res) => {
-        setDishType(res);
+        setDishType(res.slice().reverse());
       })
       .catch((error) => console.log(error))
       .finally(() => {
@@ -107,10 +118,21 @@ const DishType = () => {
       });
   };
   const onHandleShowUpdate = (record) => {
+    console.log("update record là", record);
     setShowUpdateForm(true);
     setUpdateItem({
-      ...updateItem,
       dishTypeId: record.dishTypeId,
+      name: record.name,
+      description: record.description,
+      dishes: null,
+    });
+    setFirstValueUpdate({
+      dishTypeId: record.dishTypeId,
+      name: record.name,
+      description: record.description,
+    });
+    form2.setFieldsValue({
+      id: record.dishTypeId,
       name: record.name,
       description: record.description,
     });
@@ -195,141 +217,24 @@ const DishType = () => {
       ),
     },
   ];
-  const detailColumns = [
-    {
-      title: "Avatar",
-      dataIndex: "thumbnail",
-      render: (text) => (
-        <div className="w-[80px] h-[80px] rounded-full overflow-hidden">
-          <img src={text} className="w-full h-full"></img>
-        </div>
-      ),
-    },
-    {
-      title: "Title",
-      dataIndex: "title",
-      key: "title",
-      render: (text) => <div>{text}</div>,
-    },
-    {
-      title: "Price",
-      dataIndex: "price",
-      key: "title",
-      render: (text) => <div>{text}</div>,
-    },
-    {
-      title: "Status",
-      dataIndex: "price",
-      key: "price",
-      render: (_, record, index) => {
-        const even = index % 2 === 0;
-        const color = even ? "green" : "red";
-        const status = even ? (
-          <span className="flex items-center justify-center">
-            Approved <TiTick />
-          </span>
-        ) : (
-          <span className="flex items-center justify-center">
-            Cancelled <TiDelete />
-          </span>
-        );
-        return (
-          <Tag className={`min-w-[90px] text-center p-1`} color={color}>
-            {status}
-          </Tag>
-        );
-      },
-    },
-    {
-      title: "Create At",
-      dataIndex: "birthDate",
-      key: "birthDate",
-      render: (text) => <Tag className="min-w-[80px]">{text}</Tag>,
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (_, record) => (
-        <Space
-          size="middle"
-          className="p-1 border rounded-md hover:border-gray-600"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-6 h-6 cursor-pointer"
-            onClick={() => showLargeDrawer(record.id)}
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-            />
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-            />
-          </svg>
-        </Space>
-      ),
-    },
-  ];
-  const content2 = (
-    <div className="min-w-[300px] grid gap-5">
-      <div className="flex w-full justify-between items-center gap-5">
-        <div className="w-[20%]">
-          <h2>District</h2>
-        </div>
-        <div className="w-[70%]">
-          <Select
-            className="w-full"
-            defaultValue="hehe"
-            options={area?.map((item, index) => ({
-              value: index,
-              label: item.address,
-            }))}
-          ></Select>
-        </div>
-      </div>
-      <div className="flex w-full justify-between items-center">
-        <div className="w-[20%]">
-          <h2>Status</h2>
-        </div>
-        <div className="w-[70%]">
-          <Select
-            className="w-full"
-            options={[
-              { value: "1", label: "Approved" },
-              { value: "2", label: "Cancelled" },
-              { value: "3", label: "Pending" },
-            ]}
-          ></Select>
-        </div>
-      </div>
-      <div className="flex w-full justify-between items-center">
-        <div className="w-[20%]">
-          <h2>Chef</h2>
-        </div>
-        <div className="w-[70%]">
-          <Select
-            className="w-full"
-            defaultValue="hehe"
-            options={area?.map((item, index) => ({
-              value: index,
-              label: item.area,
-            }))}
-          ></Select>
-        </div>
-      </div>
-    </div>
-  );
-  // useEffect(() => {
 
-  // });
+  const onHandleDisableUpdateForm = () => {
+    if (
+      normalizeString(firstValueUpdate?.name.trim() || "") ===
+        normalizeString(updateItem?.name.trim() || "") &&
+      normalizeString(firstValueUpdate?.description.trim() || "") ===
+        normalizeString(updateItem?.description.trim() || "")
+    ) {
+      console.log("Strings are equal name");
+      setDisableUpdateSaveButton(true);
+    } else {
+      console.log("Strings are not equal name");
+      setDisableUpdateSaveButton(false);
+    }
+  };
+  useEffect(() => {
+    onHandleDisableUpdateForm();
+  }, [updateItem?.name, updateItem?.description]);
 
   const { RangePicker } = DatePicker;
   return (
@@ -422,6 +327,9 @@ const DishType = () => {
         onOk={() => form2.submit()}
         onCancel={handleCloseUpdateDishTypeForm}
         okText="Save"
+        okButtonProps={{
+          disabled: disableUpdateSaveButton,
+        }}
         cancelText="Cancel"
       >
         <Form form={form2} onFinish={(values) => onHandleUpdateDishType()}>
@@ -431,24 +339,29 @@ const DishType = () => {
                 name="id"
                 // rules={[{ required: true, message: "Please enter type name!" }]}
               >
+                <Input disabled={true} value={updateItem?.dishTypeId} />
+                {/* 
                 <Input
                   disabled={true}
                   value={updateItem?.dishTypeId}
                   className="hidden"
-                />
-                <Input disabled={true} value={updateItem?.dishTypeId} />
+                /> */}
               </Form.Item>
             </Col>
             <Col xs={24} md={11} lg={11}>
               <Form.Item
                 name="name"
-                // rules={[{ required: true, message: "Please enter type name!" }]}
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter name!",
+                  },
+                  {
+                    pattern: /^[\p{L}\s]+$/u,
+                    message: "Only letters are allowed in the address field",
+                  },
+                ]}
               >
-                <Input
-                  placeholder="Dish type name"
-                  value={updateItem.name}
-                  className="hidden"
-                />
                 <Input
                   placeholder="Dish type name"
                   value={updateItem.name}
@@ -464,20 +377,29 @@ const DishType = () => {
           </Row>
           <Form.Item
             name="description"
-            // rules={[{ required: true, message: "Please enter description!" }]}
+            rules={[
+              {
+                required: true,
+                message: "Please enter name!",
+              },
+              {
+                pattern: /^[\p{L}\s]+$/u,
+                message: "Only letters are allowed in the address field",
+              },
+            ]}
           >
             <Input.TextArea
               placeholder="Description"
-              value={updateItem.description}
+              value={updateItem?.description}
               onChange={(text) =>
                 setUpdateItem({ ...updateItem, description: text.target.value })
               }
             />
-            <Input.TextArea
+            {/* <Input.TextArea
               className="hidden"
               placeholder="Description"
               value={updateItem.description}
-            />
+            /> */}
           </Form.Item>
         </Form>
       </Modal>

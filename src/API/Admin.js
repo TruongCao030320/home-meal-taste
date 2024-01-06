@@ -1,7 +1,6 @@
 import axios from "axios";
 import { Axis } from "victory";
 import { direction } from "./Direction";
-import { tokenAPI } from "./Login";
 
 export const getSingleUser = async (id, navigate) => {
   try {

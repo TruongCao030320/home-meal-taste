@@ -28,17 +28,17 @@ const NotificationTag = ({ tag }) => {
     // </div>
     <div>
       <List
-        className="p-4"
+        className="p-4 min-h-[200px]"
         itemLayout="horizontal"
         dataSource={data}
-        renderItem={(item, index) => (
-          <List.Item>
-            <List.Item.Meta
-              title={<a href="https://ant.design">{item.title}</a>}
-              description="Ant Design, a design language for background applications, is refined by Ant UED Team"
-            />
-          </List.Item>
-        )}
+        // renderItem={(item, index) => (
+        //   <List.Item>
+        //     <List.Item.Meta
+        //       title={<a href="https://ant.design">{item.title}</a>}
+        //       description="Ant Design, a design language for background applications, is refined by Ant UED Team"
+        //     />
+        //   </List.Item>
+        // )}
       />
     </div>
   );

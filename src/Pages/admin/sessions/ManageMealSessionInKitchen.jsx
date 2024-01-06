@@ -210,6 +210,8 @@ const ManageMealSessionInKitchen = () => {
                   ? "blue"
                   : record.status?.includes("APPROVED")
                   ? "green"
+                  : record.status?.includes("COMPLETED")
+                  ? "blue"
                   : "red"
               }`}
             >
@@ -303,6 +305,9 @@ const ManageMealSessionInKitchen = () => {
     fetchSingleArea();
     fetchAllMealSessionInSessionByAreaAndKitchenId();
   }, []);
+  useEffect(() => {
+    fetchAllMealSessionInSessionByAreaAndKitchenId();
+  }, [5000]);
   useEffect(() => {
     let filteredData = [...mealSessionOfKitchen];
     if (search) {

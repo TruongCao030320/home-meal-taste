@@ -48,7 +48,12 @@ const Area = () => {
   const [show, setShow] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showUpdateForm, setShowUpdateForm] = useState(false);
-  const [updateItem, setUpdateItem] = useState({});
+  const [updateItem, setUpdateItem] = useState({
+    areaId: null,
+    address: "",
+    areaName: "",
+    districtName: null,
+  });
   const [loading, setLoading] = useState(false);
   const [area, setArea] = useState([]);
   const [areaId, setAreaId] = useState();
@@ -56,6 +61,13 @@ const Area = () => {
   const [defaultItem, setDefaultItem] = useState({});
   const [areaDefault, setAreaDefault] = useState();
   const [areaValue, setAreaValue] = useState();
+  const [disableUpdateSaveButton, setDisableUpdateSaveButton] = useState(true);
+  const [firstValueUpdate, setFirstValueUpdate] = useState({
+    areaId: null,
+    address: "",
+    areaName: "",
+    districtName: null,
+  });
   const [availableDistrict, setAvailableDistrict] = useState();
   const [search, setSearch] = useState("");
 
@@ -77,6 +89,7 @@ const Area = () => {
     updateArea(updateItem).then((res) => {
       fetchAllArea();
       toast.success("Update completed.");
+      setDisableUpdateSaveButton(true);
     });
     setShowUpdateForm(false);
     form2.resetFields();
@@ -108,7 +121,6 @@ const Area = () => {
       .catch((error) => console.log(error));
   };
   const onAddNewArea = (values) => {
-    console.log("values là", values);
     createNewArea(values, toast)
       .then((res) => {
         fetchAllArea();
@@ -215,6 +227,32 @@ const Area = () => {
     const areaNormalize = normalizeString(area.areaName);
     return areaNormalize.includes(searchNormalize);
   });
+  // useEffect(() => {
+  //   const handleUpdateDisable = () => {
+  //     setDisableUpdateSaveButton(false);
+  //   };
+  //   handleUpdateDisable();
+  //   console.log("Đổi", disableUpdateSaveButton);
+  // }, [updateItem.areaName]);
+  const onHandleDisableUpdateForm = () => {
+    if (
+      normalizeString(firstValueUpdate?.areaName.trim() || "") ===
+        normalizeString(updateItem?.areaName.trim() || "") &&
+      normalizeString(firstValueUpdate?.address.trim() || "") ===
+        normalizeString(updateItem?.address.trim() || "") &&
+      firstValueUpdate?.districtDtoAreaResponseModel?.districtId ===
+        updateItem?.districtId
+    ) {
+      console.log("Strings are equal name");
+      setDisableUpdateSaveButton(true);
+    } else {
+      console.log("Strings are not equal name");
+      setDisableUpdateSaveButton(false);
+    }
+  };
+  useEffect(() => {
+    onHandleDisableUpdateForm();
+  }, [updateItem?.areaName, updateItem?.address, updateItem?.districtId]);
   return (
     <div className="w-full h-full p-4">
       <CustomDrawer />
@@ -280,14 +318,16 @@ const Area = () => {
               onRow={(record) => {
                 return {
                   onClick: () => {
-                    console.log("record ne", record);
                     setAvailableDistrict(
                       record.districtDtoAreaResponseModel?.districtId
                     );
+                    setFirstValueUpdate(record);
                     setUpdateItem({
-                      ...record,
+                      areaId: record.areaId,
+                      address: record.address,
+                      areaName: record.areaName,
                       districtId:
-                        record.districtDtoAreaResponseModel.districtId,
+                        record.districtDtoAreaResponseModel?.districtId,
                     });
                     setShowUpdateForm(true);
                   },
@@ -361,6 +401,9 @@ const Area = () => {
         onCancel={handleCloseUpdateForm}
         okText="Save"
         cancelText="Cancel"
+        okButtonProps={{
+          disabled: disableUpdateSaveButton,
+        }}
       >
         <Form
           form={form2}
@@ -380,18 +423,14 @@ const Area = () => {
                 <Input
                   placeholder="Area Name"
                   value={updateItem.areaName}
-                  onChange={(e) =>
-                    setUpdateItem({ ...updateItem, areaName: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setUpdateItem({ ...updateItem, areaName: e.target.value });
+                  }}
                 />
-                <Input placeholder="Area Name" value={updateItem.name} hidden />
               </Form.Item>
             </Col>
             <Col span={11}>
-              <Form.Item
-                name="districtDtoAreaResponseModel"
-                rules={[{ required: true, message: "Please select District!" }]}
-              >
+              <Form.Item name="districtDtoAreaResponseModel">
                 <Select
                   options={district.map((item) => ({
                     value: item?.districtId,
@@ -418,16 +457,16 @@ const Area = () => {
           </Row>
           <Form.Item
             name="address"
-            rules={[{ required: true, message: "Please select Address!" }]}
+            rules={[{ required: true, message: "Please enter Address!" }]}
           >
             <Input.TextArea
               placeholder="Area's Address"
-              value={updateItem.address}
+              // defaultValue={updateItem?.address}
+              value={updateItem?.address}
               onChange={(e) =>
                 setUpdateItem({ ...updateItem, address: e.target.value })
               }
             />
-            <Input.TextArea placeholder="Area's Address" hidden />
           </Form.Item>
         </Form>
       </Modal>
