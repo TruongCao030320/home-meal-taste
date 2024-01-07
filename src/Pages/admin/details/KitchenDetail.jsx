@@ -455,37 +455,6 @@ const KitchenDetail = () => {
         );
       },
     },
-    // {
-    //   title: "Action",
-    //   key: "action",
-    //   render: (_, record) => (
-    //     <Space
-    //       size="middle"
-    //       className="p-1 border rounded-md hover:border-gray-600"
-    //     >
-    //       <svg
-    //         xmlns="http://www.w3.org/2000/svg"
-    //         fill="none"
-    //         viewBox="0 0 24 24"
-    //         stroke-width="1.5"
-    //         stroke="currentColor"
-    //         class="w-6 h-6"
-    //         onClick={() => toggleDrawerType2(record.mealSessionId)}
-    //       >
-    //         <path
-    //           stroke-linecap="round"
-    //           stroke-linejoin="round"
-    //           d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-    //         />
-    //         <path
-    //           stroke-linecap="round"
-    //           stroke-linejoin="round"
-    //           d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-    //         />
-    //       </svg>
-    //     </Space>
-    //   ),
-    // },
   ];
   const items = [
     {
@@ -497,6 +466,7 @@ const KitchenDetail = () => {
           dataSource={order}
           bordered
           loading={loading}
+          className="overflow-x-auto"
         ></Table>
       ),
     },
@@ -509,7 +479,12 @@ const KitchenDetail = () => {
             <h1 className="text-red-400">RR : Receive Revenue</h1>
             <h1 className="text-red-400">TT : Total Transfer</h1>
           </div>
-          <Table dataSource={transaction} columns={transactionColumns} />,
+          <Table
+            dataSource={transaction}
+            columns={transactionColumns}
+            className="w-full overflow-auto"
+          />
+          ,
         </div>
       ),
     },
@@ -525,16 +500,27 @@ const KitchenDetail = () => {
             onChange={(date, dateString) => {
               setSelectedDate(dateString);
             }}
-            className="box__shadow !h-[50px] mx-3 !w-[300px] my-5"
+            className="box__shadow !h-[50px] my-5 w-full md:w-[30%] lg:w-[30%] md:ml-2 lg:ml-2"
           />
-          <Table dataSource={newData} columns={mealColumns} />,
+          <Table
+            dataSource={newData}
+            columns={mealColumns}
+            className="overflow-auto"
+          />
+          ,
         </div>
       ),
     },
     {
       key: "3",
       label: "Feedback",
-      children: <Table dataSource={feedback} columns={feedbackColumns} />,
+      children: (
+        <Table
+          dataSource={feedback}
+          columns={feedbackColumns}
+          className="overflow-auto"
+        />
+      ),
     },
   ];
   useEffect(() => {
@@ -553,21 +539,9 @@ const KitchenDetail = () => {
       setLoading(false);
     });
   }, [selectedDate, refresh]);
-  useEffect(() => {
-    // getAllMealSessionByKitchenId(user.kitchenId).then((res) => {
-    //   setMeal(res);
-    // });
-    // getKitchenByKitchenId(user?.kitchenId).then((res) => setKitchen(res));
-    // getAllDistrict().then((res) => setDistrictArray(res));
-    // getOrderByKitchenId(user?.kitchenId).then((res) => setOrder(res));
-    // getAllFeedbackByKitchenId(user?.kitchenId).then((res) => setFeedback(res));
-    // getAllTransactionByUserId(id).then((res) => {
-    //   // console.log("trans", res.splice(0, 10));
-    //   setTransaction(res);
-    // });
-  }, []);
+
   return (
-    <div className="w-full h-full p-4 ">
+    <div className="w-full h-full p-4 overflow-x-auto">
       <CustomDrawer meal={drawerData || {}} />
       <div className="account-search h-[10%] flex items-center  justify-end mb-3">
         <div className="h-[40%] add-btn flex justify-between items-center w-full">
@@ -577,8 +551,8 @@ const KitchenDetail = () => {
           </Link>
         </div>
       </div>
-      <div className="bg-white p-4 rounded-lg flex justify-between w-full h-full">
-        <div className="w-[70%]">
+      <div className="bg-white p-4 rounded-lg flex flex-col justify-between w-full h-[70%] md:flex md:flex-row">
+        <div className="w-full md:w-[70%] lg:w-[70%] h-full overflow-y-auto">
           <Divider orientation="left">Kitchen Information</Divider>
           <Row className="flex justify-around my-4 h-[80px]">
             <Col className="" span={23}>
@@ -590,20 +564,8 @@ const KitchenDetail = () => {
               </div>
             </Col>
           </Row>
-          <Row className="flex justify-around my-4 h-[80px]">
-            <Col className="" span={11}>
-              <div>
-                <label htmlFor="" className=" flex justify-start pb-2">
-                  Area
-                </label>
-                <Input
-                  className="box__shadow"
-                  classNames="mt-2"
-                  value={kitchen?.areaDtoGetKitchen?.areaName}
-                />
-              </div>
-            </Col>
-            <Col className="" span={11}>
+          <Row className="flex justify-around my-4 h-[80px] gap-5 ">
+            <Col className="" xs={23} md={11} lg={11}>
               <div>
                 <label htmlFor="" className=" flex justify-start pb-2">
                   District
@@ -617,23 +579,34 @@ const KitchenDetail = () => {
                 </Select>
               </div>
             </Col>
+            <Col className="" xs={23} md={11} lg={11}>
+              <div>
+                <label htmlFor="" className=" flex justify-start pb-2">
+                  Area
+                </label>
+                <Input
+                  className="box__shadow"
+                  classNames="mt-2"
+                  value={kitchen?.areaDtoGetKitchen?.areaName}
+                />
+              </div>
+            </Col>
           </Row>
-          <Row className="flex justify-around my-4 h-[80px]">
-            <Col className="" span={23}>
+          <Row className="flex justify-around my-4 h-[80px] mt-20 md:mt-0 lg:mt-0">
+            <Col span={23}>
               <div>
                 <label htmlFor="" className=" flex justify-start pb-2">
                   Balance
                 </label>
                 <Input
                   className="box__shadow"
-                  classNames="mt-2"
                   value={formatMoney(balance) + " VND"}
                 />
               </div>
             </Col>
           </Row>
         </div>
-        <div className="w-[30%]">
+        <div className="w-full md:w-[30%] lg:w-[30%]">
           <Divider orientation="left">Chef Information</Divider>
           <Row className="flex justify-around my-4 h-[80px]">
             <Col className="" span={24}>
@@ -665,12 +638,12 @@ const KitchenDetail = () => {
           </Row>
         </div>
       </div>
-      <div className="w-[100%] h-[30%] my-2">
+      <div className="w-[100%] h-[30%] my-2 overflow-x-auto">
         <Tabs
           type="card"
           defaultActiveKey="1"
           items={items}
-          className="min-h-[300px]"
+          className="min-h-[300px] overflow-x-auto"
         />
       </div>
     </div>

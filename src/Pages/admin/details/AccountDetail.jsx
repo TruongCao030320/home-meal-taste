@@ -13,6 +13,13 @@ import { direction } from "../../../API/Direction";
 import { formatMoney } from "../../../API/Money";
 // import { filter } from "fontawesome";
 import { useSelector } from "react-redux";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faUser,
+  faUserAlt,
+  faUserAltSlash,
+  faUsersRectangle,
+} from "@fortawesome/free-solid-svg-icons";
 const AccountDetail = () => {
   const [data, setData] = useState({});
   const [order, setOrder] = useState([]);
@@ -263,15 +270,19 @@ const AccountDetail = () => {
           </Link>
         </div>
       </div>
-      <div className="bg-white p-4 rounded-lg flex justify-between w-full h-full">
-        <div className="w-[25%] h-full rounded-lg shadow-lg bg-white flex flex-col  items-center p-4">
-          <div className="">
-            <img
-              src={image}
-              className="w-[200px] h-[200px] rounded-full border shadow-lg"
-            ></img>
+      <div className="bg-white p-4 rounded-lg flex justify-between w-full h-full flex-col md:flex-row lg:flex-row">
+        <div className="w-full h-full p-6 rounded-lg shadow-lg bg-white flex flex-col items-center  md:w-[25%] lg:w-[25%]">
+          <div className="w-full min-h-[150px] h-full flex justify-center items-center rounded-full overflow-hidden">
+            {image ? (
+              <img
+                src={image}
+                className="w-full h-full rounded-full border shadow-lg"
+              ></img>
+            ) : (
+              <FontAwesomeIcon icon={faUser} fontSize={50} color="gray" />
+            )}
           </div>
-          <div className=" flex flex-col items-center w-full h-full   mt-5">
+          <div className=" flex flex-col items-center w-full h-full mt-5">
             <div className="gender h-[15%] flex w-[90%] justify-between items-center ">
               <p>Role</p>{" "}
               <span>
@@ -289,7 +300,7 @@ const AccountDetail = () => {
             </div>
           </div>
         </div>
-        <div className="w-[70%]">
+        <div className=" lg:w-[70%] md:w-[70%] w-full">
           <Divider orientation="left">General Information</Divider>
           <Row className="flex justify-around my-4 h-[80px]">
             <Col className="" span={23}>
@@ -305,8 +316,8 @@ const AccountDetail = () => {
               </div>
             </Col>
           </Row>
-          <Row className="flex justify-around my-4 h-[80px]">
-            <Col className="" span={11}>
+          <Row className="flex justify-around my-4 h-[80px] gap-2">
+            <Col className="" xs={23} md={11} lg={11}>
               <div>
                 <label htmlFor="" className=" flex justify-start pb-2">
                   Email
@@ -318,7 +329,7 @@ const AccountDetail = () => {
                 />
               </div>
             </Col>
-            <Col className="" span={11}>
+            <Col className="" xs={23} md={11} lg={11}>
               <div>
                 <label htmlFor="" className=" flex justify-start pb-2">
                   Phone Number
@@ -331,7 +342,7 @@ const AccountDetail = () => {
               </div>
             </Col>
           </Row>
-          <Row className="flex justify-around my-4 h-[80px]">
+          <Row className="flex justify-around my-4 h-[80px] mt-20 md:mt-0 lg:mt-0">
             <Col className="" span={11}>
               <div>
                 <label htmlFor="" className=" flex justify-start pb-2">
@@ -349,13 +360,16 @@ const AccountDetail = () => {
                 <label htmlFor="" className=" flex justify-start pb-2">
                   District
                 </label>
-                <Input value={districtName} className="w-full"></Input>
+                <Input
+                  value={districtName}
+                  className="w-full box__shadow"
+                ></Input>
               </div>
             </Col>
           </Row>
         </div>
       </div>
-      <div className="w-[100%] h-[30%]">
+      <div className="w-[100%] h-[30%] overflow-auto">
         <h1 className="my-3">Orders</h1>
         <Table
           dataSource={order}
@@ -364,7 +378,7 @@ const AccountDetail = () => {
           loading={loading}
         ></Table>
       </div>
-      <div className="w-[100%] h-[30%]">
+      <div className="w-[100%] h-[30%] overflow-auto">
         <h1 className="my-3">Transactions</h1>
         <Table
           dataSource={transaction}

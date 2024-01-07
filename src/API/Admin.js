@@ -313,7 +313,7 @@ export const getAllDishType = async () => {
     const response = await axios.get(
       "https://homemealtaste.azurewebsites.net/api/DishType/get-all-dish-type"
     );
-    return response.data.data;
+    return response.data;
   } catch (error) {
     console.log("get all dish type", error);
   }
