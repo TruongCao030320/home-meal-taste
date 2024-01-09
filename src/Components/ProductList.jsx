@@ -62,7 +62,7 @@ const ProductList = () => {
 
   const [areaValue, setAreaValue] = useState();
   const [session, setSession] = useState([]);
-  const [sessionValue, setSessionValue] = useState(0);
+  const [sessionValue, setSessionValue] = useState(null);
   const [area, setArea] = useState([]);
   const [values, setValues] = useState({
     mealSessionIds: [],
@@ -433,10 +433,10 @@ const ProductList = () => {
       setSession(res);
     });
   };
-  useEffect(() => {
-    fetchAllSessionByAreaId();
-    setSessionValue(null);
-  }, [areaValue, selectedDate]);
+  // useEffect(() => {
+  //   fetchAllSessionByAreaId();
+  //   setSessionValue(null);
+  // }, [areaValue, selectedDate]);
   useEffect(() => {
     let filteredData = data;
     let filtertedSessionData = session;

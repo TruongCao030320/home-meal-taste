@@ -129,9 +129,10 @@ const Kitchen = () => {
   ];
 
   const newData = data?.filter((item) => {
-    const searchTermNormalized = normalizeString(search.toLowerCase());
-    const itemNormalized = normalizeString(item.name.toLowerCase());
-    return itemNormalized.includes(searchTermNormalized);
+    const itemNormalized = normalizeString(
+      item.userDtoKitchenResponseModel?.phone
+    );
+    return itemNormalized.includes(search);
   });
   const fetchAllKitchen = () => {
     setLoading(true);
@@ -161,7 +162,7 @@ const Kitchen = () => {
         <div className="account-search lg:flex items-center justify-between mb-5 lg:w-[100%] md:w-full md:grid md:grid-cols-2 md:gap-3">
           <div className="my-2">
             <Input
-              placeholder="Enter kitchen want to find..."
+              placeholder="Enter phone of chef..."
               onChange={(e) => {
                 setSearch(e.target.value);
               }}

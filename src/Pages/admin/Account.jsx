@@ -67,8 +67,8 @@ const Account = () => {
       }
     }
     if (search) {
-      filtered = filtered.filter((item) => {
-        return item.username.toLowerCase().includes(search.toLowerCase());
+      filtered = filtered?.filter((item) => {
+        return item.username?.toLowerCase().includes(search.toLowerCase());
       });
     }
     setFilteredData(filtered);
@@ -281,7 +281,7 @@ const Account = () => {
         <div className="account-search lg:flex items-center justify-between mb-5 lg:w-[100%] md:w-full md:grid md:grid-cols-2 md:gap-3">
           <div className="my-2">
             <Input
-              placeholder="Enter account want to find..."
+              placeholder="Enter number phone want to find..."
               onChange={(e) => {
                 setSearch(e.target.value);
               }}
