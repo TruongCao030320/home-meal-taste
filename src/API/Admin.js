@@ -68,8 +68,8 @@ export const getAllKitchen = async (navigate) => {
     );
     return response.data;
   } catch (error) {
-    console.log(error);
-    navigate(`/${direction.error}`);
+    console.log("Error at get all kitchen", error);
+    // navigate(`/${direction.error}`);
   }
 };
 export const getAllMeal = async () => {
@@ -171,15 +171,10 @@ export const getSingleMeal = async (id) => {
   }
 };
 export const patchSessionStatus = async (id, status) => {
-  console.log("id và status là", id, status);
-  try {
-    await axios.patch(
-      `https://homemealtaste.azurewebsites.net/api/Session/change-status-session?sessionid=${id}&status=${status}`
-    );
-    return getAllSession();
-  } catch (error) {
-    console.log(error);
-  }
+  await axios.patch(
+    `https://homemealtaste.azurewebsites.net/api/Session/change-status-session?sessionid=${id}&status=${status}`
+  );
+  return getAllSession();
 };
 export const getAllArea = async () => {
   try {
@@ -592,6 +587,24 @@ export const changeStatusOfRegisterForMeal = async (id) => {
     `https://homemealtaste.azurewebsites.net/api/Session/change-status-register-for-meal?sessionid=${id}`
   );
 };
+export const changeStatusOfMultiRegisterForMeal = async (sessionIds) => {
+  console.log("sessionIds lay61 d9c la", sessionIds);
+  await axios.patch(
+    "https://homemealtaste.azurewebsites.net/api/Session/change-status-register-for-meal",
+    {
+      sessionIds: sessionIds,
+    }
+  );
+};
+export const changeStatusOfMultiBookingSlot = async (sessionIds) => {
+  console.log("newselected rowkesy là ben api", sessionIds);
+  await axios.patch(
+    "https://homemealtaste.azurewebsites.net/api/Session/change-status-booking-slot",
+    {
+      sessionIds: sessionIds,
+    }
+  );
+};
 export const changeStatusOfBookingSlot = async (id) => {
   try {
     await axios.patch(
@@ -602,18 +615,13 @@ export const changeStatusOfBookingSlot = async (id) => {
   }
 };
 export const updateStatusMultiMealSession = async (status, mealSessionIds) => {
-  console.log("values nhận đc để change status là", status, mealSessionIds);
-  try {
-    await axios.patch(
-      "https://homemealtaste.azurewebsites.net/api/MealSession/update-status-meal-session",
-      {
-        mealSessionIds: mealSessionIds,
-        status: status,
-      }
-    );
-  } catch (error) {
-    console.log("Error at update status multi meal session", error);
-  }
+  await axios.patch(
+    "https://homemealtaste.azurewebsites.net/api/MealSession/update-status-meal-session",
+    {
+      mealSessionIds: mealSessionIds,
+      status: status,
+    }
+  );
 };
 export const updateSession = async (values) => {
   console.log("values của update session", values);
@@ -647,5 +655,37 @@ export const updateDishType = async (values) => {
     );
   } catch (error) {
     console.log("Error at update dish type", error);
+  }
+};
+export const updateDistrict = async (values) => {
+  await axios.put(
+    "https://homemealtaste.azurewebsites.net/api/District/update-district",
+    {
+      districtId: values.districtId,
+      districtName: values.districtName,
+    }
+  );
+};
+export const addNewDistrict = async (values, toast) => {
+  console.log("Lấy đc là", values);
+  try {
+    await axios.post(
+      "https://homemealtaste.azurewebsites.net/api/District/create-district",
+      {
+        districtName: values.districtName,
+      }
+    );
+    toast.success("Create New Successfully.");
+  } catch (error) {
+    return toast.error("Create failed!");
+  }
+};
+export const deleteDistrict = async (id) => {
+  try {
+    await axios.delete(
+      `https://homemealtaste.azurewebsites.net/api/District/delete-district?districtId=${id}`
+    );
+  } catch (error) {
+    console.log("Error at delete district", error);
   }
 };

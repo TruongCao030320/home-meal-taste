@@ -12,6 +12,8 @@ import {
   Spin,
   DatePicker,
   Radio,
+  Modal,
+  Checkbox,
 } from "antd";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -26,6 +28,7 @@ import {
   getOrderByUserId,
   getSingleSessionById,
   getSingleUser,
+  patchSessionStatus,
   updateSession,
 } from "../../../API/Admin";
 import { direction } from "../../../API/Direction";
@@ -53,6 +56,9 @@ const SessionCreating = () => {
   const [district, setDistrict] = useState([]);
   const [session, setSession] = useState({});
   const { endDate, sessionType } = session || {};
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [checkboxAutoCreateNewSession, setCheckboxAutoCreateNewSession] =
+    useState(true);
   const dateFormatList = ["DD/MM/YYYY", "DD/MM/YY", "DD-MM-YYYY", "DD-MM-YY"];
 
   const [selectedDate, setSelectedDate] = useState(
@@ -211,6 +217,34 @@ const SessionCreating = () => {
       })
       .catch((error) => console.log(error));
   };
+  const updateSessionStatus = async () => {
+    console.log("sessionId hiện tại là", sessionId);
+    setLoading(true);
+    patchSessionStatus(sessionId, checkboxAutoCreateNewSession)
+      .then((res) => {
+        // fetchSingleSessionById(sessionId);
+        fetchSingleSessionById();
+        toast.success(`Session Is Off.`);
+      })
+      .catch((error) =>
+        toast.error(`Can Not Modified Session Because It Already Over !`)
+      )
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+  const onHandleOpenOffConfirmForm = () => {
+    setShowAddForm(true);
+  };
+  const handleCloseAddSessionForm = () => {
+    setShowAddForm(false);
+    form.resetFields();
+  };
+  const onHandleOffSession = () => {
+    // seshowAddForm(true);
+    updateSessionStatus();
+    setShowAddForm(false);
+  };
   const columns = [
     {
       title: "ID",
@@ -318,7 +352,11 @@ const SessionCreating = () => {
 
           <div className="">
             {session?.status == true ? (
-              <Button className="mr-3" disabled={loading ? true : false}>
+              <Button
+                className="mr-3"
+                disabled={loading ? true : false}
+                onClick={onHandleOpenOffConfirmForm}
+              >
                 Inactive
               </Button>
             ) : (
@@ -407,10 +445,6 @@ const SessionCreating = () => {
                       value: "DINNER",
                       label: "DINNER",
                     },
-                    {
-                      value: "EVENING",
-                      label: "EVENING",
-                    },
                   ]}
                   onChange={(item) => {
                     console.log(item);
@@ -478,7 +512,25 @@ const SessionCreating = () => {
           </div>
         </div>
       </div>
-
+      <Modal
+        title="Confirm On Off Session"
+        open={showAddForm}
+        onOk={onHandleOffSession}
+        onCancel={handleCloseAddSessionForm}
+        okText="Yes"
+        cancelText="No"
+      >
+        <div className="flex flex-row">
+          <Checkbox
+            className="mr-2"
+            checked={checkboxAutoCreateNewSession}
+            onChange={() =>
+              setCheckboxAutoCreateNewSession(!checkboxAutoCreateNewSession)
+            }
+          />
+          <p className="font-bold">Create new session for tomorrow ?</p>
+        </div>
+      </Modal>
       {/* <div className="w-[100%] h-[30%]">
         <h1 className="my-3">Transactions</h1>
         <Table

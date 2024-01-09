@@ -23,6 +23,7 @@ import {
   FaEarthEurope,
   FaClock,
   FaTypo3,
+  FaAddressBook,
 } from "react-icons/fa6";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { MdPayment, MdManageAccounts } from "react-icons/md";
@@ -78,6 +79,16 @@ const Sidebar = () => {
       </Link>,
       "11",
       <FaHistory />
+    ),
+    getItem(
+      <Link
+        onClick={handleHiddenSidebar}
+        to={`/${direction.dashboard}/${direction.district}`}
+      >
+        District
+      </Link>,
+      "12",
+      <FaEarthEurope />
     ),
     getItem(
       <Link

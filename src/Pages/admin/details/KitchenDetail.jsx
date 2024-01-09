@@ -15,7 +15,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import dayjs from "dayjs";
 dayjs.extend(customParseFormat);
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Table } from "antd";
 import ProductList from "../../../Components/ProductList";
 import {
@@ -35,6 +35,7 @@ import { useDispatch, useSelector } from "react-redux";
 import CustomDrawer from "../../../Components/MealDrawer";
 import { formatMoney } from "../../../API/Money.js";
 const KitchenDetail = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { id } = useParams();
   const refresh = useSelector((state) => state.mealDrawer.refresh);
@@ -333,7 +334,7 @@ const KitchenDetail = () => {
           </Link> */}
           <div
             onClick={() => console.log(record)}
-            className="flex justify-between w-[50px] items-center "
+            className="flex justify-between w-[50px] items-center hover:cursor-pointer"
           >
             <AiTwotoneEdit
               size={20}
@@ -523,6 +524,9 @@ const KitchenDetail = () => {
       ),
     },
   ];
+  const onHandleBack = () => {
+    navigate(-1);
+  };
   useEffect(() => {
     fetchKitchenByUserId();
   }, [id]);
@@ -546,9 +550,17 @@ const KitchenDetail = () => {
       <div className="account-search h-[10%] flex items-center  justify-end mb-3">
         <div className="h-[40%] add-btn flex justify-between items-center w-full">
           <h1>Kitchen Information View</h1>
-          <Link to={`/${direction.dashboard}/${direction.kitchen}`}>
+          {/* <Link to={`/${direction.dashboard}/${direction.kitchen}`}>
             <Button className="border-none mr-3">Leave</Button>
-          </Link>
+          </Link> */}
+          <Button
+            className="border-none mr-3"
+            onClick={() => {
+              onHandleBack();
+            }}
+          >
+            Leave
+          </Button>
         </div>
       </div>
       <div className="bg-white p-4 rounded-lg flex flex-col justify-between w-full h-[70%] md:flex md:flex-row">

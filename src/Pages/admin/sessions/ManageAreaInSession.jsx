@@ -229,7 +229,7 @@ const ManageAreaInSession = () => {
           <div className="flex flex-row justify-center items-center">
             <div className=" flex justify-center items-center p-2 gap-2">
               <h1
-                className="text-2xl m-0 p-0 hover:cursor-pointer hover:text-bgBtnColor"
+                className="text-2xl m-0 p-0 hover:cursor-pointer hover:text-bgBtnColor underline"
                 onClick={onHandleNavigateToSessionDetail}
               >
                 {session?.sessionName}

@@ -6,11 +6,9 @@ export const login = async (values, navigate, message) => {
     // Make an API request to your authentication endpoint
     const response = await axios.post(
       "https://homemealtaste.azurewebsites.net/api/User/login",
-      values,
       {
-        headers: {
-          "Content-Type": "application/json", // Adjust the content type as needed
-        },
+        phone: values.phone,
+        password: values.password,
       }
     );
     const { token, userId, roleId } = response.data; // Assuming your API returns a token

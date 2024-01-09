@@ -389,7 +389,6 @@ const ProductList = () => {
       setSelectedRows(selectedRows);
       setValues({ ...values, mealSessionIds: selectedRowKeys });
       if (selectedRows.length > 0) {
-        console.log("Nh mà có vào đc đây");
         setSelectedRowIsActive(true);
         const firstAttributeValue = selectedRows[0].status; // Change 'attribute' to the actual attribute you're checking
         if (selectedRows.some((row) => row.status !== firstAttributeValue)) {

@@ -14,6 +14,7 @@ export const direction = {
   chat: "$2a$12$sdsrzJKW7ljy6l3LXVS8INQf86a15EMCoIKtirWbK2ZA7e6HFma",
   transaction: "$2a$12$pBdqrAIjJ46eIkSOa5UwMtY3NYEWW4ITPfoHLWgiqBSQGmKWwq",
   areaInSession: "$2a$12$OfNiNwvvRFEeT5OmG25MevPPLA4EsqkmpApNn585qbcQLG0fEC2S",
+  district: "$2a$12$mKP3uQ1VTuDU3c12B32pzDSrCOveCXBOjgYWOOt7dRRWc0h1ce",
   sessionCreating:
     "$2a$12$syybtqjv6Tv26BOi8Z3wW0C7OqjNFKeLEM3kd7a38jMpEeg8Hp4e",
 

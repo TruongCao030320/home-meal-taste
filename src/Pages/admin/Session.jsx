@@ -56,6 +56,8 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { setCurrentSession } from "../../redux/directionSlice.js";
+import ModalConfirm from "../../Components/ModalConfirm.jsx";
+import ConfirmModal from "../../Components/ConfirmModal.jsx";
 const { RangePicker } = DatePicker;
 const normalizeString = (str) => {
   return str
@@ -83,6 +85,13 @@ const Session = () => {
   const [drawerData, setDrawerData] = useState({});
   const refresh = useSelector((state) => state.mealDrawer.refresh);
   const dateFormatList = ["DD/MM/YYYY", "DD/MM/YY", "DD-MM-YYYY", "DD-MM-YY"];
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [confirmModalType, setConfirmModalType] = useState(0);
+  const [typeOfConfirmModal, setTypeOfConfirmModal] = useState(0);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+
+  const [selectedRowIsActive, setSelectedRowIsActive] = useState(false);
+
   // const [selectedDate, setSelectedDate] = useState(
   //   dayjs().format(dateFormatList[2])
   // );
@@ -146,28 +155,39 @@ const Session = () => {
     navigate(`${direction.sessionCreating}/${null}`);
   };
   const onHandlePatchRegisterForMeal = (record) => {
-    setLoading(true);
-    changeStatusOfRegisterForMeal(record.sessionId)
-      .then((res) => {
-        fetchAllSession();
-        toast.success("Update status Meal Advance completed");
-      })
-      .catch(() => {
-        toast.success("Update status Meal Advance completed");
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    setIsModalOpen(true);
+    setConfirmModalType(1);
+    if (selectedRowKeys.length == 0 || selectedRowKeys.length < 2) {
+      setSelectedRowKeys([record.sessionId]);
+    }
+    // setLoading(true);
+    // changeStatusOfRegisterForMeal(record.sessionId)
+    //   .then((res) => {
+    //     fetchAllSession();
+    //     toast.success("Update status Meal Advance completed");
+    //   })
+    //   .catch(() => {
+    //     toast.success("Update status Meal Advance completed");
+    //   })
+    //   .finally(() => {
+    //     setLoading(false);
+    //   });
   };
   const onHandlePatchBookingSlot = (record) => {
-    changeStatusOfBookingSlot(record.sessionId)
-      .then((res) => {
-        fetchAllSession();
-        toast.success("Update status booking slot completed");
-      })
-      .catch(() => {
-        toast.success("Update status booking slot completed");
-      });
+    setIsModalOpen(true);
+    setConfirmModalType(2);
+    if (selectedRowKeys.length == 0 || selectedRowKeys.length < 2) {
+      setSelectedRowKeys([record.sessionId]);
+    }
+
+    // changeStatusOfBookingSlot(record.sessionId)
+    //   .then((res) => {
+    //     fetchAllSession();
+    //     toast.success("Update status booking slot completed");
+    //   })
+    //   .catch(() => {
+    //     toast.success("Update status booking slot completed");
+    //   });
   };
   const fetchAllSession = async () => {
     setLoading(true);
@@ -204,8 +224,11 @@ const Session = () => {
         toast.success(`${selectedSession?.sessionName} Is Off.`);
       })
       .catch((error) =>
-        toast.error(`Fail To Off Session ${selectedSession?.sessionName} !`)
-      );
+        toast.error(
+          `Can Not Modified  Session ${selectedSession?.sessionName} Because It Already Over !`
+        )
+      )
+      .finally(() => setLoading(false));
   };
   const onHandleOffSession = () => {
     // seshowAddForm(true);
@@ -225,6 +248,8 @@ const Session = () => {
   }, [sessionIdIsChange]);
   useEffect(() => {
     fetchAllSession();
+    setSelectedRowKeys([]);
+    setIsModalOpen(false);
   }, [refresh]);
   // useEffect(() => {
   //   getAllSessionByAreaId(areaValue)
@@ -232,6 +257,38 @@ const Session = () => {
   //     .catch((error) => console.log(error));
   // }, [areaValue]);
   // column section
+  const onSelectChange = (selectedRowKeys, selectedRows) => {
+    console.log("newselected rowkesy là", selectedRowKeys);
+    // if (newSelectedRowKeys.length > 0) {
+    //   setSelectedRowIsActive(true);
+    // }
+    // setValues({ ...values, mealSessionIds: newSelectedRowKeys });
+    setSelectedRowKeys(selectedRowKeys);
+    setSelectedRowIsActive(false);
+
+    if (selectedRows.length > 0) {
+      // setSelectedRowIsActive(false);
+      const firstAttributeValue = selectedRows[0].bookingSlotStatus; // Change 'attribute' to the actual attribute you're checking
+      const secondAttributeValue = selectedRows[0].registerForMealStatus;
+      if (
+        selectedRows.some(
+          (row) => row.bookingSlotStatus !== firstAttributeValue
+        ) ||
+        selectedRows.some(
+          (row) => row.registerForMealStatus !== secondAttributeValue
+        )
+      ) {
+        setSelectedRowIsActive(true);
+      }
+    } else {
+      setSelectedRowIsActive(false);
+    }
+  };
+  const rowSelection = {
+    selectedRowKeys,
+    // onChange: onSelectChange,
+    onChange: onSelectChange,
+  };
   const columns = [
     {
       title: "ID",
@@ -264,26 +321,6 @@ const Session = () => {
       ],
       onFilter: (value, record) => record.sessionType.startsWith(value),
     },
-    // {
-    //   title: "Status",
-    //   dataIndex: "status",
-    //   render: (_, record) => {
-    //     return (
-    //       <div className="font-bold">
-    //         {record.status === true ? (
-    //           <TiTick size={25} color="green" />
-    //         ) : (
-    //           <TiDelete size={25} color="red" />
-    //         )}
-    //       </div>
-    //     );
-    //   },
-    //   filters: [
-    //     { text: "Yes", value: true },
-    //     { text: "No", value: false },
-    //   ],
-    //   onFilter: (value, record) => record.status === value,
-    // },
     {
       title: "Is Active",
       key: "status",
@@ -341,7 +378,9 @@ const Session = () => {
               className="bg-gray-400"
               checkedChildren="On"
               unCheckedChildren="Off"
-              defaultChecked={record.registerForMealStatus}
+              disabled={selectedRowIsActive}
+              // defaultChecked={record.registerForMealStatus}
+              checked={record.registerForMealStatus}
               onClick={() => onHandlePatchRegisterForMeal(record)}
             />
           </div>
@@ -357,14 +396,18 @@ const Session = () => {
       title: "Booking Status",
       key: "bookingSlotStatus",
       render: (_, record, index) => {
+        console.log("in record", record.bookingSlotStatus);
         return (
           <div>
             <Switch
               className="bg-yellow-200"
               checkedChildren="On"
               unCheckedChildren="Off"
-              defaultChecked={record.bookingSlotStatus}
-              onClick={() => onHandlePatchBookingSlot(record)}
+              disabled={selectedRowIsActive}
+              // value={record.bookingSlotStatus}
+              // defaultChecked={record.bookingSlotStatus}
+              checked={record.bookingSlotStatus}
+              onChange={() => onHandlePatchBookingSlot(record)}
             />
           </div>
         );
@@ -388,7 +431,9 @@ const Session = () => {
       dataIndex: "session",
       key: "birthDate",
       render: (_, record) => (
-        <div className="min-w-[80px] font-bold">{record.startTime}</div>
+        <div className="min-w-[80px] font-bold">
+          {record.startTime} {record?.startTime > "12:00" ? "PM" : "AM"}
+        </div>
       ),
     },
     {
@@ -396,7 +441,9 @@ const Session = () => {
       dataIndex: "session",
       key: "birthDate",
       render: (_, record) => (
-        <div className="min-w-[80px] font-bold">{record.endTime}</div>
+        <div className="min-w-[80px] font-bold">
+          {record.endTime} {record?.startTime > "12:00" ? "PM" : "AM"}{" "}
+        </div>
       ),
     },
     {
@@ -551,6 +598,7 @@ const Session = () => {
               loading={loading}
               dataSource={selectedDate ? newData : session}
               rowKey={(record) => record.sessionId}
+              rowSelection={rowSelection}
               // onRow={(record) => ({
               //   onClick: () => onRowClick(record),
               // })}
@@ -591,6 +639,11 @@ const Session = () => {
           <p className="font-bold">Create new session for tomorrow ?</p>
         </div>
       </Modal>
+      <ConfirmModal
+        isModalOpen={isModalOpen}
+        type={confirmModalType}
+        array={selectedRowKeys}
+      />
     </div>
   );
 };

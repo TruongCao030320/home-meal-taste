@@ -133,12 +133,15 @@ const Kitchen = () => {
     const itemNormalized = normalizeString(item.name.toLowerCase());
     return itemNormalized.includes(searchTermNormalized);
   });
-  useEffect(() => {
+  const fetchAllKitchen = () => {
     setLoading(true);
     getAllKitchen(navigate).then((res) => {
-      setData(res.slice().reverse());
+      setData(res?.slice().reverse());
       setLoading(false);
     });
+  };
+  useEffect(() => {
+    fetchAllKitchen();
     fetchAllArea();
   }, []);
   const { RangePicker } = DatePicker;

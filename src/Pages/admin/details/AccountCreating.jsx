@@ -103,10 +103,16 @@ const AccountCreating = () => {
           <h1>Add New User</h1>
           <div>
             <Link to={`/${direction.dashboard}/${direction.user}`}>
-              <Button className="border-none mr-3">Cancel</Button>
+              <Button
+                className="border-none mr-3"
+                disabled={loading ? true : false}
+              >
+                Cancel
+              </Button>
             </Link>
             <Button
               className=" bg-bgBtnColor text-white"
+              disabled={loading ? true : false}
               onClick={() => form.submit()}
             >
               {loading ? <Spin /> : "Add"}
@@ -116,9 +122,8 @@ const AccountCreating = () => {
       </div>
       <div className="bg-white p-4 rounded-lg">
         <Form form={form} onFinish={AddNewChef} className="h-full">
-          <Row className="flex justify-around my-4  w-full h-[60%]">
+          <Row className="flex justify-around my-4  w-full h-[70%]  ">
             <Divider orientation="left">General Information</Divider>
-
             <Col className="" xs={24} md={11} lg={11}>
               <div>
                 <label htmlFor="" className=" flex justify-start pb-2">
@@ -181,8 +186,8 @@ const AccountCreating = () => {
               </div>
             </Col>
             <Col className="" xs={24} md={11} lg={11}>
-              <div>
-                <label htmlFor="" className=" flex justify-start pb-2">
+              <div className="">
+                <label htmlFor="" className=" flex justify-start ">
                   District
                 </label>
                 <Form.Item
@@ -195,7 +200,7 @@ const AccountCreating = () => {
                   ]}
                 >
                   <Select
-                    className="w-full"
+                    className="w-full h-10"
                     options={district.map((item) => ({
                       value: item.districtId,
                       label: item.districtName,
@@ -210,7 +215,7 @@ const AccountCreating = () => {
             </Col>
             <Col className="" xs={24} md={11} lg={11}>
               <div>
-                <label htmlFor="" className=" flex justify-start pb-2">
+                <label htmlFor="" className=" flex justify-start">
                   Area
                 </label>
                 <Form.Item
@@ -223,7 +228,7 @@ const AccountCreating = () => {
                   ]}
                 >
                   <Select
-                    className="w-full"
+                    className="w-full h-10"
                     options={area?.map((item) => ({
                       value: item.areaId,
                       label: item.areaName,
@@ -233,7 +238,7 @@ const AccountCreating = () => {
               </div>
             </Col>
           </Row>
-          <Row className="flex justify-around h-[40%]">
+          <Row className="flex justify-around">
             <Divider orientation="left">Sign In Information</Divider>
             <Col className="" xs={24} md={11} lg={11}>
               <div>

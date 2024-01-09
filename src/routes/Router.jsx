@@ -27,6 +27,7 @@ import ManageMealSessionInKitchen from "../Pages/admin/sessions/ManageMealSessio
 import SessionCreating from "../Pages/admin/details/SessionCreating";
 import ManageAreaInSession from "../Pages/admin/sessions/ManageAreaInSession";
 import ManageChefInArea from "../Pages/admin/sessions/ManageChefInArea";
+import District from "../Pages/admin/District";
 const Router = () => {
   return (
     <>
@@ -57,6 +58,8 @@ const Router = () => {
           <Route path={`${direction.dishType}`} element={<DishType />} />
 
           <Route path={`${direction.area}`} element={<Area />} />
+          <Route path={`${direction.district}`} element={<District />} />
+
           <Route path={`${direction.chat}`} element={<Chatbox />} />
           <Route path={`${direction.transaction}`} element={<Transaction />} />
 

@@ -45,7 +45,6 @@ const CustomDrawer = () => {
     dispatch(hideDrawer());
   };
   const fetchSingleMeal = () => {
-    console.log("mealsessionIDGetFromRedux", mealsessionIDGetFromRedux);
     getSingleMealSessionById(mealsessionIDGetFromRedux).then((res) => {
       console.log(res);
       setMeal1(res);
@@ -65,7 +64,9 @@ const CustomDrawer = () => {
         dispatch(refresh());
         toast.success("Update status successfully.");
       })
-      .catch((error) => toast.error("Can not change status !"));
+      .catch((error) =>
+        toast.error("Can Not Update Status Because This Meal Is Already Over!")
+      );
   };
 
   return (
