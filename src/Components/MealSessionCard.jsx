@@ -1,5 +1,6 @@
 import {
   faBowlFood,
+  faCab,
   faCoins,
   faCookie,
   faDollar,
@@ -39,6 +40,7 @@ const MealSessionCard = ({ meal }) => {
     remainQuantity,
     mealSessionId,
     kitchenDtoForMealSession,
+    status,
   } = meal || {};
   const { name, image } = mealDtoForMealSession || {};
   const { name: kitchenName } = kitchenDtoForMealSession || {};
@@ -64,10 +66,10 @@ const MealSessionCard = ({ meal }) => {
       onClick={toggleDrawerType2}
     >
       {/* <CustomDrawer meal={{}} /> */}
-      <div className="  h-[50%] rounded-lg overflow-hidden">
-        <img src={image} className="max-h-[200px] h-full w-full"></img>
+      <div className="  h-[40%] rounded-lg overflow-hidden">
+        <img src={image} className=" max-w-full max-h-[200px] w-full"></img>
       </div>
-      <div className="w-full flex flex-col justify-center items-center bg-[#F1ECFF] rounded-lg my-2 h-[15%]">
+      <div className="w-full flex flex-col justify-center items-center bg-[#F1ECFF] rounded-lg my-2 h-[10%]">
         <h1 className="p-2 rounded-lg text-[#A285EE]  font-bold text-xs">
           {name}
         </h1>
@@ -90,9 +92,26 @@ const MealSessionCard = ({ meal }) => {
             {remainQuantity}/{quantity} Slots
           </span>
         </div>
-        <div className="flex flex-row">
+        <div className="flex flex-row ">
           <LuChefHat color="#FFD44E" fontSize={18} className="mx-2" />
           <span className="font-bold text-blue-300">{kitchenName}</span>
+        </div>
+        <div className="absolute bottom-2 right-5">
+          <span
+            className={`font-bold ${
+              status.includes("APPROVED")
+                ? "text-green-300"
+                : status.includes("PROCESSING")
+                ? "text-blue-300"
+                : status.includes("MAKING")
+                ? "text-yellow-300"
+                : status.includes("COMPLETED")
+                ? "text-orange-300"
+                : "text-gray-400"
+            }`}
+          >
+            {status}
+          </span>
         </div>
       </div>
     </div>

@@ -217,9 +217,10 @@ const SessionArea = () => {
       setArea([]);
       setLoading(false);
     } else {
-      getAllSessionAreaBySessionId(sessionIdValue)
+      // getAllSessionAreaBySessionId(sessionIdValue)
+      getAllInformationInSession(sessionIdValue)
         .then((res) => {
-          setArea(res || []);
+          setArea(res.areaList || []);
           // setInformation(res);
         })
         .finally(() => {
@@ -440,13 +441,11 @@ const SessionArea = () => {
                   options: newDataStatusOpen.map((item, index) => ({
                     value: item.sessionId,
                     label: (
-                      <div key={index}>
-                        {item.sessionName}{" "}
-                        <FontAwesomeIcon
-                          icon={faCheck}
-                          className="mx-2"
-                          color="green"
-                        />
+                      <div key={index} className="gap-2">
+                        {item.sessionName}
+                        <Tag color="geekblue" className="mx-2">
+                          {item?.status}
+                        </Tag>
                       </div>
                     ),
                   })),
@@ -458,7 +457,9 @@ const SessionArea = () => {
                     label: (
                       <div key={index}>
                         {item.sessionName}{" "}
-                        <FontAwesomeIcon icon={faCheck} className="mx-2" />
+                        <Tag color="geekblue" className="mx-2">
+                          {item?.status}
+                        </Tag>
                       </div>
                     ),
                   })),

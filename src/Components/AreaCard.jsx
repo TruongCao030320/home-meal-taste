@@ -30,16 +30,16 @@ const AreaCard = ({ area }) => {
   const areaKeys = useSelector((state) => state.selectedSlice.areaKeys) || [];
   const [check, setCheck] = useState(false);
   const {
-    // areaId,
-    // address,
-    // areaName,
+    areaId,
+    address,
+    areaName,
     status,
     districtId,
     totalMealSessions,
     totalOrders,
     totalChefs,
   } = area || {};
-  const { areaId, address, areaName } = area?.areaDtoForSessionArea || {};
+  // const { areaId, address, areaName } = area?.areaDtoForSessionArea || {};
   //   const onHandleNavigateToAreaDetail = () => {
   //     navigate(`${direction.mealSessionInKitchen}/${record.kitchenId}`, {
   //       kitchenId: 2,
@@ -101,7 +101,7 @@ const AreaCard = ({ area }) => {
       <div className="w-full flex justify-center items-center">
         <p>{address}</p>
       </div>
-      <div className="w-full flex flex-row justify-center items-center absolute bottom-2">
+      <div className="w-full flex flex-row justify-around items-center absolute bottom-2">
         <Tag
           color={
             status.includes("OPEN")
@@ -114,7 +114,7 @@ const AreaCard = ({ area }) => {
         >
           {status}
         </Tag>
-        <div>
+        <div className="flex flex-row justify-center items-center">
           {/* <FontAwesomeIcon icon={faUtensils} color="#FFD44E" className="mx-2" /> */}
           <LuChefHat color="#FFD44E" className="mx-2" />
           {totalChefs}

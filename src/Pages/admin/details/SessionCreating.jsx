@@ -515,6 +515,7 @@ const SessionCreating = () => {
               </label>
               <Select
                 className="min-w-[100px]"
+                disabled={loading ? true : false}
                 options={[
                   {
                     value: "Open",
