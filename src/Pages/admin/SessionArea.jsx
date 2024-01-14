@@ -114,6 +114,11 @@ const SessionArea = () => {
     totalOrdersWithStatusCompleted: 0,
     totalOrdersWithStatusCancelled: 0,
     totalOrdersWithStatusNotEat: 0,
+    totalMealSessionWithStatusApproved: 0,
+    totalMealSessionWithStatusCancelled: 0,
+    totalMealSessionWithStatusMaking: 0,
+    totalMealSessionWithStatusCompleted: 0,
+    totalMealSessionWithStatusProcessing: 0,
     sumTotalMealSessions: 0,
     sumTotalOrders: 0,
     sumTotalChefs: 0,
@@ -496,6 +501,47 @@ const SessionArea = () => {
                 Status:
               </div>
               <div className="h-full">
+                <h1 className="my-2">Meal Session</h1>
+                <div className="grid grid-cols-2 gap-5">
+                  <div className="p-4 bg-blue-100 rounded-lg w-[90%] flex flex-col justify-center items-center">
+                    <span className="font-bold">Total</span>{" "}
+                    <span className="font-bold">
+                      {information?.sumTotalMealSessions}
+                    </span>{" "}
+                  </div>
+                  <div className="p-4 bg-blue-200 rounded-lg w-[90%] flex flex-col justify-center items-center">
+                    <span className="font-bold">Processing</span>{" "}
+                    <span className="font-bold">
+                      {information?.totalMealSessionWithStatusProcessing}
+                    </span>{" "}
+                  </div>
+                  <div className="p-4 bg-blue-200 rounded-lg w-[90%] flex flex-col justify-center items-center">
+                    <span className="font-bold">Approved</span>{" "}
+                    <span className="font-bold">
+                      {information?.totalMealSessionWithStatusApproved}
+                    </span>{" "}
+                  </div>
+                  <div className="p-4 bg-orange-100 rounded-lg w-[90%] flex flex-col justify-center items-center">
+                    <span className="font-bold">Cancel</span>{" "}
+                    <span className="font-bold">
+                      {information?.totalMealSessionWithStatusCancelled}
+                    </span>{" "}
+                  </div>
+                  <div className="p-4 bg-orange-100 rounded-lg w-[90%] flex flex-col justify-center items-center">
+                    <span className="font-bold">Making</span>{" "}
+                    <span className="font-bold">
+                      {information?.totalMealSessionWithStatusMaking}
+                    </span>{" "}
+                  </div>
+                  <div className="p-4 bg-blue-200 rounded-lg w-[90%] flex flex-col justify-center items-center">
+                    <span className="font-bold">Completed</span>{" "}
+                    <span className="font-bold">
+                      {information?.totalMealSessionWithStatusCompleted}
+                    </span>{" "}
+                  </div>
+                </div>
+              </div>
+              <div className="h-full">
                 <h1 className="my-2">Orders</h1>
                 <div className="grid grid-cols-2 gap-5">
                   <div className="p-4 bg-blue-100 rounded-lg w-[90%] flex flex-col justify-center items-center">
@@ -531,7 +577,7 @@ const SessionArea = () => {
                 </div>
               </div>
             </div>
-            <div className="w-full bg-slate-50 h-full rounded-lg min-h-[50px] flex justify-center flex-col items-center">
+            <div className="w-full bg-slate-50 h-full rounded-lg min-h-[50px] flex justify-center flex-col items-center my-5">
               <div className="font-bold ">
                 Start Time : {singleSession?.startTime}{" "}
                 {singleSession?.startTime
