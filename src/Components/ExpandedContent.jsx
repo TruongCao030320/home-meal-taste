@@ -99,50 +99,9 @@ const ExpandedContent = ({ mealSessionId }) => {
         </div>
       ),
     },
-    {
-      title: "Status",
-      dataIndex: "totalPrice",
-      render: (_, record) => (
-        <div className="flex  justify-between items-center">
-          {/* <div>
-            <Tag
-              className="p-2"
-              color={record.status.includes("CANCELLED") ? "error" : "green"}
-            >
-              {record.status}
-            </Tag>
-          </div>
-          <div> */}
-          <Tag
-            className="p-2 shadow-md min-w-[100px] text-center"
-            color={`${
-              record.status.includes("PAID")
-                ? "blue"
-                : record.status.includes("COMPLETED")
-                ? "green"
-                : "red"
-            }`}
-          >
-            <span className="font-bold">{record.status}</span>
-          </Tag>
-        </div>
-        // </div>
-      ),
-      filters: [
-        { text: "PAID", value: "PAID" },
-        { text: "CANCELLED", value: "CANCELLED" },
-        { text: "COMPLETED", value: "COMPLETED" },
-      ],
-      onFilter: (value, record) => record.status.includes(value),
-    },
 
     {
-      dataIndex: "",
-      render: (_, record) => (
-        <Divider type="vertical" className="h-[70px] bg-slate-300" />
-      ),
-    },
-    {
+      title: "Amount",
       key: "action",
       render: (_, record) => {
         const formattedPrice = new Intl.NumberFormat("en-US", {
@@ -176,6 +135,62 @@ const ExpandedContent = ({ mealSessionId }) => {
         );
       },
       sorter: (a, b) => a.price - b.price,
+    },
+    {
+      dataIndex: "",
+      render: (_, record) => (
+        <Divider type="vertical" className="h-[70px] bg-slate-300" />
+      ),
+    },
+    {
+      title: "Status",
+      dataIndex: "totalPrice",
+      render: (_, record) => (
+        <div className="flex  justify-between items-center">
+          {/* <div>
+            <Tag
+              className="p-2"
+              color={record.status.includes("CANCELLED") ? "error" : "green"}
+            >
+              {record.status}
+            </Tag>
+          </div>
+          <div> */}
+          {/* <Tag
+            className="p-2 shadow-md min-w-[100px] text-center"
+            color={`${
+              record.status.includes("PAID")
+                ? "blue"
+                : record.status.includes("COMPLETED")
+                ? "green"
+                : "red"
+            }`}
+          >
+            <span className="font-bold">{record.status}</span>
+          </Tag> */}
+          <Select
+            className="min-w-[110px]"
+            value={record.status}
+            options={[
+              {
+                label: "Completed",
+                value: "COMPLETED",
+              },
+              {
+                label: "Cancel",
+                value: "CANCELLED",
+              },
+            ]}
+          ></Select>
+        </div>
+        // </div>
+      ),
+      filters: [
+        { text: "PAID", value: "PAID" },
+        { text: "CANCELLED", value: "CANCELLED" },
+        { text: "COMPLETED", value: "COMPLETED" },
+      ],
+      onFilter: (value, record) => record.status.includes(value),
     },
   ];
   const toggleDrawerType2 = async (mealSessionId) => {

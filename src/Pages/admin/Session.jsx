@@ -51,6 +51,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCircle,
   faDeleteLeft,
+  faDotCircle,
   faEdit,
   faEye,
   faTrash,
@@ -89,7 +90,8 @@ const Session = () => {
   const [confirmModalType, setConfirmModalType] = useState(0);
   const [typeOfConfirmModal, setTypeOfConfirmModal] = useState(0);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-
+  const [firstValueObject, setFirstValueObject] = useState({});
+  const [isActiveSelect, setIsActiveSelect] = useState(false);
   const [selectedRowIsActive, setSelectedRowIsActive] = useState(false);
 
   // const [selectedDate, setSelectedDate] = useState(
@@ -102,23 +104,6 @@ const Session = () => {
   const [dataExpand, setDataExpand] = useState([]);
   const [rowDataExpand, setRowDataExpand] = useState({});
   const [sessionIdIsChange, setSessionIdIsChange] = useState(null);
-  const handleExpand = (expanded, record) => {
-    if (expanded) {
-      setSessionIdIsChange(record.sessionId);
-      setExpandedRowKeys([...expandedRowKeys, record.sessionId]);
-    } else {
-      setExpandedRowKeys(
-        expandedRowKeys.filter((key) => key !== record.sessionId)
-      );
-    }
-  };
-  const onRowClick = (record) => {
-    dispatch(setCurrentSession(record.sessionId));
-    localStorage.setItem("sessionId", record.sessionId);
-    navigate(`${direction.areaInSession}/${record.sessionId}`, {
-      sessionId: record.sessionId,
-    });
-  };
   useEffect(() => {
     if (sessionIdIsChange) {
       getAllMealSessionBySessionId(sessionIdIsChange).then((res) => {
@@ -154,45 +139,12 @@ const Session = () => {
   const onHandleNavigateToCreateSessionPage = () => {
     navigate(`${direction.sessionCreating}/${null}`);
   };
-  const onHandlePatchRegisterForMeal = (record) => {
-    setIsModalOpen(true);
-    setConfirmModalType(1);
-    if (selectedRowKeys.length == 0 || selectedRowKeys.length < 2) {
-      setSelectedRowKeys([record.sessionId]);
-    }
-    // setLoading(true);
-    // changeStatusOfRegisterForMeal(record.sessionId)
-    //   .then((res) => {
-    //     fetchAllSession();
-    //     toast.success("Update status Meal Advance completed");
-    //   })
-    //   .catch(() => {
-    //     toast.success("Update status Meal Advance completed");
-    //   })
-    //   .finally(() => {
-    //     setLoading(false);
-    //   });
-  };
-  const onHandlePatchBookingSlot = (record) => {
-    setIsModalOpen(true);
-    setConfirmModalType(2);
-    if (selectedRowKeys.length == 0 || selectedRowKeys.length < 2) {
-      setSelectedRowKeys([record.sessionId]);
-    }
 
-    // changeStatusOfBookingSlot(record.sessionId)
-    //   .then((res) => {
-    //     fetchAllSession();
-    //     toast.success("Update status booking slot completed");
-    //   })
-    //   .catch(() => {
-    //     toast.success("Update status booking slot completed");
-    //   });
-  };
   const fetchAllSession = async () => {
     setLoading(true);
     getAllSession()
       .then((sessionData) => {
+        console.log(sessionData);
         setSession(sessionData.slice().reverse());
       })
       .catch((error) => console.log(error))
@@ -216,20 +168,7 @@ const Session = () => {
   //     .catch((error) => console.log(error))
   //     .finally(() => setLoading(false));
   // };
-  const updateSessionStatus = async () => {
-    setLoading(true);
-    patchSessionStatus(selectedSession?.sessionId, checkboxAutoCreateNewSession)
-      .then((res) => {
-        fetchAllSession();
-        toast.success(`${selectedSession?.sessionName} Is Off.`);
-      })
-      .catch((error) =>
-        toast.error(
-          `Can Not Modified  Session ${selectedSession?.sessionName} Because It Already Over !`
-        )
-      )
-      .finally(() => setLoading(false));
-  };
+
   const onHandleOffSession = () => {
     // seshowAddForm(true);
     updateSessionStatus();
@@ -257,28 +196,81 @@ const Session = () => {
   //     .catch((error) => console.log(error));
   // }, [areaValue]);
   // column section
+  const onHandleNavigateToSessionDetail = (record) => {
+    console.log("sessionId trước khi chuyển đi", record);
+    navigate(
+      `/${direction.dashboard}/${direction.session}/${direction.sessionCreating}/${record?.sessionId}`,
+      {
+        sessionId: record?.sessionId,
+      }
+    );
+  };
+  const onHandleChangeStatusMultiSession = async (value, record) => {
+    setSelectedRowKeys([...selectedRowKeys, record?.sessionId]);
+    console.log("vào đây", value, record?.sessionId);
+    switch (value) {
+      case "OPEN":
+        updateSessionStatus(value, false);
+        break;
+      case "BOOKING":
+        updateSessionStatus(value, false);
+        break;
+      case "ONGOING":
+        updateSessionStatus(value, false);
+      default:
+        break;
+    }
+  };
+  const onHandleSelectRowOrMultiRow = (record) => {
+    // setFirstValueObject(record);
+    if (selectedRowKeys.length == 0) {
+      setSelectedRowKeys([record.sessionId]);
+    }
+  };
+  const updateSessionStatus = async (value, auto) => {
+    console.log("Selected row keys lúc này là", selectedRowKeys);
+    setLoading(true);
+    patchSessionStatus(selectedRowKeys, value, auto)
+      .then((res) => {
+        fetchAllSession();
+        toast.success("Modified Status Completed.");
+      })
+      .catch((error) =>
+        toast.error(`Can Not Modified  Session ! Because It Already Over !`)
+      )
+      .finally(() => {
+        setLoading(false);
+        setSelectedRowKeys([]);
+        setFirstValueObject(null);
+      });
+  };
+
   const onSelectChange = (selectedRowKeys, selectedRows) => {
-    console.log("newselected rowkesy là", selectedRowKeys);
+    setSelectedRowKeys(selectedRowKeys);
+    setFirstValueObject(selectedRows[0]);
+    // console.log(
+    //   "Các row đc chọn có status",
+    //   selectedRows.map((item) => {
+    //     return item.status;
+    //   })
+    // );
+    // setFirstValueObject(selectedRows[0]);
+
     // if (newSelectedRowKeys.length > 0) {
-    //   setSelectedRowIsActive(true);
+    // setSelectedRowIsActive(false);
     // }
     // setValues({ ...values, mealSessionIds: newSelectedRowKeys });
     setSelectedRowKeys(selectedRowKeys);
-    setSelectedRowIsActive(false);
-
     if (selectedRows.length > 0) {
-      // setSelectedRowIsActive(false);
-      const firstAttributeValue = selectedRows[0].bookingSlotStatus; // Change 'attribute' to the actual attribute you're checking
-      const secondAttributeValue = selectedRows[0].registerForMealStatus;
-      if (
-        selectedRows.some(
-          (row) => row.bookingSlotStatus !== firstAttributeValue
-        ) ||
-        selectedRows.some(
-          (row) => row.registerForMealStatus !== secondAttributeValue
-        )
-      ) {
-        setSelectedRowIsActive(true);
+      setSelectedRowIsActive(false); // Change 'attribute' to the actual attribute you're checking
+      if (firstValueObject) {
+        if (
+          selectedRows.some((row) => row.status !== firstValueObject?.status)
+        ) {
+          setSelectedRowIsActive(true);
+        }
+      } else {
+        setSelectedRowIsActive(false);
       }
     } else {
       setSelectedRowIsActive(false);
@@ -289,6 +281,7 @@ const Session = () => {
     // onChange: onSelectChange,
     onChange: onSelectChange,
   };
+
   const columns = [
     {
       title: "ID",
@@ -314,50 +307,135 @@ const Session = () => {
           text: "Dinner",
           value: "Dinner",
         },
-        {
-          text: "Evening",
-          value: "Evening",
-        },
       ],
       onFilter: (value, record) => record.sessionType.startsWith(value),
     },
     {
-      title: "Is Active",
+      title: "Status",
       key: "status",
       render: (_, record, index) => {
         const status = record.status === true ? "Inactive" : "Active";
         return (
-          <div>
-            {record.status === true ? (
-              <Tag
-                color="green"
-                className="shadow-sm hover:cursor-pointer hover:opacity-40 py-2 px-6 flex flex-row justify-between items-center"
-                onClick={() => {
-                  onHandleOpenOffConfirmForm(record);
-                }}
-              >
-                <p className="font-bold mr-2">{status}</p>
-                <FontAwesomeIcon
-                  icon={faCircle}
-                  fontSize={8}
-                  color="green"
-                  className="animate-pulse"
-                ></FontAwesomeIcon>
-              </Tag>
-            ) : (
-              <Tag
-                // color="gray"
-                className="shadow-sm py-2 px-6 flex flex-row justify-between items-center bg-gray-400"
-              >
-                <p className="font-bold">{status}</p>
-                <FontAwesomeIcon
-                  icon={faCircle}
-                  fontSize={8}
-                  color="gray"
-                  className="animate-pulse"
-                ></FontAwesomeIcon>
-              </Tag>
-            )}
+          <div className="min-w-[150px]">
+            {/* <Tag
+              color="green"
+              className="shadow-sm hover:cursor-pointer hover:opacity-40 py-2 px-6 flex flex-row justify-between items-center"
+              onClick={() => {
+                onHandleOpenOffConfirmForm(record);
+              }}
+            > */}
+            {/* <p className="font-bold mr-2">{status}</p> */}
+            <Select
+              className="min-w-[120px]"
+              disabled={
+                record.status === "CLOSED" || record.status === "CANCELLED"
+                  ? true
+                  : false
+              }
+              options={[
+                {
+                  value: "OPEN",
+                  label: (
+                    <div className="flex flex-row justify-start items-center gap-2">
+                      <FontAwesomeIcon
+                        icon={faCircle}
+                        fontSize={8}
+                        color="blue"
+                      />
+                      <span className="text-blue-500 font-bold">Open</span>
+                    </div>
+                  ),
+                },
+                {
+                  value: "BOOKING",
+                  label: (
+                    <div className="flex flex-row justify-start items-center gap-2">
+                      <FontAwesomeIcon
+                        icon={faCircle}
+                        fontSize={8}
+                        color="yellow"
+                      />
+                      <span className="text-yellow-500 font-bold">Booking</span>
+                    </div>
+                  ),
+                },
+                {
+                  value: "ONGOING",
+                  label: (
+                    <div
+                      className={`flex flex-row justify-start items-center gap-2 font-bold ${
+                        record.status === "OPEN" ? "line-through" : ""
+                      }`}
+                    >
+                      <FontAwesomeIcon
+                        icon={faCircle}
+                        fontSize={8}
+                        color="green"
+                      />
+                      <span className="text-green-500 font-bold">On Going</span>
+                    </div>
+                  ),
+                  disabled: record.status === "OPEN" ? true : false,
+                },
+                {
+                  value: "CLOSED",
+                  label: (
+                    <div
+                      className={`flex flex-row justify-start items-center gap-2 font-bold ${
+                        record.status === "BOOKING" || record.status === "OPEN"
+                          ? "line-through"
+                          : ""
+                      }`}
+                    >
+                      <FontAwesomeIcon
+                        icon={faCircle}
+                        fontSize={8}
+                        color="grey"
+                      />
+                      <span className="text-gray-500 font-bold">Closed</span>
+                    </div>
+                  ),
+                  disabled:
+                    record.status === "BOOKING" || record.status === "OPEN"
+                      ? true
+                      : false,
+                },
+                {
+                  value: "CANCELLED",
+                  label: (
+                    <div className="flex flex-row justify-start items-center gap-2">
+                      <FontAwesomeIcon
+                        icon={faCircle}
+                        fontSize={8}
+                        color="red"
+                      />
+                      <span className="text-red-500 font-bold">Cancelled</span>
+                    </div>
+                  ),
+                },
+              ]}
+              value={record.status}
+              // onClick={() => {
+              //   onHandleSelectRowOrMultiRow(record);
+              // }}
+              onChange={(value) => {
+                // console.log("value khi select là", value);
+                // onHandleSelectRowOrMultiRow(record);
+                onHandleChangeStatusMultiSession(value, record);
+                // console.log("record sessionId", record?.sessionId);
+              }}
+              formatOptionLabel={(option) => (
+                <div style={{ textTransform: "uppercase", color: "red" }}>
+                  {option.label}
+                </div>
+              )}
+            ></Select>
+            {/* <FontAwesomeIcon
+              icon={faCircle}
+              fontSize={8}
+              color="green"
+              className="animate-pulse"
+            ></FontAwesomeIcon> */}
           </div>
         );
       },
@@ -365,67 +443,114 @@ const Session = () => {
         { text: "ON", value: true },
         { text: "OFF", value: false },
       ],
-      defaultFilteredValue: ["true"],
-      onFilter: (value, record) => record.status === value,
+      // defaultFilteredValue: ["true"],
+      // onFilter: (value, record) => record.status === value,
     },
-    {
-      title: "Meal Advance",
-      key: "registerForMealStatus",
-      render: (_, record, index) => {
-        return (
-          <div>
-            <Switch
-              className="bg-gray-400"
-              checkedChildren="On"
-              unCheckedChildren="Off"
-              disabled={selectedRowIsActive}
-              // defaultChecked={record.registerForMealStatus}
-              checked={record.registerForMealStatus}
-              onClick={() => onHandlePatchRegisterForMeal(record)}
-            />
-          </div>
-        );
-      },
-      filters: [
-        { text: "OPEN", value: true },
-        { text: "CLOSED", value: false },
-      ],
-      onFilter: (value, record) => record.registerForMealStatus === value,
-    },
-    {
-      title: "Booking Status",
-      key: "bookingSlotStatus",
-      render: (_, record, index) => {
-        console.log("in record", record.bookingSlotStatus);
-        return (
-          <div>
-            <Switch
-              className="bg-yellow-200"
-              checkedChildren="On"
-              unCheckedChildren="Off"
-              disabled={selectedRowIsActive}
-              // value={record.bookingSlotStatus}
-              // defaultChecked={record.bookingSlotStatus}
-              checked={record.bookingSlotStatus}
-              onChange={() => onHandlePatchBookingSlot(record)}
-            />
-          </div>
-        );
-      },
-      filters: [
-        { text: "OPEN", value: true },
-        { text: "CLOSED", value: false },
-      ],
-      onFilter: (value, record) => record.bookingSlotStatus === value,
-    },
-    {
-      title: "Off Time",
-      dataIndex: "session",
-      key: "birthDate",
-      render: (_, record) => (
-        <div className="min-w-[80px] font-bold">{record.endDate}</div>
-      ),
-    },
+    // {
+    //   title: "Is Active",
+    //   key: "status",
+    //   render: (_, record, index) => {
+    //     const status = record.status === true ? "Inactive" : "Active";
+    //     return (
+    //       <div>
+    //         {record.status === true ? (
+    //           <Tag
+    //             color="green"
+    //             className="shadow-sm hover:cursor-pointer hover:opacity-40 py-2 px-6 flex flex-row justify-between items-center"
+    //             onClick={() => {
+    //               onHandleOpenOffConfirmForm(record);
+    //             }}
+    //           >
+    //             <p className="font-bold mr-2">{status}</p>
+    //             <FontAwesomeIcon
+    //               icon={faCircle}
+    //               fontSize={8}
+    //               color="green"
+    //               className="animate-pulse"
+    //             ></FontAwesomeIcon>
+    //           </Tag>
+    //         ) : (
+    //           <Tag
+    //             // color="gray"
+    //             className="shadow-sm py-2 px-6 flex flex-row justify-between items-center bg-gray-400"
+    //           >
+    //             <p className="font-bold">{status}</p>
+    //             <FontAwesomeIcon
+    //               icon={faCircle}
+    //               fontSize={8}
+    //               color="gray"
+    //               className="animate-pulse"
+    //             ></FontAwesomeIcon>
+    //           </Tag>
+    //         )}
+    //       </div>
+    //     );
+    //   },
+    //   filters: [
+    //     { text: "ON", value: true },
+    //     { text: "OFF", value: false },
+    //   ],
+    //   defaultFilteredValue: ["true"],
+    //   onFilter: (value, record) => record.status === value,
+    // },
+    // {
+    //   title: "Meal Advance",
+    //   key: "registerForMealStatus",
+    //   render: (_, record, index) => {
+    //     return (
+    //       <div>
+    //         <Switch
+    //           className="bg-gray-400"
+    //           checkedChildren="On"
+    //           unCheckedChildren="Off"
+    //           disabled={selectedRowIsActive}
+    //           // defaultChecked={record.registerForMealStatus}
+    //           checked={record.registerForMealStatus}
+    //           onClick={() => onHandlePatchRegisterForMeal(record)}
+    //         />
+    //       </div>
+    //     );
+    //   },
+    //   filters: [
+    //     { text: "OPEN", value: true },
+    //     { text: "CLOSED", value: false },
+    //   ],
+    //   onFilter: (value, record) => record.registerForMealStatus === value,
+    // },
+    // {
+    //   title: "Booking Status",
+    //   key: "bookingSlotStatus",
+    //   render: (_, record, index) => {
+    //     console.log("in record", record.bookingSlotStatus);
+    //     return (
+    //       <div>
+    //         <Switch
+    //           className="bg-yellow-200"
+    //           checkedChildren="On"
+    //           unCheckedChildren="Off"
+    //           disabled={selectedRowIsActive}
+    //           // value={record.bookingSlotStatus}
+    //           // defaultChecked={record.bookingSlotStatus}
+    //           checked={record.bookingSlotStatus}
+    //           onChange={() => onHandlePatchBookingSlot(record)}
+    //         />
+    //       </div>
+    //     );
+    //   },
+    //   filters: [
+    //     { text: "OPEN", value: true },
+    //     { text: "CLOSED", value: false },
+    //   ],
+    //   onFilter: (value, record) => record.bookingSlotStatus === value,
+    // },
+    // {
+    //   title: "Off Time",
+    //   dataIndex: "session",
+    //   key: "birthDate",
+    //   render: (_, record) => (
+    //     <div className="min-w-[80px] font-bold">{record.endDate}</div>
+    //   ),
+    // },
     {
       title: "Start time",
       dataIndex: "session",
@@ -452,11 +577,12 @@ const Session = () => {
       render: (_, record) => (
         <Space size="middle" className="p-1 border rounded-md">
           <FontAwesomeIcon
-            icon={faEye}
+            icon={faEdit}
             fontSize={22}
             color="#FFAB01"
             className="hover:text-green-500 "
-            onClick={() => onRowClick(record)}
+            // onClick={() => onRowClick(record)}
+            onClick={() => onHandleNavigateToSessionDetail(record)}
           />
           {/* <Link to="#">
             <FontAwesomeIcon
@@ -597,6 +723,7 @@ const Session = () => {
               columns={columns}
               loading={loading}
               dataSource={selectedDate ? newData : session}
+              // dataSource={session}
               rowKey={(record) => record.sessionId}
               rowSelection={rowSelection}
               // onRow={(record) => ({

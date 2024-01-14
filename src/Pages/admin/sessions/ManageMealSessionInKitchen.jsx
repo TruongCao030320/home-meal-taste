@@ -333,26 +333,15 @@ const ManageMealSessionInKitchen = () => {
         items={[
           {
             title: (
-              <Link to={`/${direction.dashboard}/${direction.session}`}>
-                <p className="font-bold text-black underline">Session</p>
+              <Link to={`/${direction.dashboard}/${direction.sessionArea}`}>
+                <p className="font-bold text-black underline">Session-Area</p>
               </Link>
             ),
           },
           {
             title: (
               <Link
-                to={`/${direction.dashboard}/${direction.session}/${direction.areaInSession}/${sessionId}`}
-              >
-                <p className="font-bold text-black underline">
-                  {session?.sessionName}
-                </p>
-              </Link>
-            ),
-          },
-          {
-            title: (
-              <Link
-                to={`/${direction.dashboard}/${direction.session}/${direction.areaInSession}/${sessionId}/${direction.manageChefInArea}/${areaId}`}
+                to={`/${direction.dashboard}/${direction.sessionArea}/${direction.manageChefInArea}/${areaId}`}
               >
                 <p className="font-bold text-black underline">
                   {area?.areaName}
@@ -401,7 +390,7 @@ const ManageMealSessionInKitchen = () => {
               className="box__shadow"
               suffix={<FontAwesomeIcon icon={faSearch} />}
             />
-            <DatePicker
+            {/* <DatePicker
               // value={selectedDate}
               format="DD-MM-YYYY"
               defaultValue={dayjs()}
@@ -409,7 +398,7 @@ const ManageMealSessionInKitchen = () => {
                 setSelectedDate(dateString);
               }}
               className="box__shadow !h-[50px] mx-3 !w-[300px]"
-            />
+            /> */}
           </div>
         </div>
 

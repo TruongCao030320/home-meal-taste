@@ -54,103 +54,139 @@ const Sidebar = () => {
   };
   const items = [
     getItem(
-      <Link onClick={handleHiddenSidebar} to={`/${direction.dashboard}`}>
-        Dashboard
-      </Link>,
-      "1",
-      <MdDashboardCustomize />
-    ),
-    getItem(
-      <Link
-        onClick={handleHiddenSidebar}
-        to={`/${direction.dashboard}/${direction.order}`}
-      >
-        Order
-      </Link>,
-      "9",
-      <FaMoneyBill />
-    ),
-    getItem(
-      <Link
-        onClick={handleHiddenSidebar}
-        to={`/${direction.dashboard}/${direction.transaction}`}
-      >
-        Transaction
-      </Link>,
-      "11",
-      <FaHistory />
-    ),
-    getItem(
-      <Link
-        onClick={handleHiddenSidebar}
-        to={`/${direction.dashboard}/${direction.district}`}
-      >
-        District
-      </Link>,
-      "12",
-      <FaEarthEurope />
-    ),
-    getItem(
-      <Link
-        onClick={handleHiddenSidebar}
-        to={`/${direction.dashboard}/${direction.area}`}
-      >
-        Area
-      </Link>,
-      "4",
-      <FaEarthEurope />
+      "Statistic",
+      "g1",
+      null,
+      [
+        getItem(
+          <Link onClick={handleHiddenSidebar} to={`/${direction.dashboard}`}>
+            Dashboard
+          </Link>,
+          "1",
+          <MdDashboardCustomize size={15} />
+        ),
+        getItem(
+          <Link
+            onClick={handleHiddenSidebar}
+            to={`/${direction.dashboard}/${direction.order}`}
+          >
+            Order
+          </Link>,
+          "9",
+          <FaMoneyBill size={15} />
+        ),
+        getItem(
+          <Link
+            onClick={handleHiddenSidebar}
+            to={`/${direction.dashboard}/${direction.transaction}`}
+          >
+            Transaction
+          </Link>,
+          "11",
+          <FaHistory size={15} />
+        ),
+      ],
+      "group"
     ),
 
     getItem(
-      <Link
-        onClick={handleHiddenSidebar}
-        to={`/${direction.dashboard}/${direction.session}`}
-      >
-        Session
-      </Link>,
-      "5",
-      <FaClock />
-    ),
-    getItem(
-      <Link
-        onClick={handleHiddenSidebar}
-        to={`/${direction.dashboard}/${direction.kitchen}`}
-      >
-        Kitchen
-      </Link>,
-      "7",
-      <AiFillHome />
-    ),
-    getItem(
-      <Link
-        onClick={handleHiddenSidebar}
-        to={`/${direction.dashboard}/${direction.meal}`}
-      >
-        Meal
-      </Link>,
-      "6",
-      <FaBowlFood />
+      "Market",
+      "g2",
+      null,
+      [
+        getItem(
+          <Link
+            onClick={handleHiddenSidebar}
+            to={`/${direction.dashboard}/${direction.sessionArea}`}
+          >
+            Session-Area
+          </Link>,
+          "15",
+          <FaClock size={15} />
+        ),
+        getItem(
+          <Link
+            onClick={handleHiddenSidebar}
+            to={`/${direction.dashboard}/${direction.session}`}
+          >
+            Session
+          </Link>,
+          "14",
+          <FaClock size={15} />
+        ),
+      ],
+      "group"
     ),
 
     getItem(
-      <Link
-        onClick={handleHiddenSidebar}
-        to={`/${direction.dashboard}/${direction.dishType}`}
-      >
-        Category
-      </Link>,
-      "10",
-      <TbCategory2 />
-    ),
-    getItem(
-      <Link
-        onClick={handleHiddenSidebar}
-        to={`/${direction.dashboard}/${direction.user}`}
-      >
-        User
-      </Link>,
-      "8",
-      <MdManageAccounts />
+      "System",
+      "g3",
+      null,
+      [
+        getItem(
+          <Link
+            onClick={handleHiddenSidebar}
+            to={`/${direction.dashboard}/${direction.district}`}
+          >
+            District
+          </Link>,
+          "12",
+          <FaEarthEurope size={15} />
+        ),
+        getItem(
+          <Link
+            onClick={handleHiddenSidebar}
+            to={`/${direction.dashboard}/${direction.area}`}
+          >
+            Area
+          </Link>,
+          "4",
+          <FaEarthEurope size={15} />
+        ),
+
+        getItem(
+          <Link
+            onClick={handleHiddenSidebar}
+            to={`/${direction.dashboard}/${direction.kitchen}`}
+          >
+            Kitchen
+          </Link>,
+          "7",
+          <AiFillHome size={15} />
+        ),
+        getItem(
+          <Link
+            onClick={handleHiddenSidebar}
+            to={`/${direction.dashboard}/${direction.meal}`}
+          >
+            Meal Session
+          </Link>,
+          "6",
+          <FaBowlFood size={12} />
+        ),
+
+        getItem(
+          <Link
+            onClick={handleHiddenSidebar}
+            to={`/${direction.dashboard}/${direction.dishType}`}
+          >
+            Category
+          </Link>,
+          "10",
+          <TbCategory2 size={15} />
+        ),
+        getItem(
+          <Link
+            onClick={handleHiddenSidebar}
+            to={`/${direction.dashboard}/${direction.user}`}
+          >
+            User
+          </Link>,
+          "8",
+          <MdManageAccounts size={15} />
+        ),
+      ],
+      "group"
     ),
   ];
   const [active, setActive] = useState(null);

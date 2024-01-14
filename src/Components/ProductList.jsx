@@ -204,10 +204,10 @@ const ProductList = () => {
                 className="p-2 shadow-md min-w-[100px] text-center hover:cursor-pointer hover:border-blue-200"
                 color="red"
                 onClick={() => {
-                  onHandleUpdateStatusMultiMealSession("REJECTED");
+                  onHandleUpdateStatusMultiMealSession("CANCELLED");
                 }}
               >
-                <span className="font-bold">REJECTED</span>
+                <span className="font-bold">CANCELLED</span>
               </Tag>
               <Tag
                 className="p-2 shadow-md min-w-[100px] text-center hover:cursor-pointer hover:border-blue-200"
@@ -244,13 +244,7 @@ const ProductList = () => {
               </div>
             </div>
             <div className=" lg:w-[40%] w-full">
-              <p>
-                Area :{" "}
-                {
-                  record.sessionDtoForMealSession?.areaDtoForMealSession
-                    ?.areaName
-                }
-              </p>
+              <p>Area : {record.areaDtoForMealSession?.areaName}</p>
               <p>Session : {record.sessionDtoForMealSession?.sessionName}</p>
             </div>
           </div>
@@ -294,7 +288,8 @@ const ProductList = () => {
       filters: [
         { text: "PROCESSING", value: "PROCESSING" },
         { text: "APPROVED", value: "APPROVED" },
-        { text: "REJECTED", value: "REJECTED" },
+        { text: "CANCELLED", value: "CANCELLED" },
+        { text: "COMPLETED", value: "COMPLETED" },
       ],
       onFilter: (value, record) => record.status.includes(value),
       // filterDropdownVisible: false,
@@ -310,7 +305,7 @@ const ProductList = () => {
       key: "action",
       render: (_, record) => (
         <Space className="flex flex-col">
-          <h1>{formatMoney(record.price)} VND</h1>
+          <h2 className="font-semibold">{formatMoney(record.price)} VND</h2>
           <div
             onClick={() => console.log(record)}
             className="flex justify-between w-[50px] items-center "
@@ -318,7 +313,8 @@ const ProductList = () => {
             <AiTwotoneEdit
               size={20}
               className="text-bgBtnColor hover:text-bgColorBtn "
-              onClick={() => toggleDrawerType2(record.mealSessionId)}
+              // onClick={() => toggleDrawerType2(record.mealSessionId)}
+              onClick={() => navigateToMealSessionDetail(record)}
             />
           </div>
         </Space>
@@ -328,6 +324,11 @@ const ProductList = () => {
   ];
   const goToProductDetail = (id) => {
     navigate(`/${direction.dashboard}/${direction.meal}/${id}`);
+  };
+  const navigateToMealSessionDetail = (record) => {
+    navigate(`${direction.mealSessionDetail}/${record.mealSessionId}`, {
+      mealSessionId: record.mealSessionId,
+    });
   };
   const fetchAllMealSession = () => {
     setLoading(true);
@@ -467,10 +468,12 @@ const ProductList = () => {
     }
 
     if (areaValue) {
+      console.log("in areavalue là", areaValue);
+      console.log("filter array lúc này là", filteredData);
       filteredData = filteredData.filter(
         (item) =>
-          item.sessionDtoForMealSession?.areaDtoForMealSession?.areaId ===
-          areaValue
+          // item.sessionDtoForMealSession?.areaDtoForMealSession?.areaId === areaValue
+          item?.areaDtoForMealSession?.areaId == areaValue
       );
     }
     if (sessionValue) {
@@ -494,17 +497,16 @@ const ProductList = () => {
       {contextHolder}
       <div className="account-search flex items-center justify-end mb-3">
         <div className="h-[40%] add-btn flex justify-between items-center w-full">
-          <h1>Meal Management</h1>
+          <h1>Meal Session Management</h1>
         </div>
       </div>
       <div className="bg-white p-4 rounded-lg">
         <div className="account-search flex items-center justify-between mb-5 w-[100%]  lg:flex md:w-full md:flex md:flex-row md:gap-3 lg:w-[100%]">
-          <div className="flex w-[70%] lg:my-2 lg:flex lg:flex-row lg:w-[40%] lg:justify-between  md:w-[50%] md:flex md:flex-row  flex-col gap-5">
+          <div className="flex w-full lg:my-2 lg:flex lg:flex-row lg:w-full lg:justify-between  md:w-full md:flex md:flex-row  flex-col gap-5">
             <Input
               placeholder="Enter meal's name..."
               onChange={(e) => setSearch(e.target.value)}
-              className="box__shadow"
-              suffix={<TbSearch />}
+              className="box__shadow !h-[50px] lg:w-[30%] md:w-[30%]"
             />
             <DatePicker
               // value={selectedDate}
@@ -513,22 +515,22 @@ const ProductList = () => {
               onChange={(date, dateString) => {
                 setSelectedDate(dateString);
               }}
-              className="box__shadow !h-[50px] md:w-full md:ml-3 w-full"
+              className="box__shadow !h-[50px] w-full lg:w-[30%] md:w-[30%]"
             />
-          </div>
-          <div className="my-2 w-[50%]">
-            <Popover
-              className="w-full"
-              content={content2}
-              title="Filter"
-              trigger="click"
-              placement="bottomRight"
-            >
-              <Button className="py-5 px-5 flex justify-center items-center box__shadow">
-                <FilterFilled />
-                <span>Filter</span>
-              </Button>
-            </Popover>
+            <div className=" w-full lg:w-[20%] md:w-[20%] !h-[50px] ">
+              <Popover
+                className="w-full h-full"
+                content={content2}
+                title="Filter"
+                trigger="click"
+                placement="bottomRight"
+              >
+                <Button className="py-5 px-5 flex justify-center items-center box__shadow">
+                  <FilterFilled />
+                  <span>Filter</span>
+                </Button>
+              </Popover>
+            </div>
           </div>
         </div>
         <div className="w-full overflow-hidden">

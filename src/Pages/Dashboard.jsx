@@ -25,16 +25,7 @@ const Dashboard = () => {
   return (
     <div className=" mainContainer no-scrollbarflex w-full">
       <Layout className="lg:w-full md:w-full bg-white">
-        <Sider className="md:hidden hidden !bg-white rounded-lg md:!bg-white lg:block lg:px-2 lg:bg-white  md:!justify-center md:relative">
-          {/* <Button
-            className="lg:hidden md:block md:absolute md:top-5 md:left-[20%]"
-            onClick={showDrawer}
-          >
-            <FontAwesomeIcon
-              icon={faBars}
-              className="text-sm"
-            ></FontAwesomeIcon>
-          </Button> */}
+        <Sider className="lg:!w-[50%] lg:!bg-white md:hidden hidden !bg-white rounded-lg md:!bg-white lg:block lg:px-2   md:!justify-center md:relative">
           <Header
             className="hidden md:hidden lg:block"
             style={{
@@ -55,7 +46,7 @@ const Dashboard = () => {
               </div>
             </div>
           </Header>
-          <Content className="mt-4 md:hidden lg:flex hidden ">
+          <Content className="mt-4 md:hidden lg:flex hidden w-full">
             <Sidebar></Sidebar>
           </Content>
         </Sider>

@@ -28,6 +28,8 @@ import SessionCreating from "../Pages/admin/details/SessionCreating";
 import ManageAreaInSession from "../Pages/admin/sessions/ManageAreaInSession";
 import ManageChefInArea from "../Pages/admin/sessions/ManageChefInArea";
 import District from "../Pages/admin/District";
+import SessionArea from "../Pages/admin/SessionArea";
+import MealSessionDetail from "../Pages/admin/details/MealSessionDetail";
 const Router = () => {
   return (
     <>
@@ -67,6 +69,8 @@ const Router = () => {
           <Route path={`${direction.order}`} element={<Order />} />
           <Route path={`${direction.order}/:id`} element={<OrderTracking />} />
           <Route path={`${direction.session}`} element={<Session />} />
+          <Route path={`${direction.sessionArea}`} element={<SessionArea />} />
+
           <Route
             path={`${direction.session}/${direction.sessionCreating}/:sessionId`}
             element={<SessionCreating />}
@@ -76,15 +80,26 @@ const Router = () => {
             path={`${direction.session}/${direction.areaInSession}/:sessionId`}
             element={<ManageAreaInSession />}
           />
-          <Route
+          {/* <Route
             path={`${direction.session}/${direction.areaInSession}/:sessionId/${direction.manageChefInArea}/:areaId`}
             element={<ManageChefInArea />}
-          />
+          /> */}
           <Route
+            path={`${direction.sessionArea}/${direction.manageChefInArea}/:areaId`}
+            element={<ManageChefInArea />}
+          />
+          {/* <Route
             path={`${direction.session}/${direction.areaInSession}/:sessionId/${direction.manageChefInArea}/:areaId/${direction.mealSessionInKitchen}/:kitchenId`}
             element={<ManageMealSessionInKitchen />}
+          /> */}
+          <Route
+            path={`${direction.sessionArea}/${direction.manageChefInArea}/:areaId/${direction.mealSessionInKitchen}/:kitchenId`}
+            element={<ManageMealSessionInKitchen />}
           />
-
+          <Route
+            path={`${direction.meal}/${direction.mealSessionDetail}/:mealSessionId`}
+            element={<MealSessionDetail />}
+          ></Route>
           <Route path="chatbox" element={<Chatbox />} />
         </Route>
       </Routes>

@@ -32,8 +32,7 @@ const CustomDrawer = () => {
   const { price, remainQuantity, quantity, status, createDate } = meal1 || {};
   const { name, image, description, mealId, dishesDtoMealSession } =
     meal1?.mealDtoForMealSessions || {};
-  const { areaName } =
-    meal1?.sessionDtoForMealSessions?.areaDtoForMealSessions || {};
+  const { areaName } = meal1?.areaDtoForMealSessions || {};
 
   const mealsessionIDGetFromRedux = useSelector(
     (state) => state.mealDrawer.mealId
@@ -87,10 +86,10 @@ const CustomDrawer = () => {
             <Button
               onClick={onClose}
               className="bg-red-600"
-              onClickCapture={() => confirmMealSession("Rejected")}
-              disabled={status?.includes("REJECTED")}
+              onClickCapture={() => confirmMealSession("CANCELLED")}
+              disabled={status?.includes("CANCELLED")}
             >
-              <span className="text-white">Reject</span>
+              <span className="text-white">Cancelled</span>
             </Button>
             <Button
               onClick={onClose}
@@ -170,6 +169,8 @@ const CustomDrawer = () => {
                   value={quantity}
                 />
               </Col>
+            </Row>
+            <Row>
               <Col span={11}>
                 <label htmlFor="">Remain Slot</label>
                 <Input
@@ -180,15 +181,19 @@ const CustomDrawer = () => {
             </Row>
           </div>
           <div className="form-item">
-            <label htmlFor="">Kitchen</label>
-            <Input
-              className="my-2 box__shadow h-[40px]"
-              value={meal1?.kitchenDtoForMealSessions?.name}
-            />
-          </div>
-          <div className="form-item">
-            <label htmlFor="">Area</label>
-            <Input className="my-2 box__shadow h-[40px]" value={areaName} />
+            <Row className="flex flex-row justify-between">
+              <Col span={11}>
+                <label htmlFor="">Kitchen</label>
+                <Input
+                  className="my-2 box__shadow h-[40px]"
+                  value={meal1?.kitchenDtoForMealSessions?.name}
+                />
+              </Col>
+              <Col span={11}>
+                <label htmlFor="">Area</label>
+                <Input className="my-2 box__shadow h-[40px]" value={areaName} />
+              </Col>
+            </Row>
           </div>
           <div className="form-item">
             <label htmlFor="">Description</label>

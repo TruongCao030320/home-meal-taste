@@ -25,6 +25,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { direction } from "../../../API/Direction";
 import {
+  getAllKitchenBySessionAndAreaId,
   getAllKitchenBySessionId,
   getAllKitchenInArea,
   getSingleArea,
@@ -155,6 +156,16 @@ const ManageChefInArea = () => {
         setLoading(false);
       });
   };
+  const fetchAllKitchenByAreaAndSessionId = () => {
+    setLoading(true);
+    getAllKitchenBySessionAndAreaId(areaId, sessionId)
+      .then((res) => {
+        setKitchen(res);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
   // const onHandleChangeSessionStatus = () => {
   //   setLoading(true);
   //   patchSessionStatus(sessionId)
@@ -193,10 +204,14 @@ const ManageChefInArea = () => {
     // });
     // fetchAllKitchenBySession();
     // fetchSingleSessionById();
-    fetchAllKitchenInArea();
-    fetchSingleSessionById();
+    // fetchAllKitchenInArea();
+    // fetchSingleSessionById();
     fetchSingleArea();
+    fetchAllKitchenByAreaAndSessionId();
   }, []);
+  useEffect(() => {
+    fetchAllKitchenByAreaAndSessionId();
+  }, [sessionId]);
   const { RangePicker } = DatePicker;
   return (
     <div className="w-[100%] h-[100%] p-4">
@@ -204,22 +219,22 @@ const ManageChefInArea = () => {
         items={[
           {
             title: (
-              <Link to={`/${direction.dashboard}/${direction.session}`}>
-                <p className="font-bold text-black underline">Session</p>
+              <Link to={`/${direction.dashboard}/${direction.sessionArea}`}>
+                <p className="font-bold text-black underline">Session-Area</p>
               </Link>
             ),
           },
-          {
-            title: (
-              <Link
-                to={`/${direction.dashboard}/${direction.session}/${direction.areaInSession}/${sessionId}`}
-              >
-                <p className="font-bold text-black underline">
-                  {session?.sessionName}
-                </p>
-              </Link>
-            ),
-          },
+          // {
+          //   title: (
+          //     <Link
+          //       to={`/${direction.dashboard}/${direction.session}/${direction.areaInSession}/${sessionId}`}
+          //     >
+          //       <p className="font-bold text-black underline">
+          //         {session?.sessionName}
+          //       </p>
+          //     </Link>
+          //   ),
+          // },
         ]}
       />
       <div className="account-search h-[10%] flex items-center  justify-end mb-3">

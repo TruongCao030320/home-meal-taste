@@ -170,9 +170,14 @@ export const getSingleMeal = async (id) => {
     console.log(error);
   }
 };
-export const patchSessionStatus = async (id, status) => {
+export const patchSessionStatus = async (id, status, auto) => {
+  console.log("giá trị lấy đc", id, status);
   await axios.patch(
-    `https://homemealtaste.azurewebsites.net/api/Session/change-status-session?sessionid=${id}&status=${status}`
+    `https://homemealtaste.azurewebsites.net/api/Session/change-status-session?status=${true}`,
+    {
+      sessionIds: id,
+      status: status,
+    }
   );
   return getAllSession();
 };
@@ -687,5 +692,52 @@ export const deleteDistrict = async (id) => {
     );
   } catch (error) {
     console.log("Error at delete district", error);
+  }
+};
+export const getAllInformationInSession = async (id) => {
+  try {
+    const response = await axios.get(
+      `https://homemealtaste.azurewebsites.net/api/Area/get-all-area-by-session-id?sessionId=${id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error at get all information for session-area", error);
+  }
+};
+export const getAllKitchenBySessionAndAreaId = async (areaId, sessionId) => {
+  try {
+    const response = await axios.get(
+      `https://homemealtaste.azurewebsites.net/api/Kitchen/get-all-kitchen-by-area-id?areaId=${areaId}&sessionId=${sessionId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error at getAllKitchenBySessionAndAreaId", error);
+  }
+};
+export const getAllSessionAreaBySessionId = async (id) => {
+  try {
+    const response = await axios.get(
+      `https://homemealtaste.azurewebsites.net/api/SessionArea/get-all-session-area-by-session-id?sessionId=${id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error at getAllSessionAreaBySessionId", error);
+  }
+};
+// export const getAllOrderByMealSessionId =async (id)=>{
+//   try {
+//     const response = await axios.get(`https://homemealtaste.azurewebsites.net/api/Order/get-all-order-by-mealsession-id?mealsessionid=${id}`)
+//   } catch (error) {
+//     console.log("Error at getAllOrderByMealSessionId",error)
+//   }
+// }
+export const getAllOrderBySessionId = async (id) => {
+  try {
+    const resposne = await axios.get(
+      `https://homemealtaste.azurewebsites.net/api/Order/get-all-order-by-session-id?sessionId=${id}`
+    );
+    return resposne.data;
+  } catch (error) {
+    console.log("Error at getAllOrderBySessionId", error);
   }
 };
