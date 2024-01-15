@@ -403,7 +403,11 @@ const SessionArea = () => {
   }, []);
   // end content section
   const newDataStatusOpen = newData?.filter((item) => {
-    return item?.status?.includes("OPEN") || item?.status?.includes("BOOKING");
+    return (
+      item?.status?.includes("OPEN") ||
+      item?.status?.includes("BOOKING") ||
+      item?.status?.includes("ONGOING")
+    );
   });
   const newDataStatusClose = newData?.filter((item) => {
     return item?.status?.includes("CLOSE");

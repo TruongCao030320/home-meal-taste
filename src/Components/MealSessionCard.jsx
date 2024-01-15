@@ -62,7 +62,7 @@ const MealSessionCard = ({ meal }) => {
   };
   return (
     <div
-      className="w-[100%] min-h-[300px]  lg:min-h-[200px]   rounded-2xl shadow-lg border-none p-2 relative hover:cursor-pointer hover:shadow-2xl transition-all duration-500 "
+      className="w-[100%] min-h-[300px] max-h-[300px]  lg:min-h-[200px]   rounded-2xl shadow-lg border-none p-2 relative hover:cursor-pointer hover:shadow-2xl transition-all duration-500 "
       onClick={toggleDrawerType2}
     >
       {/* <CustomDrawer meal={{}} /> */}
