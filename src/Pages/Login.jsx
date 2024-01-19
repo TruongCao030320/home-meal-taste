@@ -38,12 +38,12 @@ const Login = () => {
 
   return (
     <section
-      className={`p-10 md:flex md:justify-between md:items-center bg-video h-screen bg-cover bg-center fixed top-0 left-0 w-full z-0 flex justify-around items-center ${
+      className={`p-10 md:flex md:justify-between md:items-center lg:w-full lg:bg-yellow-100 bg-video h-screen bg-cover bg-center fixed top-0 left-0 w-full z-0 flex justify-around items-center ${
         loading ? "fixed bg-white w-[vw] opacity-50" : ""
       }`}
     >
-      <div className="hidden w-[50%] md:h-full md:w-[40%] md:z-50 md:flex md:flex-col md:items-center md:justify-center md:relative lg:h-full lg:w-[45%]">
-        <div className="border rounded-full bg-white p-10 flex flex-col items-center justify-center opacity-80 w-[500px] h-[500px] md:relative md:w-full md:h-[60%] md:overflow-auto lg:flex lg:h-full lg:w-full">
+      <div className="hidden w-[50%] md:h-full md:w-[45%] md:z-50 md:flex md:flex-col md:items-center md:justify-center md:relative lg:h-full lg:w-[50%] ">
+        <div className="border rounded-full bg-white p-10 flex flex-col items-center justify-center opacity-80 w-[500px] h-[500px] md:relative md:w-full md:h-[70%] md:overflow-auto lg:flex lg:h-[100%] lg:w-[85%]">
           <h1 className="text-5xl font-festive flex text-orange-400 absolute top-12 gap-4 md:text-4xl lg:text-5xl">
             <div className=" inline-block">Home </div>
             <div className="">Meal</div>
@@ -134,6 +134,7 @@ const Login = () => {
         {/* <source src="path/to/your/background-video.ogv" type="video/ogg" /> */}
         Your browser does not support the video tag.
       </video>
+      ;
     </section>
   );
 };
