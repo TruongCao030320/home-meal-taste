@@ -23,10 +23,13 @@ import {
   resetAreaKey,
   setSelectedKey,
 } from "../redux/SelectecedKeySlice";
-
+import { refresh } from "../redux/ToggleDrawerMealSlice.js";
 const AreaCard = ({ area }) => {
   const navigate = useNavigate();
   // console.log("AreaCard", area.status);
+  const availableSelectedKey = useSelector(
+    (state) => state.selectedSlice.areaKeys
+  );
   const dispatch = useDispatch();
   const areaKeys = useSelector((state) => state.selectedSlice.areaKeys) || [];
   const [check, setCheck] = useState(false);
@@ -55,23 +58,63 @@ const AreaCard = ({ area }) => {
       sessionAreaId: sessionAreaId,
     });
   };
-  const onCheck = (e) => {
-    e.stopPropagation();
-    console.log(e.target.checked);
-    if (e.target.checked) {
-      dispatch(setSelectedKey(sessionAreaId));
-      console.log(
-        "có chạy checked là areaId lúc này truyền đi là",
-        e.target.checked
-      );
-    } else {
-      dispatch(removeSelectedKey(sessionAreaId));
-      console.log(
-        "có chạy checked là areaId lúc này truyền đi là",
-        e.target.checked
-      );
-    }
-  };
+  // const onCheck = (e) => {
+  //   e.stopPropagation();
+  //   console.log(e.target.checked);
+  //   if (e.target.checked) {
+  //     dispatch(setSelectedKey(sessionAreaId));
+  //     console.log(
+  //       "có chạy checked là areaId lúc này truyền đi là",
+  //       e.target.checked
+  //     );
+  //   } else {
+  //     dispatch(removeSelectedKey(sessionAreaId));
+  //     console.log(
+  //       "có chạy checked là areaId lúc này truyền đi là",
+  //       e.target.checked
+  //     );
+  //   }
+  // };
+  // const onCheck = (e) => {
+  //   e.stopPropagation();
+
+  //   // Ensure availableSelectedKey is not undefined or null
+  //   if (availableSelectedKey?.length > 0) {
+  //     const checkAvailable = availableSelectedKey.some(
+  //       (item) => item === sessionAreaId
+  //     );
+
+  //     if (checkAvailable) {
+  //       // The sessionAreaId exists in the array
+  //       if (e.target.checked) {
+  //         // If checkbox is checked, remove sessionAreaId from the array
+  //         const availableCheck = availableSelectedKey.some(
+  //           (item) => item === sessionAreaId
+  //         );
+  //         if (!availableCheck) {
+  //           dispatch(setSelectedKey(sessionAreaId));
+  //         } else {
+  //           dispatch(removeSelectedKey(sessionAreaId));
+  //         }
+  //       } else if (e.target.uncheck) {
+  //         // If checkbox is unchecked, add sessionAreaId to the array
+  //         // dispatch(setSelectedKey(sessionAreaId));
+  //         dispatch(removeSelectedKey(sessionAreaId));
+  //         console.log(
+  //           "AreaId is checked now. Added to the array.",
+  //           sessionAreaId
+  //         );
+  //       }
+  //     } else {
+  //       // The sessionAreaId does not exist in the array
+  //       dispatch(setSelectedKey(sessionAreaId));
+  //       console.log(
+  //         "AreaId is checked now. Added to the array.",
+  //         sessionAreaId
+  //       );
+  //     }
+  //   }
+  // };
   const onHandleCheck = () => {
     const newArray = areaKeys.flat();
     const isChecked = newArray.includes(sessionAreaId);
@@ -87,6 +130,24 @@ const AreaCard = ({ area }) => {
   useEffect(() => {
     dispatch(resetAreaKey());
   }, []);
+  // useEffect(() => {
+  //   if (check) {
+  //     dispatch(removeSelectedKey(sessionAreaId));
+  //     setCheck(false);
+  //   } else {
+  //     dispatch(setSelectedKey(sessionAreaId));
+  //     setCheck(true);
+  //   }
+  // }, [check]);
+  const onCheck = () => {
+    if (check) {
+      setCheck(false);
+      dispatch(removeSelectedKey(sessionAreaId));
+    } else {
+      dispatch(setSelectedKey(sessionAreaId));
+      setCheck(true);
+    }
+  };
   return (
     <div
       className=" w-[90%] h-[150px] bg-white rounded-2xl shadow-lg border-none  relative hover:cursor-pointer hover:shadow-2xl transition-all duration-500"
@@ -100,7 +161,12 @@ const AreaCard = ({ area }) => {
         >
           <div className="flex flex-row relative">
             <Checkbox
-              onClick={onCheck}
+              // onClick={onCheck}
+              onClick={(e) => {
+                e.stopPropagation();
+                setCheck(!check);
+                onCheck();
+              }}
               checked={check}
               disabled={
                 status === "FINISHED" || status === "CANCELLED" ? true : false

@@ -18,7 +18,9 @@ const normalizeString = (str) => {
 };
 const AreaComponent = ({ sessionId }) => {
   const dispatch = useDispatch();
-  const selectedRowKeys = useSelector((state) => state.selectedSlice.areaKeys);
+  const selectedRowKeys =
+    useSelector((state) => state.selectedSlice.areaKeys) || [];
+  const refreshed = useSelector((state) => state.mealDrawer.refresh);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [area, setArea] = useState([]);
@@ -114,7 +116,7 @@ const AreaComponent = ({ sessionId }) => {
     // console.log(selectedRowKeys.flat());
     console.log(
       "Sau khi unchecked",
-      selectedRowKeys.map((item) => item)
+      selectedRowKeys.flat().map((item) => item)
     );
   }, [selectedRowKeys]);
   useEffect(() => {
@@ -179,6 +181,7 @@ const AreaComponent = ({ sessionId }) => {
             >
               <div className={`font-bold flex flex-row  justify-start my-5`}>
                 <Checkbox
+                  // checked={selectedRowKeys.length === area.length}
                   onClick={(e) => {
                     const areaIds = area
                       .map((item) => {
@@ -197,6 +200,7 @@ const AreaComponent = ({ sessionId }) => {
                       );
                       if (areaIds.length > 0) {
                         dispatch(resetAreaKey());
+                        console.log("Trước khi gửi đi", areaIds);
                         dispatch(setSelectedKey(areaIds));
                       }
                     } else {
@@ -208,7 +212,7 @@ const AreaComponent = ({ sessionId }) => {
               </div>
               <div
                 className={`${
-                  selectedRowKeys.length > 0 ? "block" : "hidden"
+                  selectedRowKeys?.length > 0 ? "block" : "hidden"
                 } flex flex-row gap-2`}
               >
                 <div

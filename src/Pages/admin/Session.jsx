@@ -188,7 +188,11 @@ const Session = () => {
         {
           value: "OPEN",
           label: (
-            <div className="flex flex-row justify-start items-center gap-2">
+            <div
+              className={` ${
+                record.status === "ONGOING" ? "line-through" : ""
+              } flex flex-row justify-start items-center gap-2`}
+            >
               <FontAwesomeIcon icon={faCircle} fontSize={8} color="blue" />
               <span className="text-blue-500 font-bold">Open</span>
             </div>
@@ -197,7 +201,11 @@ const Session = () => {
         {
           value: "BOOKING",
           label: (
-            <div className="flex flex-row justify-start items-center gap-2">
+            <div
+              className={` ${
+                record.status === "ONGOING" ? "line-through" : ""
+              } flex flex-row justify-start items-center gap-2`}
+            >
               <FontAwesomeIcon icon={faCircle} fontSize={8} color="yellow" />
               <span className="text-yellow-500 font-bold">Booking</span>
             </div>
@@ -238,7 +246,11 @@ const Session = () => {
         {
           value: "CANCELLED",
           label: (
-            <div className="flex flex-row justify-start items-center gap-2">
+            <div
+              className={` ${
+                record.status === "ONGOING" ? "line-through" : ""
+              } flex flex-row justify-start items-center gap-2`}
+            >
               <FontAwesomeIcon icon={faCircle} fontSize={8} color="red" />
               <span className="text-red-500 font-bold">Cancelled</span>
             </div>

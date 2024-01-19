@@ -286,10 +286,12 @@ export const getOrderById = async (id) => {
 };
 export const getAllMealSessionBySessionId = async (id) => {
   try {
-    const response = await axios.get(
-      `https://homemealtaste.azurewebsites.net/api/MealSession/get-all-meal-session-by-session-id?sessionid=${id}`
-    );
-    return response.data;
+    if (id) {
+      const response = await axios.get(
+        `https://homemealtaste.azurewebsites.net/api/MealSession/get-all-meal-session-by-session-id?sessionid=${id}`
+      );
+      return response.data;
+    }
   } catch (error) {
     console.log("Get all meal session by session id", error);
   }
@@ -636,9 +638,6 @@ export const updateSession = async (values) => {
       "https://homemealtaste.azurewebsites.net/api/Session/update-session-and-area-in-session",
       {
         sessionId: values.sessionId,
-        endDate: values.endDate,
-        status: values.status,
-        sessionType: values.sessionType,
         areaIds: values.areaIds,
       }
     );
@@ -695,10 +694,12 @@ export const deleteDistrict = async (id) => {
 };
 export const getAllInformationInSession = async (id) => {
   try {
-    const response = await axios.get(
-      `https://homemealtaste.azurewebsites.net/api/Area/get-all-area-by-session-id?sessionId=${id}`
-    );
-    return response.data;
+    if (id) {
+      const response = await axios.get(
+        `https://homemealtaste.azurewebsites.net/api/Area/get-all-area-by-session-id?sessionId=${id}`
+      );
+      return response.data;
+    }
   } catch (error) {
     console.log("Error at get all information for session-area", error);
   }

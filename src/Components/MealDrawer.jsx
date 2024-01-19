@@ -91,7 +91,8 @@ const CustomDrawer = () => {
       disabled:
         record.status === "CANCELLED" ||
         record.status === "COMPLETED" ||
-        record.status === "NOTEAT",
+        record.status === "NOTEAT" ||
+        record.status === "CANCELLEDBYCUSTOMER",
     }),
   };
   const onHandleCancelOrder = () => {
@@ -101,6 +102,7 @@ const CustomDrawer = () => {
         toast.success("Cancel Order Completed.");
         fetchSingleMeal();
         fetchAllOrderByMealSesionId();
+        dispatch(refresh());
       })
       .catch(() => {
         toast.warning("Can Not Cancel Order");
@@ -110,6 +112,7 @@ const CustomDrawer = () => {
         setSelectedRowKeys([]);
         setFirstValueObject({});
         setLoading(false);
+        setSelectedRowIsActive(false);
       });
   };
   const columns = [

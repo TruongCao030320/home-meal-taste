@@ -28,6 +28,7 @@ import context from "react-bootstrap/esm/AccordionContext";
 import { toast } from "react-toastify";
 import {
   getAllArea,
+  getAllKitchenBySessionId,
   getAllMeal,
   getAllMealSession,
   getAllSession,
@@ -76,6 +77,7 @@ const ProductList = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
   const [firstValueObject, setFirstValueObject] = useState({});
+  const [kitchen, setKitchen] = useState([]);
   const showToastMessage = () => {
     toast.success("Delete successfully.");
   };
@@ -173,12 +175,12 @@ const ProductList = () => {
         <div className="w-[70%]">
           <Select
             className="w-full"
-            options={area?.map((item) => ({
-              value: item?.areaId,
-              label: item?.areaName,
+            options={kitchen?.map((item) => ({
+              value: item?.kitchenId,
+              label: item?.name,
             }))}
-            value={areaValue}
-            onChange={(item) => setAreaValue(item)}
+            value={chefValue}
+            onChange={(item) => setChefValue(item)}
           ></Select>
         </div>
       </div>
@@ -479,6 +481,11 @@ const ProductList = () => {
       setSession(res);
     });
   };
+  const fetchAllKitchenBySessionId = () => {
+    getAllKitchenBySessionId(sessionValue).then((res) => {
+      setKitchen(res);
+    });
+  };
   // useEffect(() => {
   //   fetchAllSessionByAreaId();
   //   setSessionValue(null);
@@ -527,6 +534,7 @@ const ProductList = () => {
         session.find((item) => item.sessionId === sessionValue)
           ?.areaDtoGetAllSession
       );
+      fetchAllKitchenBySessionId(sessionValue);
     }
     // You can add more conditions as needed...
 

@@ -30,7 +30,7 @@ const MealSessionComponent = ({ sessionId }) => {
   const [kitchen, setKitchen] = useState([]);
   const [chefValue, setChefValue] = useState(null);
   const [sessionValue, setSessionValue] = useState(null);
-  const [areaValue, setAreaValue] = useState();
+  const [areaValue, setAreaValue] = useState(null);
 
   const [mealSession, setMealSession] = useState([]);
   const [newData, setNewData] = useState([]);
@@ -136,11 +136,22 @@ const MealSessionComponent = ({ sessionId }) => {
       </div>
     </div>
   );
+  const refresh = useSelector((state) => state.mealDrawer.refresh);
   useEffect(() => {
     fetchAllMealSessionBySessionId();
     fetchAllChefBySessionId();
     fetchAllSessionAreaBySessionId();
   }, [sessionId]);
+  // useEffect(() => {
+  //   const fetchMealSessions = () => {
+  //     fetchAllMealSessionBySessionId();
+  //     setTimeout(fetchMealSessions, 30000);
+  //   };
+
+  //   fetchMealSessions();
+  //   // Clean up the interval when the component unmounts
+  //   return () => clearTimeout(fetchMealSessions);
+  // }, []);
   useEffect(() => {
     let filteredArray = mealSession;
     if (search) {
@@ -247,6 +258,7 @@ const MealSessionComponent = ({ sessionId }) => {
                 <div className="flex justify-start items-center mx-5">
                   <span className="mx-2">All</span>
                   <Checkbox
+                    // checked={!selectedRowKeys.length < 1}
                     onClick={(e) => {
                       const mealSessionIds = mealSession
                         .map((item) => {
@@ -277,10 +289,7 @@ const MealSessionComponent = ({ sessionId }) => {
                 </div>
                 <div
                   className={`${
-                    selectedRowKeys.length > 0 &&
-                    selectedRowKeys.some((item) => item !== "undefined") == true
-                      ? "flex"
-                      : "hidden"
+                    selectedRowKeys.length > 0 ? "flex" : "hidden"
                   }   flex-row justify-around items-center  lg:w-[50%]`}
                 >
                   {/* <div className={`font-bold flex flex-row`}>asd</div> */}

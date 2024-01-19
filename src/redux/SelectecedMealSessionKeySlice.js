@@ -13,6 +13,7 @@ const selectedMealSessionSlice = createSlice({
     },
     removeSelectedMealSessionKey: (state, action) => {
       const elementToRemove = action.payload;
+      state.mealSessionKeys = state.mealSessionKeys.flat();
       state.mealSessionKeys = state.mealSessionKeys.filter(
         (element) => element !== elementToRemove
       );

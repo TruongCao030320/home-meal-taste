@@ -40,6 +40,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import dayjs from "dayjs";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircle, faEdit } from "@fortawesome/free-solid-svg-icons";
+import fa from "fontawesome";
 dayjs.extend(customParseFormat);
 
 const SessionCreating = () => {
@@ -57,6 +58,7 @@ const SessionCreating = () => {
   const [session, setSession] = useState({});
   const { endDate, sessionType } = session || {};
   const [showAddForm, setShowAddForm] = useState(false);
+  const [availableAreaInSession, setAvailableAreaInSession] = useState([]);
   const [checkboxAutoCreateNewSession, setCheckboxAutoCreateNewSession] =
     useState(true);
   const dateFormatList = ["DD/MM/YYYY", "DD/MM/YY", "DD-MM-YYYY", "DD-MM-YY"];
@@ -90,12 +92,12 @@ const SessionCreating = () => {
   //   };
   //   fetch();
   // }, [id]);
-  const onSelectChange = (newSelectedRowKeys) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
-    setSelectedRowKeys(newSelectedRowKeys);
+  const onSelectChange = (selectedRowKeys, selectedRows) => {
+    console.log("selectedRowKeys changed: ", selectedRowKeys);
+    setSelectedRowKeys(selectedRowKeys);
     setValues({
       ...values,
-      areaIds: newSelectedRowKeys,
+      areaIds: selectedRowKeys,
     });
     // console.log(values.areaIds);
   };
@@ -108,6 +110,7 @@ const SessionCreating = () => {
     onChange: onSelectChange,
     getCheckboxProps: (record) => ({
       checked: selectedRowKeys?.includes(record.areaId),
+      disabled: availableAreaInSession?.includes(record.areaId),
     }),
   };
   const fetchSingleSessionById = () => {
@@ -126,6 +129,9 @@ const SessionCreating = () => {
             (item) => item.areaId
           ),
         });
+        setAvailableAreaInSession(
+          res?.areaDtoGetSingleSessionBySessionId.map((item) => item.areaId)
+        );
         console.log("selectedrowkesy ban đầu là");
         setSelectedRowKeys(
           res?.areaDtoGetSingleSessionBySessionId.map((item) => {
@@ -141,7 +147,8 @@ const SessionCreating = () => {
     if (
       selectedDate &&
       sessionTypeArray.length > 0 &&
-      values.areaIds.length > 0
+      values.areaIds.length > 0 &&
+      values.status !== ""
     ) {
       setLoading(true);
       // console.log("trước khi truyền đi", sessionTypeArray?.length);
@@ -167,11 +174,12 @@ const SessionCreating = () => {
       values.endDate &&
       values.sessionType &&
       values.areaIds.length > 0 &&
-      values.status
+      values.status !== ""
     ) {
       updateSession(values)
         .then((res) => {
           toast.success("Update Session Success.");
+          navigate(`/${direction.dashboard}/${direction.session}`);
         })
         .catch((error) => {
           toast.error("Update failed.");
@@ -198,6 +206,7 @@ const SessionCreating = () => {
     setLoading(true);
     getAllArea()
       .then((res) => {
+        console.log("Area", res);
         setArea(res);
         setSelectedRowKeys(
           res.map((item) => {
@@ -295,50 +304,50 @@ const SessionCreating = () => {
       onFilter: (value, record) =>
         record?.districtDtoAreaResponseModel?.districtId == value,
     },
-    {
-      title: "Action",
-      key: "action",
-      render: (_, record) => (
-        <Space
-          size="middle"
-          className="p-1 border rounded-md hover:border-gray-600"
-        >
-          <FontAwesomeIcon
-            cursor="pointer"
-            icon={faEdit}
-            fontSize={25}
-            onClick={() => {
-              console.log("default item", record);
-              setDefaultItem(record);
-              handleShow(record.areaId);
-            }}
-          />
-          {/* <Link to="#">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-6 h-6 z-[999999]"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log("default item", record);
-                setDefaultItem(record);
-                handleShow(record.areaId);
-              }}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
-              />
-            </svg>
-          </Link> */}
-        </Space>
-      ),
-    },
+    // {
+    //   title: "Action",
+    //   key: "action",
+    //   render: (_, record) => (
+    //     <Space
+    //       size="middle"
+    //       className="p-1 border rounded-md hover:border-gray-600"
+    //     >
+    //       <FontAwesomeIcon
+    //         cursor="pointer"
+    //         icon={faEdit}
+    //         fontSize={25}
+    //         onClick={() => {
+    //           console.log("default item", record);
+    //           setDefaultItem(record);
+    //           handleShow(record.areaId);
+    //         }}
+    //       />
+    //       {/* <Link to="#">
+    //         <svg
+    //           xmlns="http://www.w3.org/2000/svg"
+    //           fill="none"
+    //           viewBox="0 0 24 24"
+    //           strokeWidth={1.5}
+    //           stroke="currentColor"
+    //           className="w-6 h-6 z-[999999]"
+    //           onClick={(e) => {
+    //             e.preventDefault();
+    //             e.stopPropagation();
+    //             console.log("default item", record);
+    //             setDefaultItem(record);
+    //             handleShow(record.areaId);
+    //           }}
+    //         >
+    //           <path
+    //             strokeLinecap="round"
+    //             strokeLinejoin="round"
+    //             d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+    //           />
+    //         </svg>
+    //       </Link> */}
+    //     </Space>
+    //   ),
+    // },
   ];
   useEffect(() => {
     fetchAllArea();
@@ -444,41 +453,63 @@ const SessionCreating = () => {
                     setValues({ ...values, sessionName: text.target.value })
                   }
                 /> */}
-                <DatePicker
-                  allowClear={false}
-                  className="box__shadow w-full"
-                  format="DD-MM-YYYY"
-                  disabled={loading ? true : false}
-                  value={dayjs(values.endDate, "DD-MM-YYYY")}
-                  onChange={(date, dateString) => {
-                    setValues({
-                      ...values,
-                      endDate: dateString,
-                    });
-                    // setSelectedDate(dateString);
-                  }}
-                  disabledDate={disabledDate}
-                />
+                {sessionId === "null" ? (
+                  <DatePicker
+                    disabled={loading ? true : false}
+                    allowClear={false}
+                    className="box__shadow w-full"
+                    format="DD-MM-YYYY"
+                    value={dayjs(values.endDate, "DD-MM-YYYY")}
+                    onChange={(date, dateString) => {
+                      setValues({
+                        ...values,
+                        endDate: dateString,
+                      });
+                      // setSelectedDate(dateString);
+                    }}
+                    disabledDate={disabledDate}
+                  />
+                ) : (
+                  <DatePicker
+                    allowClear={false}
+                    className="box__shadow w-full"
+                    format="DD-MM-YYYY"
+                    disabled={true}
+                    value={dayjs(values.endDate, "DD-MM-YYYY")}
+                    onChange={(date, dateString) => {
+                      setValues({
+                        ...values,
+                        endDate: dateString,
+                      });
+                      // setSelectedDate(dateString);
+                    }}
+                    disabledDate={disabledDate}
+                  />
+                )}
               </div>
             </Col>
             <Col className="flex flex-col" xs={24} md={11} lg={11}>
               <label htmlFor="" className=" flex justify-start pb-2">
                 Session's Type
               </label>
-              {sessionId == "null" ? (
+              {sessionId === "null" ? (
                 <Checkbox.Group
                   onChange={onSessionTypeCheck}
                   disabled={loading ? true : false}
                 >
-                  <Checkbox value="LUNCH">Lunch</Checkbox>
-                  <Checkbox value="DINNER">Dinner</Checkbox>
+                  <Checkbox value="LUNCH" disabled={loading ? true : false}>
+                    Lunch
+                  </Checkbox>
+                  <Checkbox value="DINNER" disabled={loading ? true : false}>
+                    Dinner
+                  </Checkbox>
                 </Checkbox.Group>
               ) : (
                 <Radio.Group
                   onChange={(e) => {
                     setValues({ ...values, sessionType: e.target.value });
                   }}
-                  disabled={loading ? true : false}
+                  disabled={loading || values ? true : false}
                   value={values.sessionType}
                 >
                   <Radio value="LUNCH">Lunch</Radio>
@@ -488,83 +519,73 @@ const SessionCreating = () => {
             </Col>
           </Row>
           <Row className="flex justify-around h-[10%] my-5 lg:my-5">
-            {/* <Col className="" xs={24} md={11} lg={11}>
-              <div>
-                <label htmlFor="" className=" flex justify-start pb-2">
-                  Pre-Register Meal
-                </label>
-
-                <Radio.Group
-                  disabled={loading ? true : false}
-                  value={values.registerForMealStatus}
-                  onChange={(e) => {
-                    setValues({
-                      ...values,
-                      registerForMealStatus: e.target.value,
-                    });
-                  }}
-                >
-                  <Radio value={true}>ON</Radio>
-                  <Radio value={false}>OFF</Radio>
-                </Radio.Group>
-              </div>
-            </Col> */}
-            {/* <Col className="" xs={24} md={11} lg={11}>
-              <div>
-                <label htmlFor="" className=" flex justify-start pb-2">
-                  Booking Order Time
-                </label>
-                <Radio.Group
-                  disabled={loading ? true : false}
-                  value={values.bookingSlotStatus}
-                  onChange={(e) => {
-                    setValues({
-                      ...values,
-                      bookingSlotStatus: e.target.value,
-                    });
-                  }}
-                >
-                  <Radio value={true}>ON</Radio>
-                  <Radio value={false} defaultChecked={true}>
-                    OFF
-                  </Radio>
-                </Radio.Group>
-              </div>
-            </Col> */}
             <Col xs={24} md={23} lg={23}>
               <label htmlFor="" className=" flex justify-start pb-2">
                 Session's Status
               </label>
-              <Select
-                className="min-w-[100px]"
-                disabled={loading ? true : false}
-                options={[
-                  {
-                    value: "OPEN",
-                    label: "Open",
-                  },
-                  {
-                    value: "BOOKING",
-                    label: "Booking",
-                  },
-                  {
-                    value: "ONGOING",
-                    label: "On Going",
-                  },
-                  {
-                    value: "CLOSED",
-                    label: <div>Close</div>,
-                  },
-                  {
-                    value: "CANCELLED",
-                    label: <div>Cancel</div>,
-                  },
-                ]}
-                value={values?.status}
-                onChange={(value) => {
-                  setValues({ ...values, status: value });
-                }}
-              ></Select>
+              {sessionId === "null" ? (
+                <Select
+                  disabled={loading ? true : false}
+                  className="min-w-[100px]"
+                  options={[
+                    {
+                      value: "OPEN",
+                      label: "Open",
+                    },
+                    {
+                      value: "BOOKING",
+                      label: "Booking",
+                    },
+                    {
+                      value: "ONGOING",
+                      label: "On Going",
+                    },
+                    {
+                      value: "CLOSED",
+                      label: <div>Close</div>,
+                    },
+                    {
+                      value: "CANCELLED",
+                      label: <div>Cancel</div>,
+                    },
+                  ]}
+                  value={values?.status}
+                  onChange={(value) => {
+                    setValues({ ...values, status: value });
+                  }}
+                ></Select>
+              ) : (
+                <Select
+                  className="min-w-[100px]"
+                  disabled={loading || sessionId !== null ? true : false}
+                  options={[
+                    {
+                      value: "OPEN",
+                      label: "Open",
+                    },
+                    {
+                      value: "BOOKING",
+                      label: "Booking",
+                    },
+                    {
+                      value: "ONGOING",
+                      label: "On Going",
+                    },
+                    {
+                      value: "CLOSED",
+                      label: <div>Close</div>,
+                    },
+                    {
+                      value: "CANCELLED",
+                      label: <div>Cancel</div>,
+                    },
+                  ]}
+                  value={values?.status}
+                  onChange={(value) => {
+                    setValues({ ...values, status: value });
+                  }}
+                ></Select>
+              )}
             </Col>
           </Row>
           <div className="w-[100%] h-[60%]  overflow-auto no-scrollbar md:h-[70%] lg:h-[70%]">

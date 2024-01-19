@@ -46,7 +46,7 @@ const MealSessionCard = ({ meal }) => {
     areaDtoForMealSession,
     status,
   } = meal || {};
-  console.log(meal);
+  // console.log(meal);
   const { name, image } = mealDtoForMealSession || {};
   const { name: kitchenName } = kitchenDtoForMealSession || {};
   const { areaName } = areaDtoForMealSession || {};
@@ -83,7 +83,7 @@ const MealSessionCard = ({ meal }) => {
     //   areaKeys.map((item) => item)
     // );
     onHandleCheckWhenAll();
-    console.log("mealsesionIdkeys", mealSessionIdKeys);
+    // console.log("mealsesionIdkeys", mealSessionIdKeys);
   }, [mealSessionIdKeys]);
   const onHandleCheck = (e) => {
     e.stopPropagation();
@@ -97,6 +97,9 @@ const MealSessionCard = ({ meal }) => {
       dispatch(removeSelectedMealSessionKey(mealSessionId));
     }
   };
+  useEffect(() => {
+    console.log("selectedMealSesionkeys là", mealSessionIdKeys);
+  }, [mealSessionIdKeys]);
   return (
     <div
       className="w-[100%] min-h-[300px] max-h-[300px]  lg:min-h-[200px]   rounded-2xl shadow-lg border-none p-2 relative hover:cursor-pointer hover:shadow-2xl transition-all duration-500 "

@@ -43,7 +43,7 @@ const Order = () => {
   const [session, setSession] = useState([]);
   const [area, setArea] = useState([]);
   const [chef, setChef] = useState([]);
-
+  const [newData, setNewData] = useState([]);
   const [selectedDate, setSelectedDate] = useState(
     dayjs().format("DD-MM-YYYY")
   );
@@ -141,6 +141,14 @@ const Order = () => {
           text: "Paid",
           value: "PAID",
         },
+        {
+          text: "Accept",
+          value: "ACCEPTED",
+        },
+        {
+          text: "Ready",
+          value: "READY",
+        },
       ],
       onFilter: (value, record) => record.status.toUpperCase().includes(value),
     },
@@ -150,6 +158,7 @@ const Order = () => {
     getAllOrder()
       .then((res) => {
         setData(res.slice().reverse());
+        setNewData(res.slice().reverse());
         setLoading(false);
       })
       .catch((error) => console.log(error));
@@ -161,9 +170,15 @@ const Order = () => {
     navigate(`/${direction.dashboard}/${direction.order}/${id}`);
   };
   const resetFilter = () => {
-    setFilteredData();
-    setGenderSelected();
-    setSelectedDateRange();
+    setAreaIdValue(null);
+    setSessionIdValue(null);
+    setChefIdValue(null);
+    fetchAllSession();
+    getAllOrder()
+      .then((res) => {
+        setNewData(res.slice().reverse());
+      })
+      .catch((error) => console.log(error));
   };
   const onSelectChange = (selectedRowKeys, selectedRows) => {
     setSelectedRowKeys(selectedRowKeys);
@@ -195,7 +210,7 @@ const Order = () => {
   };
   const content2 = (
     <Form
-      className="min-w-[300px] grid gap-5"
+      className="min-w-[400px] grid gap-5"
       name="filterForm"
       // onFinish={onFinish}
     >
@@ -211,7 +226,7 @@ const Order = () => {
                 value: item.sessionId,
                 label: item.sessionName,
               }))}
-              value={setSessionIdValue}
+              value={sessionIdValue}
               onChange={setSessionIdValue}
             ></Select>
           </div>
@@ -230,7 +245,7 @@ const Order = () => {
                 label: item.areaName,
               }))}
               value={areaIdValue}
-              onChange={(value) => setGenderSelected(value)}
+              onChange={(value) => setAreaIdValue(value)}
             ></Select>
           </div>
         </div>
@@ -244,8 +259,8 @@ const Order = () => {
             <Select
               className="w-full"
               options={chef.map((item) => ({
-                value: item.areaId,
-                label: item.areaName,
+                value: item.kitchenId,
+                label: item.name,
               }))}
               value={chefIdValue}
               onChange={setChefIdValue}
@@ -256,15 +271,17 @@ const Order = () => {
       <Form.Item>
         <div className="w-full flex justify-end gap-2">
           <Button onClick={resetFilter}>Reset</Button>
-          <Button htmlType="submit">Filter</Button>
         </div>
       </Form.Item>
     </Form>
   );
   const fetchAllSession = () => {
     getAllSession().then((res) => {
-      console.log("session", res);
-      setSession(res);
+      setSession(
+        res?.filter((item) => {
+          return item.endDate === selectedDate;
+        })
+      );
     });
   };
   const fetchAllArea = () => {
@@ -277,24 +294,49 @@ const Order = () => {
       setChef(res);
     });
   };
-  useEffect(() => {}, [
-    search,
-    selectedDate,
-    sessionIdValue,
-    chefIdValue,
-    areaIdValue,
-  ]);
+  useEffect(() => {
+    let fillteredArray = data;
+    if (selectedDate) {
+      fillteredArray = fillteredArray.filter((item) => {
+        return item.time?.split(" ")[0].includes(selectedDate);
+      });
+    }
+    if (search) {
+      fillteredArray = fillteredArray.filter((item) => {
+        return item.customerDto1?.phone.includes(search);
+      });
+    }
+    if (sessionIdValue) {
+      console.log("SessionIdValue", sessionIdValue);
+      fillteredArray = fillteredArray.filter((item) => {
+        return item.mealSessionDto1?.sessionDto1?.sessionId === sessionIdValue;
+      });
+    }
+    if (areaIdValue) {
+      console.log("areaIdValue", areaIdValue);
+      fillteredArray = fillteredArray.filter((item) => {
+        console.log(item.mealSessionDto1?.mealDto1?.kitchenDto1?.areaId);
+        return (
+          item.mealSessionDto1?.mealDto1?.kitchenDto1?.areaId === areaIdValue
+        );
+      });
+    }
+    if (chefIdValue) {
+      console.log("chefIdvalue", chefIdValue);
+      fillteredArray = fillteredArray.filter((item) => {
+        return (
+          item.mealSessionDto1?.mealDto1?.kitchenDto1?.kitchenId === chefIdValue
+        );
+      });
+    }
+    setNewData(fillteredArray);
+    fetchAllSession();
+  }, [search, selectedDate, sessionIdValue, chefIdValue, areaIdValue]);
   useEffect(() => {
     fetchAllSession();
     fetchAllArea();
     fetchAllChef();
   }, []);
-  const newData = data?.filter((item) => {
-    if (search) {
-      // Check if the phone number exists and includes the search string
-      return item.customerDto1?.phone.includes(search);
-    }
-  });
   return (
     <div className="w-full h-full p-4 rounded-lg">
       <div className="account-search h-[10%] flex items-center  justify-end mb-3">
@@ -359,7 +401,8 @@ const Order = () => {
             }}
           >
             <Table
-              dataSource={search ? newData : data}
+              // dataSource={search ? newData : data}
+              dataSource={newData}
               columns={columns}
               loading={loading}
               pagination={{ pageSize: 5 }}
