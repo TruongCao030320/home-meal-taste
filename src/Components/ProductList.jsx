@@ -71,8 +71,8 @@ const ProductList = () => {
     mealSessionIds: [],
     status: "",
   });
-  const [selectedRowIsActive, setSelectedRowIsActive] = useState(false);
   const [search, setSearch] = useState("");
+  const [selectedRowIsActive, setSelectedRowIsActive] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
   const [firstValueObject, setFirstValueObject] = useState({});

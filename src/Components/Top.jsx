@@ -189,7 +189,9 @@ const Top = () => {
             className="p-1 rounded-full w-[50%]"
           >
             <img
-              src={avt}
+              src={
+                "https://homemealtaste.blob.core.windows.net/video/78c9aa54-8428-44a6-9106-0784becac25d.jpg?fbclid=IwAR3d9ZbfBhTqe2sKtiSshmxA66JkwtTkGoz7TsXd7C_UJdAVkd3KY64zRI4"
+              }
               className="rounded-full w-[20%] h-[100%] border border-solid cursor-pointer box__shadow  "
             ></img>
           </Popover>

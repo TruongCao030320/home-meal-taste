@@ -203,6 +203,9 @@ const ManageMealSessionInKitchen = () => {
             </h1>
             <p>Create At :{record.createDate}</p>
             <p>{record.mealDtoForMealSession?.description}</p>
+            <p>
+              Remain Slot : {record.remainQuantity}/{record.quantity}
+            </p>
           </div>
           <div>
             <Tag

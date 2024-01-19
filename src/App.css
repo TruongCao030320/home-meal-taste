@@ -80,7 +80,7 @@ body {
   box-shadow: 2px 5px 5px rgba(3, 74, 180, 0.692);
 }
 .logo {
-  background-image: url("./assets/images/foodLogo.png");
+  /* background-image: url("https://homemealtaste.blob.core.windows.net/video/ced7bef9-7a19-4b55-a922-bd40167adec4.jpg?fbclid=IwAR3uYZ6tMaLYwvpGV48U_ip9wlboeyC1LHzj9TIM9S2BYQ2Ya6y48W29ez0"); */
   background-size: cover;
 }
 .custom-row {

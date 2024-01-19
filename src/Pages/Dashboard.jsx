@@ -26,24 +26,12 @@ const Dashboard = () => {
     <div className=" mainContainer no-scrollbarflex w-full">
       <Layout className="lg:w-full md:w-full bg-white">
         <Sider className="lg:!w-[50%] lg:!bg-white md:hidden hidden !bg-white rounded-lg md:!bg-white lg:block lg:px-2   md:!justify-center md:relative">
-          <Header
-            className="hidden md:hidden lg:block"
-            style={{
-              padding: 0,
-              backgroundColor: "white",
-              backgroundImage: "url('../assets/images/foodLogo.png')",
-            }}
-          >
-            <div
-              className="w-full logo flex justify-center items-center h-full rounded-lg"
-              style={{
-                backgroundColor: "white ",
-              }}
-            >
-              <div className="font-semibold text-bgBtnColor w-full flex flex-col h-full justify-center items-center">
-                <div className="font-festive text-xl">Home Meal </div>
-                <div className="font-festive leading-3 text-xl">Taste</div>
+          <Header className="hidden md:hidden  lg:border lg:border-colorBg lg:rounded-lg lg:shadow-lg lg:bg-white lg:flex lg:flex-col">
+            <div className="font-semibold text-bgBtnColor  w-full flex flex-col h-full justify-center items-center">
+              <div className="font-festive text-2xl flex flex-row gap-2">
+                <span>Home</span> <span>Meal</span>{" "}
               </div>
+              <div className="font-festive leading-3 text-2xl">Taste</div>
             </div>
           </Header>
           <Content className="mt-4 md:hidden lg:flex hidden w-full">

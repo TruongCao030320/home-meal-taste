@@ -111,7 +111,7 @@ const AreaCard = ({ area }) => {
                 status.includes("FINISHED") ? "text-black" : "text-[#A285EE]"
               }  font-bold text-xs`}
             >
-              {areaName}
+              {areaName} #{sessionAreaId}
             </h1>
           </div>
         </div>

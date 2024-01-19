@@ -41,6 +41,7 @@ import { showDrawer } from "../redux/ToggleDrawerMealSlice.js";
 import CustomDrawer from "./MealDrawer";
 import { Background } from "victory";
 import { formatMoney } from "../API/Money.js";
+import { toast } from "react-toastify";
 const normalizeString = (str) => {
   return str
     .toLowerCase()
@@ -48,12 +49,16 @@ const normalizeString = (str) => {
     .replace(/[\u0300-\u036f]/g, "");
 };
 const ExpandedContent = ({ mealSessionId }) => {
-  console.log("mealsessionid", mealSessionId);
+  // console.log("mealsessionid", mealSessionId);
   const [drawerData, setDrawerData] = useState({});
   const refresh = useSelector((state) => state.mealDrawer.refresh);
   const [search, setSearch] = useState("");
   const [newData, setNewData] = useState([]);
   const [data, setData] = useState([]);
+  const [selectedRowIsActive, setSelectedRowIsActive] = useState(false);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [firstValueObject, setFirstValueObject] = useState({});
   const dispatch = useDispatch();
   const [totalPriceInEveryMealSession, setTotalPriceInEveryMealSession] =
     useState();
@@ -61,6 +66,59 @@ const ExpandedContent = ({ mealSessionId }) => {
   const [selectedDate, setSelectedDate] = useState(
     dayjs().format(dateFormatList[2])
   );
+  const fetchOrderByMealSessionId = () => {
+    getAllOrderByMealSessionId(mealSessionId).then((res) => {
+      setData(res);
+      setNewData(
+        res.filter((item) => {
+          return item.time.includes(selectedDate);
+        })
+      );
+    });
+  };
+  const onHandleCancelOrder = (value) => {
+    setLoading(true);
+    cancelOrder(selectedRowKeys)
+      .then((res) => {
+        toast.success("Cancel Order Completed.");
+        fetchOrderByMealSessionId();
+      })
+      .catch(() => {
+        toast.warning("Can Not Cancel Order");
+      })
+      .finally(() => {
+        setSelectedRows([]);
+        setSelectedRowKeys([]);
+        setFirstValueObject({});
+        setLoading(false);
+      });
+  };
+  const onSelectChange = (selectedRowKeys, selectedRows) => {
+    setSelectedRowKeys(selectedRowKeys);
+    if (selectedRows.length > 0) {
+      const firstValueObject = selectedRows[0];
+      setFirstValueObject(firstValueObject);
+      setSelectedRows(selectedRows);
+      setSelectedRowIsActive(true);
+      if (
+        selectedRows.some((item) => item.status !== firstValueObject.status)
+      ) {
+        setSelectedRowIsActive(false);
+      }
+    } else {
+      setFirstValueObject(null);
+      setSelectedRows([]);
+      setSelectedRowKeys([]);
+      setSelectedRowIsActive(false);
+    }
+  };
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+    getCheckboxProps: (record) => ({
+      disabled: record.status === "COMPLETED" || record.status === "CANCELLED",
+    }),
+  };
   const detailColumns = [
     {
       title: "Order ID",
@@ -118,7 +176,7 @@ const ExpandedContent = ({ mealSessionId }) => {
             size="middle"
             className=" hover:border-gray-600 flex flex-col  w-[150px]"
           >
-            <h1>{formattedPrice} VND</h1>
+            <h1>{formatMoney(record.totalPrice)} VND</h1>
             {/* <div className="flex justify-between w-[50px] items-center ">
               <AiTwotoneEdit
                 size={20}
@@ -143,45 +201,40 @@ const ExpandedContent = ({ mealSessionId }) => {
       ),
     },
     {
-      title: "Status",
+      title: selectedRowIsActive ? (
+        <Select
+          className="min-w-[110px]"
+          value={record.status}
+          options={[
+            {
+              label: "Completed",
+              value: "COMPLETED",
+            },
+            {
+              label: "Cancel",
+              value: "CANCELLED",
+            },
+          ]}
+          onChange={onHandleCancelOrder}
+        ></Select>
+      ) : (
+        "Status"
+      ),
       dataIndex: "totalPrice",
       render: (_, record) => (
         <div className="flex  justify-between items-center">
-          {/* <div>
-            <Tag
-              className="p-2"
-              color={record.status.includes("CANCELLED") ? "error" : "green"}
-            >
-              {record.status}
-            </Tag>
-          </div>
-          <div> */}
-          {/* <Tag
-            className="p-2 shadow-md min-w-[100px] text-center"
+          <Tag
             color={`${
-              record.status.includes("PAID")
-                ? "blue"
-                : record.status.includes("COMPLETED")
+              record.status === "COMPLETED"
                 ? "green"
-                : "red"
+                : record.status === "CANCELLED"
+                ? "gray"
+                : "blue"
             }`}
+            className="p-2 rounded-xl"
           >
-            <span className="font-bold">{record.status}</span>
-          </Tag> */}
-          <Select
-            className="min-w-[110px]"
-            value={record.status}
-            options={[
-              {
-                label: "Completed",
-                value: "COMPLETED",
-              },
-              {
-                label: "Cancel",
-                value: "CANCELLED",
-              },
-            ]}
-          ></Select>
+            {record.status}
+          </Tag>
         </div>
         // </div>
       ),
@@ -204,16 +257,7 @@ const ExpandedContent = ({ mealSessionId }) => {
       return;
     }
   };
-  const fetchOrderByMealSessionId = () => {
-    getAllOrderByMealSessionId(mealSessionId).then((res) => {
-      setData(res);
-      setNewData(
-        res.filter((item) => {
-          return item.time.includes(selectedDate);
-        })
-      );
-    });
-  };
+
   const fetchTotalPriceEveryMealSession = () => {
     getTotalPriceInEveryMealSession(mealSessionId).then((res) => {
       setTotalPriceInEveryMealSession(res);
@@ -309,6 +353,8 @@ const ExpandedContent = ({ mealSessionId }) => {
           columns={detailColumns}
           dataSource={data}
           pagination={{ pageSize: 5 }}
+          rowSelection={rowSelection}
+          rowKey={(item) => item.mealSessionId}
           footer={(record, index) => {
             return (
               <div className=" h-10 flex justify-end text-red-500 text-xl font-bold">
