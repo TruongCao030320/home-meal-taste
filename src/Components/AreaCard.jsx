@@ -17,6 +17,7 @@ import { setCurrentArea } from "../redux/directionSlice";
 import { direction } from "../API/Direction";
 import { Checkbox, Tag } from "antd";
 import { LuChefHat } from "react-icons/lu";
+import { PiNewspaperClipping } from "react-icons/pi";
 import {
   removeSelectedKey,
   resetAreaKey,
@@ -38,6 +39,7 @@ const AreaCard = ({ area }) => {
     totalMealSessions,
     totalOrders,
     totalChefs,
+    sessionAreaId,
   } = area || {};
   // const { areaId, address, areaName } = area?.areaDtoForSessionArea || {};
   //   const onHandleNavigateToAreaDetail = () => {
@@ -48,23 +50,31 @@ const AreaCard = ({ area }) => {
   const onHandleNavigateToAreaDetail = () => {
     dispatch(setCurrentArea(areaId));
     localStorage.setItem("areaId", areaId);
-    navigate(`${direction.manageChefInArea}/${areaId}`, {
-      areaId: areaId,
+    console.log("SessionAreaId truyền đi là", sessionAreaId);
+    navigate(`${direction.manageChefInArea}/${sessionAreaId}`, {
+      sessionAreaId: sessionAreaId,
     });
   };
   const onCheck = (e) => {
     e.stopPropagation();
     console.log(e.target.checked);
     if (e.target.checked) {
-      dispatch(setSelectedKey(areaId));
-      console.log("có chạy checked là areaId lúc này truyền đi là", areaId);
+      dispatch(setSelectedKey(sessionAreaId));
+      console.log(
+        "có chạy checked là areaId lúc này truyền đi là",
+        e.target.checked
+      );
     } else {
-      dispatch(removeSelectedKey(areaId));
+      dispatch(removeSelectedKey(sessionAreaId));
+      console.log(
+        "có chạy checked là areaId lúc này truyền đi là",
+        e.target.checked
+      );
     }
   };
   const onHandleCheck = () => {
     const newArray = areaKeys.flat();
-    const isChecked = newArray.includes(areaId);
+    const isChecked = newArray.includes(sessionAreaId);
     setCheck(isChecked);
   };
   useEffect(() => {
@@ -79,65 +89,78 @@ const AreaCard = ({ area }) => {
   }, []);
   return (
     <div
-      className="w-[100%] h-[150px] bg-white rounded-2xl shadow-lg border-none p-2 relative hover:cursor-pointer hover:shadow-2xl transition-all duration-500"
+      className=" w-[90%] h-[150px] bg-white rounded-2xl shadow-lg border-none  relative hover:cursor-pointer hover:shadow-2xl transition-all duration-500"
       onClick={onHandleNavigateToAreaDetail}
     >
-      <div
-        className={`w-full flex flex-col justify-center items-center ${
-          status.includes("FINISHED") ? "bg-[#F6FFED] border" : ""
-        } bg-[#F1ECFF] rounded-lg`}
-      >
-        <div className="flex flex-row relative">
-          <Checkbox onClick={onCheck} checked={check}></Checkbox>
-          <h1
-            className={`p-2 rounded-lg  ${
-              status.includes("FINISHED") ? "text-black" : "text-[#A285EE]"
-            }  font-bold text-xs`}
-          >
-            {areaName}
-          </h1>
-        </div>
-      </div>
-      <div className="w-full flex justify-center items-center">
-        <p>{address}</p>
-      </div>
-      <div className="w-full flex flex-row justify-around items-center absolute bottom-2">
-        <Tag
-          color={
-            status.includes("OPEN")
-              ? "blue"
-              : status.includes("CANCELLED")
-              ? "red"
-              : "green"
-          }
-          className="px-4"
+      <div className="p-2">
+        <div
+          className={`w-full flex flex-col justify-center items-center ${
+            status.includes("FINISHED") ? "bg-[#F6FFED] border" : ""
+          } bg-[#F1ECFF] rounded-lg`}
         >
-          {status}
-        </Tag>
-        <div className="flex flex-row justify-center items-center">
-          {/* <FontAwesomeIcon icon={faUtensils} color="#FFD44E" className="mx-2" /> */}
-          <LuChefHat color="#FFD44E" className="mx-2" />
-          {totalChefs}
+          <div className="flex flex-row relative">
+            <Checkbox
+              onClick={onCheck}
+              checked={check}
+              disabled={
+                status === "FINISHED" || status === "CANCELLED" ? true : false
+              }
+            ></Checkbox>
+            <h1
+              className={`p-2 rounded-lg  ${
+                status.includes("FINISHED") ? "text-black" : "text-[#A285EE]"
+              }  font-bold text-xs`}
+            >
+              {areaName}
+            </h1>
+          </div>
         </div>
-        <div>
-          <FontAwesomeIcon
-            icon={faNewspaper}
-            color="#FFD44E"
-            className="mx-2"
-          />
-
-          {totalOrders}
+        <div className="w-full flex justify-center items-center">
+          <p>{address}</p>
         </div>
-        <div>
-          <FontAwesomeIcon
-            icon={faPlateWheat}
-            color="#FFD44E"
-            className="mx-2"
-          />
+        <div className="w-full flex flex-row justify-around items-center mt-4">
+          <div className="flex flex-row justify-center items-center">
+            {/* <FontAwesomeIcon icon={faUtensils} color="#FFD44E" className="mx-2" /> */}
+            <LuChefHat color="#FFD44E" className="mx-2" />
+            {totalChefs}
+          </div>
+          <div className="flex flex-row justify-center items-center">
+            {/* <FontAwesomeIcon
+              icon={faNewspaper}
+              color="#FFD44E"
+              className="mx-2"
+            /> */}
+            <PiNewspaperClipping
+              className="mx-2"
+              color="#FFD44E"
+              fontSize={20}
+            />
+            {totalOrders}
+          </div>
+          <div>
+            <FontAwesomeIcon
+              icon={faPlateWheat}
+              color="#FFD44E"
+              className="mx-2"
+            />
 
-          {totalMealSessions}
+            {totalMealSessions}
+          </div>
         </div>
       </div>
+
+      <Tag
+        color={
+          status.includes("OPEN")
+            ? "blue"
+            : status.includes("CANCELLED")
+            ? "red"
+            : "green"
+        }
+        className="p-2 text-xs w-full absolute bottom-0 rounded-b-2xl text-center font-bold border-none"
+      >
+        {status}
+      </Tag>
     </div>
   );
 };

@@ -93,11 +93,10 @@ const Session = () => {
   const [firstValueObject, setFirstValueObject] = useState({});
   const [isActiveSelect, setIsActiveSelect] = useState(false);
   const [selectedRowIsActive, setSelectedRowIsActive] = useState(false);
-
-  // const [selectedDate, setSelectedDate] = useState(
-  //   dayjs().format(dateFormatList[2])
-  // );
-  const [selectedDate, setSelectedDate] = useState();
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(
+    dayjs().format(dateFormatList[2])
+  );
 
   // function section
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
@@ -144,8 +143,16 @@ const Session = () => {
     setLoading(true);
     getAllSession()
       .then((sessionData) => {
-        console.log(sessionData);
+        // console.log(sessionData);
         setSession(sessionData.slice().reverse());
+        setNewData(
+          sessionData
+            .slice()
+            .reverse()
+            .filter((item) => {
+              return item.endDate.includes(selectedDate);
+            })
+        );
       })
       .catch((error) => console.log(error))
       .finally(() => {
@@ -174,6 +181,89 @@ const Session = () => {
     updateSessionStatus();
     setShowAddForm(false);
   };
+  const SelectComponent = ({ record }) => (
+    <Select
+      className="min-w-[120px]"
+      options={[
+        {
+          value: "OPEN",
+          label: (
+            <div className="flex flex-row justify-start items-center gap-2">
+              <FontAwesomeIcon icon={faCircle} fontSize={8} color="blue" />
+              <span className="text-blue-500 font-bold">Open</span>
+            </div>
+          ),
+        },
+        {
+          value: "BOOKING",
+          label: (
+            <div className="flex flex-row justify-start items-center gap-2">
+              <FontAwesomeIcon icon={faCircle} fontSize={8} color="yellow" />
+              <span className="text-yellow-500 font-bold">Booking</span>
+            </div>
+          ),
+        },
+        {
+          value: "ONGOING",
+          label: (
+            <div
+              className={`flex flex-row justify-start items-center gap-2 font-bold`}
+            >
+              <FontAwesomeIcon icon={faCircle} fontSize={8} color="green" />
+              <span
+                className={`text-green-500 font-bold ${
+                  record?.status === "OPEN" ? "line-through" : ""
+                }`}
+              >
+                On Going
+              </span>
+            </div>
+          ),
+          disabled: record?.status === "OPEN" ? true : false,
+        },
+        {
+          value: "CLOSED",
+          label: (
+            <div
+              className={`flex flex-row justify-start items-center gap-2 font-bold  ${
+                record.status === "OPEN" ? "line-through" : ""
+              }`}
+            >
+              <FontAwesomeIcon icon={faCircle} fontSize={8} color="grey" />
+              <span className="text-gray-500 font-bold">Closed</span>
+            </div>
+          ),
+          disabled: record.status === "OPEN",
+        },
+        {
+          value: "CANCELLED",
+          label: (
+            <div className="flex flex-row justify-start items-center gap-2">
+              <FontAwesomeIcon icon={faCircle} fontSize={8} color="red" />
+              <span className="text-red-500 font-bold">Cancelled</span>
+            </div>
+          ),
+        },
+      ]}
+      value={record.status}
+      disabled={
+        record.status === "CLOSED" || record.status === "CANCELLED"
+          ? true
+          : false
+      }
+      onChange={(value) => {
+        console.log("value khi select là", value);
+        onHandleChangeStatusMultiSession(record.sessionId, value);
+        // updateSessionStatus(record.sessionId, value);
+        // console.log("record sessionId", record?.sessionId);
+      }}
+      formatOptionLabel={(option) => (
+        <div style={{ textTransform: "uppercase", color: "red" }}>
+          {option.label}
+        </div>
+      )}
+    ></Select>
+  );
 
   // end function section
   // useeffect section
@@ -187,7 +277,6 @@ const Session = () => {
   }, [sessionIdIsChange]);
   useEffect(() => {
     fetchAllSession();
-    setSelectedRowKeys([]);
     setIsModalOpen(false);
   }, [refresh]);
   // useEffect(() => {
@@ -205,38 +294,80 @@ const Session = () => {
       }
     );
   };
-  const onHandleChangeStatusMultiSession = async (value, record) => {
-    setSelectedRowKeys([...selectedRowKeys, record?.sessionId]);
-    console.log("vào đây", value, record?.sessionId);
+  const onHandleChangeStatusMultiSession = async (sessionId, value) => {
+    // setSelectedRowKeys([...selectedRowKeys, record?.sessionId]);
     switch (value) {
       case "OPEN":
-        updateSessionStatus(value, false);
+        patchSessionStatus(sessionId, value)
+          .then((res) => {
+            fetchAllSession();
+            toast.success("Session Open Completed.");
+          })
+          .catch((error) => toast.error(`Can Not Return To Open Status!`))
+          .finally(() => {
+            setLoading(false);
+            setSelectedRowKeys([]);
+            setFirstValueObject(null);
+          });
         break;
       case "BOOKING":
-        updateSessionStatus(value, false);
+        updateSessionStatus(sessionId, value, false);
         break;
       case "ONGOING":
-        updateSessionStatus(value, false);
+        updateSessionStatus(sessionId, value, false);
+        break;
+      case "CANCELLED":
+        updateSessionStatus(sessionId, value, false);
+        break;
+      case "CLOSED":
+        patchSessionStatus(sessionId, value)
+          .then((res) => {
+            fetchAllSession();
+            toast.success("Session Is Closed.");
+          })
+          .catch((error) =>
+            toast.error(
+              `Can Not Close  Session ! Because Area In Session Still Open`
+            )
+          )
+          .finally(() => {
+            setLoading(false);
+            setSelectedRowKeys([]);
+            setFirstValueObject(null);
+          });
+        break;
       default:
         break;
     }
   };
-  const onHandleSelectRowOrMultiRow = (record) => {
-    // setFirstValueObject(record);
-    if (selectedRowKeys.length == 0) {
-      setSelectedRowKeys([record.sessionId]);
-    }
-  };
-  const updateSessionStatus = async (value, auto) => {
-    console.log("Selected row keys lúc này là", selectedRowKeys);
+  // const onHandleSelectRowOrMultiRow = (record) => {
+  //   // setFirstValueObject(record);
+  //   if (selectedRowKeys.find((item) => item == record?.sessionId)) {
+  //     if (
+  //       firstValueObject.status?.toUpperCase.includes(
+  //         record.status?.toUpperCase()
+  //       )
+  //     ) {
+  //       setSelectedRowIsActive(true);
+  //     } else {
+  //       setSelectedRowIsActive(false);
+  //     }
+  //   } else {
+  //     setSelectedRowKeys([value]);
+  //   }
+  // };
+  const updateSessionStatus = async (sessionId, value) => {
+    console.log("Sessionid và value khi lấy đc là", sessionId, value);
     setLoading(true);
-    patchSessionStatus(selectedRowKeys, value, auto)
+    patchSessionStatus(sessionId, value)
       .then((res) => {
         fetchAllSession();
         toast.success("Modified Status Completed.");
       })
       .catch((error) =>
-        toast.error(`Can Not Modified  Session ! Because It Already Over !`)
+        toast.error(
+          `Can Not Close  Session ! Because Area In Session Still Open`
+        )
       )
       .finally(() => {
         setLoading(false);
@@ -244,44 +375,24 @@ const Session = () => {
         setFirstValueObject(null);
       });
   };
-
   const onSelectChange = (selectedRowKeys, selectedRows) => {
     setSelectedRowKeys(selectedRowKeys);
     setFirstValueObject(selectedRows[0]);
-    // console.log(
-    //   "Các row đc chọn có status",
-    //   selectedRows.map((item) => {
-    //     return item.status;
-    //   })
-    // );
-    // setFirstValueObject(selectedRows[0]);
-
-    // if (newSelectedRowKeys.length > 0) {
-    // setSelectedRowIsActive(false);
-    // }
-    // setValues({ ...values, mealSessionIds: newSelectedRowKeys });
-    setSelectedRowKeys(selectedRowKeys);
-    if (selectedRows.length > 0) {
-      setSelectedRowIsActive(false); // Change 'attribute' to the actual attribute you're checking
-      if (firstValueObject) {
-        if (
-          selectedRows.some((row) => row.status !== firstValueObject?.status)
-        ) {
-          setSelectedRowIsActive(true);
-        }
-      } else {
-        setSelectedRowIsActive(false);
-      }
-    } else {
+    setSelectedRows(selectedRows);
+    setSelectedRowIsActive(true);
+    if (selectedRowKeys.length == 0) {
       setSelectedRowIsActive(false);
     }
+    // if (
+    //   selectedRows.find((item) => item?.status !== firstValueObject?.status)
+    // ) {
+    //   setSelectedRowIsActive(false);
+    // }
   };
   const rowSelection = {
     selectedRowKeys,
-    // onChange: onSelectChange,
     onChange: onSelectChange,
   };
-
   const columns = [
     {
       title: "ID",
@@ -308,249 +419,78 @@ const Session = () => {
           value: "Dinner",
         },
       ],
-      onFilter: (value, record) => record.sessionType.startsWith(value),
+      onFilter: (value, record) => record.sessionType?.startsWith(value),
     },
     {
+      // title: selectedRowIsActive ? <SelectComponent /> : "Status",
       title: "Status",
       key: "status",
       render: (_, record, index) => {
-        const status = record.status === true ? "Inactive" : "Active";
+        const status = record.status.toLowerCase();
+        const capitalizedStatus =
+          status.charAt(0).toUpperCase() + status.slice(1);
         return (
-          <div className="min-w-[150px]">
-            {/* <Tag
-              color="green"
-              className="shadow-sm hover:cursor-pointer hover:opacity-40 py-2 px-6 flex flex-row justify-between items-center"
-              onClick={() => {
-                onHandleOpenOffConfirmForm(record);
-              }}
-            > */}
-            {/* <p className="font-bold mr-2">{status}</p> */}
-            <Select
-              className="min-w-[120px]"
-              disabled={
-                record.status === "CLOSED" || record.status === "CANCELLED"
-                  ? true
-                  : false
-              }
-              options={[
-                {
-                  value: "OPEN",
-                  label: (
-                    <div className="flex flex-row justify-start items-center gap-2">
-                      <FontAwesomeIcon
-                        icon={faCircle}
-                        fontSize={8}
-                        color="blue"
-                      />
-                      <span className="text-blue-500 font-bold">Open</span>
-                    </div>
-                  ),
-                },
-                {
-                  value: "BOOKING",
-                  label: (
-                    <div className="flex flex-row justify-start items-center gap-2">
-                      <FontAwesomeIcon
-                        icon={faCircle}
-                        fontSize={8}
-                        color="yellow"
-                      />
-                      <span className="text-yellow-500 font-bold">Booking</span>
-                    </div>
-                  ),
-                },
-                {
-                  value: "ONGOING",
-                  label: (
-                    <div
-                      className={`flex flex-row justify-start items-center gap-2 font-bold ${
-                        record.status === "OPEN" ? "line-through" : ""
-                      }`}
-                    >
-                      <FontAwesomeIcon
-                        icon={faCircle}
-                        fontSize={8}
-                        color="green"
-                      />
-                      <span className="text-green-500 font-bold">On Going</span>
-                    </div>
-                  ),
-                  disabled: record.status === "OPEN" ? true : false,
-                },
-                {
-                  value: "CLOSED",
-                  label: (
-                    <div
-                      className={`flex flex-row justify-start items-center gap-2 font-bold ${
-                        record.status === "BOOKING" || record.status === "OPEN"
-                          ? "line-through"
-                          : ""
-                      }`}
-                    >
-                      <FontAwesomeIcon
-                        icon={faCircle}
-                        fontSize={8}
-                        color="grey"
-                      />
-                      <span className="text-gray-500 font-bold">Closed</span>
-                    </div>
-                  ),
-                  disabled:
-                    record.status === "BOOKING" || record.status === "OPEN"
-                      ? true
-                      : false,
-                },
-                {
-                  value: "CANCELLED",
-                  label: (
-                    <div className="flex flex-row justify-start items-center gap-2">
-                      <FontAwesomeIcon
-                        icon={faCircle}
-                        fontSize={8}
-                        color="red"
-                      />
-                      <span className="text-red-500 font-bold">Cancelled</span>
-                    </div>
-                  ),
-                },
-              ]}
-              value={record.status}
-              // onClick={() => {
-              //   onHandleSelectRowOrMultiRow(record);
-              // }}
-              onChange={(value) => {
-                // console.log("value khi select là", value);
-                // onHandleSelectRowOrMultiRow(record);
-                onHandleChangeStatusMultiSession(value, record);
-                // console.log("record sessionId", record?.sessionId);
-              }}
-              formatOptionLabel={(option) => (
-                <div style={{ textTransform: "uppercase", color: "red" }}>
-                  {option.label}
-                </div>
-              )}
-            ></Select>
-            {/* <FontAwesomeIcon
-              icon={faCircle}
-              fontSize={8}
-              color="green"
-              className="animate-pulse"
-            ></FontAwesomeIcon> */}
-          </div>
+          // <Tag
+          //   className="flex flex-row justify-start items-center gap-2 p-2 max-w-[90px]"
+          //   color={`${
+          //     record.status.includes("OPEN")
+          //       ? "blue"
+          //       : record.status.includes("BOOKING")
+          //       ? "yellow"
+          //       : record.status.includes("ONGOING")
+          //       ? "green"
+          //       : record.status.includes("CLOSED")
+          //       ? "gray"
+          //       : "red"
+          //   }`}
+          // >
+          //   <FontAwesomeIcon
+          //     icon={faCircle}
+          //     fontSize={8}
+          //     color={`${
+          //       record.status.includes("OPEN")
+          //         ? "blue"
+          //         : record.status.includes("BOOKING")
+          //         ? "yellow"
+          //         : record.status.includes("ONGOING")
+          //         ? "green"
+          //         : record.status.includes("CLOSED")
+          //         ? "gray"
+          //         : "red"
+          //     }`}
+          //   />
+          //   <span
+          //     className={` font-bold ${
+          //       record.status.includes("OPEN")
+          //         ? "text-blue-500"
+          //         : record.status.includes("BOOKING")
+          //         ? "text-yellow-300"
+          //         : record.status.includes("ONGOING")
+          //         ? "text-green-300"
+          //         : record.status.includes("CLOSED")
+          //         ? "text-gray-300"
+          //         : "text-red-300"
+          //     }`}
+          //   >
+          //     {record.status.toUpperCase().includes("ONGOING")
+          //       ? "On Going"
+          //       : capitalizedStatus}
+          //   </span>
+          // </Tag>
+          <SelectComponent record={record} />
         );
       },
       filters: [
-        { text: "ON", value: true },
-        { text: "OFF", value: false },
+        { text: "OPEN", value: "OPEN" },
+        { text: "BOOKING", value: "BOOKING" },
+        { text: "ON GOING", value: "ONGOING" },
+        { text: "COMPLETED", value: "COMPLETED" },
+        { text: "CANCELLED", value: "CANCELLED" },
       ],
       // defaultFilteredValue: ["true"],
-      // onFilter: (value, record) => record.status === value,
+      onFilter: (value, record) => record.status.includes(value),
     },
-    // {
-    //   title: "Is Active",
-    //   key: "status",
-    //   render: (_, record, index) => {
-    //     const status = record.status === true ? "Inactive" : "Active";
-    //     return (
-    //       <div>
-    //         {record.status === true ? (
-    //           <Tag
-    //             color="green"
-    //             className="shadow-sm hover:cursor-pointer hover:opacity-40 py-2 px-6 flex flex-row justify-between items-center"
-    //             onClick={() => {
-    //               onHandleOpenOffConfirmForm(record);
-    //             }}
-    //           >
-    //             <p className="font-bold mr-2">{status}</p>
-    //             <FontAwesomeIcon
-    //               icon={faCircle}
-    //               fontSize={8}
-    //               color="green"
-    //               className="animate-pulse"
-    //             ></FontAwesomeIcon>
-    //           </Tag>
-    //         ) : (
-    //           <Tag
-    //             // color="gray"
-    //             className="shadow-sm py-2 px-6 flex flex-row justify-between items-center bg-gray-400"
-    //           >
-    //             <p className="font-bold">{status}</p>
-    //             <FontAwesomeIcon
-    //               icon={faCircle}
-    //               fontSize={8}
-    //               color="gray"
-    //               className="animate-pulse"
-    //             ></FontAwesomeIcon>
-    //           </Tag>
-    //         )}
-    //       </div>
-    //     );
-    //   },
-    //   filters: [
-    //     { text: "ON", value: true },
-    //     { text: "OFF", value: false },
-    //   ],
-    //   defaultFilteredValue: ["true"],
-    //   onFilter: (value, record) => record.status === value,
-    // },
-    // {
-    //   title: "Meal Advance",
-    //   key: "registerForMealStatus",
-    //   render: (_, record, index) => {
-    //     return (
-    //       <div>
-    //         <Switch
-    //           className="bg-gray-400"
-    //           checkedChildren="On"
-    //           unCheckedChildren="Off"
-    //           disabled={selectedRowIsActive}
-    //           // defaultChecked={record.registerForMealStatus}
-    //           checked={record.registerForMealStatus}
-    //           onClick={() => onHandlePatchRegisterForMeal(record)}
-    //         />
-    //       </div>
-    //     );
-    //   },
-    //   filters: [
-    //     { text: "OPEN", value: true },
-    //     { text: "CLOSED", value: false },
-    //   ],
-    //   onFilter: (value, record) => record.registerForMealStatus === value,
-    // },
-    // {
-    //   title: "Booking Status",
-    //   key: "bookingSlotStatus",
-    //   render: (_, record, index) => {
-    //     console.log("in record", record.bookingSlotStatus);
-    //     return (
-    //       <div>
-    //         <Switch
-    //           className="bg-yellow-200"
-    //           checkedChildren="On"
-    //           unCheckedChildren="Off"
-    //           disabled={selectedRowIsActive}
-    //           // value={record.bookingSlotStatus}
-    //           // defaultChecked={record.bookingSlotStatus}
-    //           checked={record.bookingSlotStatus}
-    //           onChange={() => onHandlePatchBookingSlot(record)}
-    //         />
-    //       </div>
-    //     );
-    //   },
-    //   filters: [
-    //     { text: "OPEN", value: true },
-    //     { text: "CLOSED", value: false },
-    //   ],
-    //   onFilter: (value, record) => record.bookingSlotStatus === value,
-    // },
-    // {
-    //   title: "Off Time",
-    //   dataIndex: "session",
-    //   key: "birthDate",
-    //   render: (_, record) => (
-    //     <div className="min-w-[80px] font-bold">{record.endDate}</div>
-    //   ),
-    // },
+
     {
       title: "Start time",
       dataIndex: "session",
@@ -582,7 +522,10 @@ const Session = () => {
             color="#FFAB01"
             className="hover:text-green-500 "
             // onClick={() => onRowClick(record)}
-            onClick={() => onHandleNavigateToSessionDetail(record)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onHandleNavigateToSessionDetail(record);
+            }}
           />
           {/* <Link to="#">
             <FontAwesomeIcon
@@ -597,49 +540,16 @@ const Session = () => {
       ),
     },
   ];
-  // content section
-  const content = (
-    <div className="w-[300px]">
-      <Form>
-        <div className="flex w-full  flex-col">
-          <div className="w-[20%]">
-            <h2>Area</h2>
-          </div>
-          <Form.Item className="w-[100%] my-2">
-            <Select
-              className="w-full"
-              // defaultValue={areaValue ? areaValue : areaDefault}
-              value={areaValue}
-              options={area?.map((item, index) => ({
-                value: item.areaId,
-                label: item.areaName,
-              }))}
-              onChange={(value) => {
-                setAreaValue(value);
-              }}
-            ></Select>
-          </Form.Item>
-        </div>
-        <div className="flex w-full flex-col my-2">
-          <div className="w-[30%]">
-            <h2>Create Date</h2>
-          </div>
-          <Form.Item className="w-[100%] my-2">
-            <RangePicker onChange={(dates) => setSelectedDateRange(dates)} />
-          </Form.Item>
-        </div>
-      </Form>
-    </div>
-  );
-
   useEffect(() => {
-    setNewData(
-      session?.filter((item) => {
+    console.log("ENd date", selectedDate);
+    let filteredArray = session;
+    if (selectedDate) {
+      filteredArray = session.filter((item) => {
         return item.endDate.includes(selectedDate);
-      })
-    );
-  }, [selectedDate, session]);
-  // end content section
+      });
+    }
+    setNewData(filteredArray);
+  }, [selectedDate]);
   return (
     <div className="w-full h-full p-4">
       <CustomDrawer meal={drawerData || {}} />
@@ -664,7 +574,7 @@ const Session = () => {
         <div className="account-search flex items-center justify-end mb-5 w-[100%]  lg:flex md:gap-3 lg:w-[100%]">
           <div className="w-full flex flex-col justify-center items-center gap-2 md:flex md:w-full md:flex-row md:justify-between md:items-center">
             <DatePicker
-              // value={selectedDate}
+              defaultValue={dayjs()}
               format="DD-MM-YYYY"
               onChange={(date, dateString) => {
                 setSelectedDate(dateString);
@@ -725,10 +635,7 @@ const Session = () => {
               dataSource={selectedDate ? newData : session}
               // dataSource={session}
               rowKey={(record) => record.sessionId}
-              rowSelection={rowSelection}
-              // onRow={(record) => ({
-              //   onClick: () => onRowClick(record),
-              // })}
+              // rowSelection={rowSelection}
               rowClassName={(record, index) =>
                 `custom-row ${index % 2 === 0 ? "even-row" : "odd-row"}`
               }

@@ -34,6 +34,10 @@ import { direction } from "../../../API/Direction";
 import { useDispatch, useSelector } from "react-redux";
 import CustomDrawer from "../../../Components/MealDrawer";
 import { formatMoney } from "../../../API/Money.js";
+const datePart = (string) => {
+  const newString = string || "";
+  return newString.split(" ")[0];
+};
 const KitchenDetail = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -53,6 +57,9 @@ const KitchenDetail = () => {
   const { districtName } = kitchen?.districtDtoGetKitchen || {};
   const { email, phone, userId } = kitchen?.userDtoKitchenResponseModel || {};
   const dateFormatList = ["DD/MM/YYYY", "DD/MM/YY", "DD-MM-YYYY", "DD-MM-YY"];
+  const [newOrderData, setNewOrderData] = useState([]);
+  const [newMealSessionData, setNewMealSessionData] = useState([]);
+  const [newTransactionData, setNewTransactionData] = useState([]);
 
   const [selectedDate, setSelectedDate] = useState(
     dayjs().format(dateFormatList[2])
@@ -78,7 +85,14 @@ const KitchenDetail = () => {
       //   setKitchen(res);
       // });
       getAllDistrict().then((res) => setDistrictArray(res));
-      getOrderByKitchenId(res?.kitchenId).then((res) => setOrder(res));
+      getOrderByKitchenId(res?.kitchenId).then((res) => {
+        setOrder(res);
+        setNewOrderData(
+          res?.filter((item) => {
+            return datePart(item.time) === selectedDate;
+          })
+        );
+      });
       getAllFeedbackByKitchenId(res?.kitchenId).then((res) =>
         setFeedback(res.slice().reverse())
       );
@@ -443,6 +457,21 @@ const KitchenDetail = () => {
           <p className="font-bold">{text}</p>
         </Tag>
       ),
+      filters: [
+        {
+          text: "Total Transfer",
+          value: "TT",
+        },
+        {
+          text: "Fined",
+          value: "FINED",
+        },
+        {
+          text: "Recharge",
+          value: "RECHARGED",
+        },
+      ],
+      onFilter: (value, record) => record.transactionType === value,
     },
     {
       title: "Status",
@@ -462,13 +491,25 @@ const KitchenDetail = () => {
       key: "1",
       label: "Orders",
       children: (
-        <Table
-          columns={columns}
-          dataSource={order}
-          bordered
-          loading={loading}
-          className="overflow-x-auto"
-        ></Table>
+        <div>
+          <DatePicker
+            // value={selectedDate}
+            defaultValue={dayjs()}
+            format="DD-MM-YYYY"
+            onChange={(date, dateString) => {
+              setSelectedDate(dateString);
+            }}
+            className="box__shadow !h-[50px] my-5 w-full md:w-[30%] lg:w-[30%] md:ml-2 lg:ml-2"
+          />
+
+          <Table
+            columns={columns}
+            dataSource={newOrderData}
+            bordered
+            loading={loading}
+            className="overflow-x-auto"
+          ></Table>
+        </div>
       ),
     },
     {
@@ -476,12 +517,20 @@ const KitchenDetail = () => {
       label: "Transaction",
       children: (
         <div>
+          <DatePicker
+            // value={selectedDate}
+            defaultValue={dayjs()}
+            format="DD-MM-YYYY"
+            onChange={(date, dateString) => {
+              setSelectedDate(dateString);
+            }}
+            className="box__shadow !h-[50px] my-5 w-full md:w-[30%] lg:w-[30%] md:ml-2 lg:ml-2"
+          />
           <div>
-            <h1 className="text-red-400">RR : Receive Revenue</h1>
             <h1 className="text-red-400">TT : Total Transfer</h1>
           </div>
           <Table
-            dataSource={transaction}
+            dataSource={newTransactionData}
             columns={transactionColumns}
             className="w-full overflow-auto"
           />
@@ -504,7 +553,7 @@ const KitchenDetail = () => {
             className="box__shadow !h-[50px] my-5 w-full md:w-[30%] lg:w-[30%] md:ml-2 lg:ml-2"
           />
           <Table
-            dataSource={newData}
+            dataSource={newMealSessionData}
             columns={mealColumns}
             className="overflow-auto"
           />
@@ -544,6 +593,26 @@ const KitchenDetail = () => {
     });
   }, [selectedDate, refresh]);
 
+  useEffect(() => {
+    let filterOrder = order;
+    let filterTransaction = transaction;
+    let filterMeal = meal;
+
+    if (selectedDate) {
+      filterOrder = filterOrder?.filter((item) => {
+        return datePart(item.time) === selectedDate;
+      });
+      filterTransaction = filterTransaction?.filter((item) => {
+        return datePart(item.date) === selectedDate;
+      });
+      filterMeal = filterMeal?.filter((item) => {
+        return item.createDate === selectedDate;
+      });
+    }
+    setNewOrderData(filterOrder);
+    setNewMealSessionData(filterMeal);
+    setNewTransactionData(filterTransaction);
+  }, [selectedDate]);
   return (
     <div className="w-full h-full p-4 overflow-x-auto">
       <CustomDrawer meal={drawerData || {}} />

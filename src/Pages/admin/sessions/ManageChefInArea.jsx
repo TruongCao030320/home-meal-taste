@@ -29,6 +29,7 @@ import {
   getAllKitchenBySessionId,
   getAllKitchenInArea,
   getSingleArea,
+  getSingleSessionArea,
   getSingleSessionById,
   patchSessionStatus,
 } from "../../../API/Admin";
@@ -48,7 +49,8 @@ const normalizeString = (str) => {
     .replace(/[\u0300-\u036f]/g, "");
 };
 const ManageChefInArea = () => {
-  const { areaId } = useParams();
+  const { sessionAreaId } = useParams();
+  console.log("sessionAreaId", sessionAreaId);
   // const sessionId = useSelector((state) => state.directionSlice.currentSession);
   const sessionId = localStorage.getItem("sessionId");
   const navigate = useNavigate();
@@ -57,6 +59,7 @@ const ManageChefInArea = () => {
   const [search, setSearch] = useState("");
   const [session, setSession] = useState({});
   const [kitchens, setKitchens] = useState([]);
+  const [sessionArea, setSessionArea] = useState({});
   const [area, setArea] = useState([]);
   const [kitchen, setKitchen] = useState([]);
   const [areaName, setAreaName] = useState("");
@@ -69,32 +72,46 @@ const ManageChefInArea = () => {
   // const goToKitchenDetail = (id,userId)=>{
 
   // }
-
-  const onRowClick = (record) => {
-    navigate(`${direction.mealSessionInKitchen}/${record.kitchenId}`, {
-      kitchenId: 2,
+  const fetchSingleSessionArea = () => {
+    getSingleSessionArea(sessionAreaId).then((res) => {
+      console.log([]);
+      setSessionArea(res);
     });
+  };
+  const onRowClick = (record) => {
+    navigate(
+      `${direction.mealSessionInKitchen}/${record.kitchenDtoForSessionArea?.kitchenId}`,
+      {
+        kitchenId: record.kitchenDtoForSessionArea?.kitchenId,
+      }
+    );
   };
   const columns = [
     {
       title: "Kitchen ID",
-      dataIndex: "kitchenId",
-      render: (text) => <div className="font-bold">{text}</div>,
+      // dataIndex: "kitchenId",
+      render: (record) => (
+        <div className="font-bold">
+          {record.kitchenDtoForSessionArea?.kitchenId}
+        </div>
+      ),
     },
     {
       title: "Kitchen Name",
-      dataIndex: "name",
+      render: (record) => (
+        <div className="font-bold">{record.kitchenDtoForSessionArea?.name}</div>
+      ),
+    },
+    {
+      title: "Total Orders",
+      dataIndex: "sumOfOrder",
       render: (text) => <div className="font-bold">{text}</div>,
     },
-    // {
-    //   title: "Area",
-    //   dataIndex: "",
-    //   render: (_, record) => (
-    //     <div className="font-bold">
-    //       {record.areaDtoGetAllKitchenByAreaId?.areaName}
-    //     </div>
-    //   ),
-    // },
+    {
+      title: "Total Meal Session",
+      dataIndex: "sumOfMealSession",
+      render: (text) => <div className="font-bold">{text}</div>,
+    },
     {
       title: "Action",
       key: "action",
@@ -141,31 +158,31 @@ const ManageChefInArea = () => {
   //   });
   // };
   const fetchSingleArea = () => {
-    getSingleArea(areaId).then((res) => {
+    getSingleArea(sessionAreaId).then((res) => {
       setAreaName(res.areaName);
     });
   };
-  const fetchAllKitchenInArea = () => {
-    setLoading(true);
-    getAllKitchenInArea(areaId)
-      .then((res) => {
-        // setAreaName(res[0]?.areaDtoGetAllKitchenByAreaId?.areaName);
-        setKitchen(res);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
-  const fetchAllKitchenByAreaAndSessionId = () => {
-    setLoading(true);
-    getAllKitchenBySessionAndAreaId(areaId, sessionId)
-      .then((res) => {
-        setKitchen(res);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
+  // const fetchAllKitchenInArea = () => {
+  //   setLoading(true);
+  //   getAllKitchenInArea(areaId)
+  //     .then((res) => {
+  //       // setAreaName(res[0]?.areaDtoGetAllKitchenByAreaId?.areaName);
+  //       setKitchen(res);
+  //     })
+  //     .finally(() => {
+  //       setLoading(false);
+  //     });
+  // };
+  // const fetchAllKitchenByAreaAndSessionId = () => {
+  //   setLoading(true);
+  //   getAllKitchenBySessionAndAreaId(areaId, sessionId)
+  //     .then((res) => {
+  //       setKitchen(res);
+  //     })
+  //     .finally(() => {
+  //       setLoading(false);
+  //     });
+  // };
   // const onHandleChangeSessionStatus = () => {
   //   setLoading(true);
   //   patchSessionStatus(sessionId)
@@ -206,11 +223,12 @@ const ManageChefInArea = () => {
     // fetchSingleSessionById();
     // fetchAllKitchenInArea();
     // fetchSingleSessionById();
-    fetchSingleArea();
-    fetchAllKitchenByAreaAndSessionId();
+    // fetchSingleArea();
+    // fetchAllKitchenByAreaAndSessionId();
+    fetchSingleSessionArea();
   }, []);
   useEffect(() => {
-    fetchAllKitchenByAreaAndSessionId();
+    // fetchAllKitchenByAreaAndSessionId();
   }, [sessionId]);
   const { RangePicker } = DatePicker;
   return (
@@ -245,8 +263,9 @@ const ManageChefInArea = () => {
                 className="text-2xl m-0 p-0"
                 // onClick={onHandleNavigateToSession}
               >
-                {areaName}
+                {sessionArea?.areaDtoForSessionArea?.areaName}
               </h1>
+              <Tag className="mx-2 p-1">{sessionArea?.status}</Tag>
             </div>
           </div>
         </div>
@@ -281,7 +300,8 @@ const ManageChefInArea = () => {
               }}
             >
               <Table
-                dataSource={search ? newData : kitchen}
+                // dataSource={search ? newData : kitchen}
+                dataSource={sessionArea?.getAllKitchenByAreaIdResponseModelDto}
                 columns={columns}
                 loading={loading}
                 rowClassName={(record, index) =>

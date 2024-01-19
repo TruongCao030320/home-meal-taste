@@ -11,6 +11,9 @@ import {
   TimePicker,
   Select,
   Tag,
+  Divider,
+  ConfigProvider,
+  Table,
 } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import alternateImage from "../assets/images/buncha.png";
@@ -19,6 +22,8 @@ import { useEffect } from "react";
 import { hideDrawer, refresh } from "../redux/ToggleDrawerMealSlice.js";
 import { toast } from "react-toastify";
 import {
+  cancelOrder,
+  getAllOrderByMealSessionId,
   getDishByMealId,
   getSingleMealSessionById,
   updateStatusMealSession,
@@ -29,7 +34,14 @@ const { TextArea } = Input;
 const CustomDrawer = () => {
   const dispatch = useDispatch();
   const [meal1, setMeal1] = useState({});
-  const { price, remainQuantity, quantity, status, createDate } = meal1 || {};
+  const [loading, setLoading] = useState(false);
+  const [order, setOrder] = useState([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [firstValueObject, setFirstValueObject] = useState({});
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRowIsActive, setSelectedRowIsActive] = useState(false);
+  const { mealSessionId, price, remainQuantity, quantity, status, createDate } =
+    meal1 || {};
   const { name, image, description, mealId, dishesDtoMealSession } =
     meal1?.mealDtoForMealSessions || {};
   const { areaName } = meal1?.areaDtoForMealSessions || {};
@@ -49,30 +61,164 @@ const CustomDrawer = () => {
       setMeal1(res);
     });
   };
+  const fetchAllOrderByMealSesionId = () => {
+    getAllOrderByMealSessionId(mealsessionIDGetFromRedux).then((res) => {
+      setOrder(res);
+    });
+  };
+  const onSelectChange = (selectedRowKeys, selectedRows) => {
+    setSelectedRowKeys(selectedRowKeys);
+    if (selectedRows.length > 0) {
+      const firstValueObject = selectedRows[0];
+      setFirstValueObject(firstValueObject);
+      setSelectedRows(selectedRows);
+      setSelectedRowIsActive(true);
+      if (
+        selectedRows.some((item) => item.status !== firstValueObject.status)
+      ) {
+        setSelectedRowIsActive(false);
+      }
+    } else {
+      setFirstValueObject(null);
+      setSelectedRows([]);
+      setSelectedRowIsActive(false);
+    }
+  };
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+    getCheckboxProps: (record) => ({
+      disabled:
+        record.status === "CANCELLED" ||
+        record.status === "COMPLETED" ||
+        record.status === "NOTEAT",
+    }),
+  };
+  const onHandleCancelOrder = () => {
+    setLoading(true);
+    cancelOrder(selectedRowKeys)
+      .then((res) => {
+        toast.success("Cancel Order Completed.");
+        fetchSingleMeal();
+        fetchAllOrderByMealSesionId();
+      })
+      .catch(() => {
+        toast.warning("Can Not Cancel Order");
+      })
+      .finally(() => {
+        setSelectedRows([]);
+        setSelectedRowKeys([]);
+        setFirstValueObject({});
+        setLoading(false);
+      });
+  };
+  const columns = [
+    {
+      title: "ID",
+      dataIndex: "orderId",
+      render: (text) => (
+        <div className="">
+          <p>{text}</p>
+        </div>
+      ),
+    },
+    {
+      title: "User",
+      dataIndex: "customer",
+      // render: (name) => `${name.first} ${name.last}`
+      render: (_, record) => (
+        <div className="flex flex-col">
+          <p>{record.cutomerDtoGetAllOrderByMealSessionId?.name}</p>
+          <p>{record.cutomerDtoGetAllOrderByMealSessionId?.phone}</p>
+        </div>
+      ),
+    },
+    {
+      title: "Create At",
+      dataIndex: "time",
+      sorter: (a, b) => {
+        const dateA = moment(a.time, "DD-MM-YYYY HH:mm");
+        const dateB = moment(b.time, "DD-MM-YYYY HH:mm");
+        return dateA - dateB;
+      },
+      render: (text) => <p>{text}</p>,
+    },
+    {
+      title: "Price/VND",
+      dataIndex: "totalPrice",
+      render: (text) => <p>{formatMoney(text)}</p>,
+    },
+    {
+      title: selectedRowIsActive ? (
+        <Select
+          className="min-w-[100px]"
+          defaultValue="Status"
+          options={[
+            // {
+            //   value: "COMPLETED",
+            //   label: "Complete",
+            // },
+            {
+              value: "CANCELLED",
+              label: "Cancel",
+            },
+          ]}
+          onChange={() => onHandleCancelOrder()}
+        ></Select>
+      ) : (
+        "Status"
+      ),
+      dataIndex: "status",
+      render: (text, record, index) => {
+        const finalText = text.toUpperCase();
+        return (
+          // <Select
+          //   className="min-w-[100px]"
+          //   options={[
+          //     {
+          //       value: "CANCEL",
+          //       label: "Cancel",
+          //     },
+          //     {
+          //       value: "APPROVED",
+          //       label: "Approve",
+          //     },
+          //     {
+          //       value: "COMPLETE",
+          //       label: "Complete",
+          //     },
+          //   ]}
+          //   value={finalText}
+          //   onChange={onHandleSelectStatusToChange}
+          // ></Select>
+          <Tag className="px-5 py-1">{finalText}</Tag>
+        );
+      },
+    },
+  ];
   useEffect(() => {
     // getDishByMealId(mealId).then((res) => {
     //   setDishes(res?.dishDto);
     // });
     if (mealsessionIDGetFromRedux) {
       fetchSingleMeal();
+      fetchAllOrderByMealSesionId();
     }
   }, [mealsessionIDGetFromRedux, refresh2]);
   const confirmMealSession = (status) => {
-    updateStatusMultiMealSession(status, [mealsessionIDGetFromRedux])
+    updateStatusMultiMealSession([mealsessionIDGetFromRedux], status)
       .then((res) => {
         dispatch(refresh());
         toast.success("Update status successfully.");
       })
-      .catch((error) =>
-        toast.error("Can Not Update Status Because This Meal Is Already Over!")
-      );
+      .catch((error) => toast.error("Can Not Update Status Of This Meal!"));
   };
 
   return (
     <div>
       {" "}
       <Drawer
-        title={name}
+        title={`${name} #${mealSessionId}`}
         placement="right"
         size="large"
         onClose={onClose}
@@ -82,20 +228,45 @@ const CustomDrawer = () => {
             <Tag color="cyan-inverse" className="p-1 ">
               {status}
             </Tag>
-
             <Button
               onClick={onClose}
-              className="bg-red-600"
+              className={`bg-red-600 ${
+                status?.includes("PROCESSING") ? "hidden" : "block"
+              }`}
               onClickCapture={() => confirmMealSession("CANCELLED")}
-              disabled={status?.includes("CANCELLED")}
+              disabled={
+                status?.includes("CANCELLED") || status?.includes("COMPLETED")
+              }
             >
               <span className="text-white">Cancelled</span>
             </Button>
             <Button
               onClick={onClose}
-              className="bg-green-700 "
+              className={`bg-red-600 ${
+                status?.includes("PROCESSING") || status?.includes("APPROVED")
+                  ? "block"
+                  : "hidden"
+              }`}
+              onClickCapture={() => confirmMealSession("REJECTED")}
+              disabled={
+                status?.includes("CANCELLED") ||
+                status?.includes("COMPLETED") ||
+                status?.includes("APPROVED")
+              }
+            >
+              <span className="text-white">Reject</span>
+            </Button>
+            <Button
+              onClick={onClose}
+              className={`${
+                status?.includes("APPROVED") ? "hidden" : "block"
+              } bg-green-700`}
               onClickCapture={() => confirmMealSession("Approved")}
-              disabled={status?.includes("APPROVED")}
+              disabled={
+                status?.includes("CANCELLED") ||
+                status?.includes("COMPLETED") ||
+                status?.includes("APPROVED")
+              }
             >
               <span className="text-white">Approve</span>
             </Button>
@@ -169,8 +340,6 @@ const CustomDrawer = () => {
                   value={quantity}
                 />
               </Col>
-            </Row>
-            <Row>
               <Col span={11}>
                 <label htmlFor="">Remain Slot</label>
                 <Input
@@ -200,6 +369,44 @@ const CustomDrawer = () => {
             <TextArea className="box__shadow h-[40px]" value={description} />
           </div>
         </form>
+
+        <h1 className="my-2">Orders</h1>
+        <Divider></Divider>
+        <ConfigProvider
+          theme={{
+            components: {
+              Table: {
+                headerBg: "#F7F5FF",
+                headerBorderRadius: 8,
+                headerSplitColor: "none",
+                fontSize: 15,
+                // fontWeightStrong: 700,
+                footerBg: "black",
+                bodySortBg: "transparent",
+                headerSortActiveBg: "#F7F5FF",
+              },
+            },
+          }}
+        >
+          <Table
+            dataSource={order}
+            columns={columns}
+            loading={loading}
+            pagination={{ pageSize: 5 }}
+            rowSelection={rowSelection}
+            rowKey={(item) => item.orderId}
+            rowClassName={(record, index) =>
+              `custom-row ${index % 2 === 0 ? "even-row" : "odd-row"}`
+            }
+            // onRow={(record, index) => {
+            //   return {
+            //     onClick: (event) => {
+            //       navigatePage(record.orderId);
+            //     },
+            //   };
+            // }}
+          ></Table>
+        </ConfigProvider>
       </Drawer>
     </div>
   );

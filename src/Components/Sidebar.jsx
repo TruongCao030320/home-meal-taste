@@ -8,6 +8,7 @@ import {
   AiFillHome,
   AiFillSchedule,
 } from "react-icons/ai";
+import { SiHomeassistant } from "react-icons/si";
 import {
   AppstoreOutlined,
   ContainerOutlined,
@@ -102,7 +103,8 @@ const Sidebar = () => {
             Session-Area
           </Link>,
           "15",
-          <FaClock size={15} />
+
+          <SiHomeassistant size={15} />
         ),
         getItem(
           <Link

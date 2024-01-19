@@ -85,7 +85,7 @@ const Router = () => {
             element={<ManageChefInArea />}
           /> */}
           <Route
-            path={`${direction.sessionArea}/${direction.manageChefInArea}/:areaId`}
+            path={`${direction.sessionArea}/${direction.manageChefInArea}/:sessionAreaId`}
             element={<ManageChefInArea />}
           />
           {/* <Route

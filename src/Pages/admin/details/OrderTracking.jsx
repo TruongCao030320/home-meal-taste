@@ -1,6 +1,15 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { Table, Input, ConfigProvider, Tag, Steps, Button } from "antd";
+import {
+  Table,
+  Input,
+  ConfigProvider,
+  Tag,
+  Steps,
+  Button,
+  Divider,
+  Select,
+} from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import {
@@ -153,8 +162,54 @@ const OrderTracking = () => {
             ]}
           />
         </div> */}
-        <div className="w-full min-h-[150px] rounded-lg flex p-4 bg-colorBg my-5 flex-col">
-          <div className="flex gap-5 items-center">
+        <div className="w-full min-h-[150px] rounded-lg flex p-4 bg-colorBg my-5 flex-row justify-between items-center">
+          <div className=" border-2 rounded-3xl p-5 box__shadow my-5 w-[30%]">
+            <div className="w-full flex flex-col lg:flex lg:flex-row justify-between items-center">
+              <h1>Status</h1>
+              <div
+                style={{
+                  fontWeight: 500,
+                  color: orderDetail?.status?.includes("APPROVED")
+                    ? "green"
+                    : orderDetail?.status?.includes("CANCELLED")
+                    ? "gray"
+                    : orderDetail?.status?.includes("COMPLETED")
+                    ? "orangered"
+                    : "",
+                }}
+              >
+                {orderDetail?.status}
+              </div>
+            </div>
+            <Divider></Divider>
+
+            <Select
+              disabled={
+                orderDetail?.status === "COMPLETED" ||
+                orderDetail?.status === "CANCELLED"
+                  ? true
+                  : false
+              }
+              className="w-full"
+              options={[
+                {
+                  value: "COMPLETED",
+                  label: "Complete",
+                },
+                {
+                  value: "CANCELLED",
+                  label: "Cancel",
+                },
+                // {
+                //   value: "COMPLETED",
+                //   label: "Complete",
+                //   disabled: meal?.status?.includes("COMPLETED"),
+                // },
+              ]}
+              // onChange={onHandleSelectStatusToChange}
+            ></Select>
+          </div>
+          <div className="flex gap-5 items-center w-[60%] border-2 box__shadow rounded-3xl p-6">
             <div
               className="border w-[100px] p-3 box__shadow text-center rounded-full border-black hover:cursor-pointer hover:shadow-xl transition-all duration-500"
               onClick={() => navigateToUserDetail()}

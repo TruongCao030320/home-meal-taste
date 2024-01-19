@@ -11,6 +11,8 @@ import {
   Popover,
   Form,
   Switch,
+  Radio,
+  Checkbox,
 } from "antd";
 import moment from "moment";
 import toast from "react-hot-toast";
@@ -18,6 +20,7 @@ import { TbSearch } from "react-icons/tb";
 import { Link, useNavigate } from "react-router-dom";
 import { FilterFilled } from "@ant-design/icons";
 import {
+  getAllTransaction,
   getAllTransactionOrderType,
   getAllTransactionOrdered,
   getAllTransactionRecharge,
@@ -25,7 +28,7 @@ import {
 } from "../../API/Admin";
 import { direction } from "../../API/Direction";
 import { formatMoney } from "../../API/Money";
-
+import dayjs from "dayjs";
 const Transaction = () => {
   const navigate = useNavigate();
   const { RangePicker } = DatePicker;
@@ -35,10 +38,16 @@ const Transaction = () => {
   const [filteredData, setFilteredData] = useState();
   const [transactionOrder, setTransactionOrder] = useState([]);
   const [transactionOther, setTransactionOther] = useState([]);
+  const [transaction, setAllTransaction] = useState([]);
   const [genderSelected, setGenderSelected] = useState(null);
   // const [newData, setNewData] = useState([]);
   const [selectedDateRange, setSelectedDateRange] = useState([]);
   const [data, setData] = useState([]);
+  const [selectType, setSelectType] = useState("");
+  const [selectedDate, setSelectedDate] = useState(
+    dayjs().format("DD-MM-YYYY")
+  );
+  const [newData, setNewData] = useState([]);
   const fetchAllTransactionOrderType = () => {
     setLoading(true);
     getAllTransactionOrderType()
@@ -58,6 +67,11 @@ const Transaction = () => {
       setTransactionOther(res.slice().reverse());
     });
   };
+  const fetchAllTransaction = () => {
+    getAllTransaction().then((res) => {
+      setAllTransaction(res.slice().reverse());
+    });
+  };
   const columns = [
     {
       title: "ID",
@@ -68,12 +82,16 @@ const Transaction = () => {
         </div>
       ),
     },
-    {
-      title: "Order ID",
-      dataIndex: "orderId",
-      // render: (name) => `${name.first} ${name.last}`
-      render: (_, record) => <p className="font-bold">{record.orderId}</p>,
-    },
+
+    //  {
+    //     title: "Order ID",
+    //     // render: (name) => `${name.first} ${name.last}`
+    //     render: (_, record) => (
+    //       <p className="font-bold">
+    //         {record.orderDtoGetAllTransactions?.orderId}
+    //       </p>
+    //     ),
+    //   },
     {
       title: "Description",
       // render: (name) => `${name.first} ${name.last}`
@@ -84,12 +102,8 @@ const Transaction = () => {
       dataIndex: "walletDtoGetAllTransaction",
       render: (_, record) => (
         <div className="flex flex-col">
-          <p className="font-bold ">
-            {record.walletDtoGetAllTransaction?.userDtoGetAllTransaction?.name}
-          </p>
-          <p>
-            {record.walletDtoGetAllTransaction?.userDtoGetAllTransaction?.phone}
-          </p>
+          <p className="font-bold ">{record.userDtoGetAllTransactions?.name}</p>
+          <p>{record.userDtoGetAllTransactions?.phone}</p>
         </div>
       ),
     },
@@ -109,6 +123,11 @@ const Transaction = () => {
       dataIndex: "amount",
       sorter: (a, b) => a.amount - b.amount,
       render: (text) => <p className="font-bold">{formatMoney(text)}</p>,
+    },
+    {
+      title: "Type",
+      dataIndex: "transactionType",
+      render: (text) => <Tag className="text-sm p-1">{text}</Tag>,
     },
     {
       title: "Status",
@@ -151,6 +170,19 @@ const Transaction = () => {
     //     record.transactionType.toUpperCase().includes(value),
     // },
   ];
+  if (selectType === "ORDERED") {
+    const orderIDColumn = {
+      title: "Order ID",
+      render: (_, record) => (
+        <p className="font-bold">
+          {record.orderDtoGetAllTransactions?.orderId}
+        </p>
+      ),
+    };
+
+    // Insert the Order ID column as the second column
+    columns.splice(1, 0, orderIDColumn);
+  }
   const columnsOther = [
     {
       title: "ID",
@@ -239,6 +271,7 @@ const Transaction = () => {
   useEffect(() => {
     fetchAllTransactionOrderType();
     fetchAllTransactionWithoutOrderId();
+    fetchAllTransaction();
   }, []);
   const navigatePage = (id) => {
     navigate(`/${direction.dashboard}/${direction.order}/${id}`);
@@ -290,37 +323,35 @@ const Transaction = () => {
     </Form>
   );
 
-  const newData = transactionOrder?.filter((item) => {
-    if (SwitchTran) {
-      return item.userDtoGetAllTransactions?.phone.includes(search);
-    }
-  });
   useEffect(() => {
-    if (SwitchTran) {
-      let filteredArray = transactionOrder || [];
-      if (search) {
-        console.log("filter array", filteredArray[0]);
-        filteredArray = filteredArray.filter((item) => {
-          console.log(
-            "item.walletDtoGetAllTransactionRECHARGED?.userDtoGetAllTransactionRECHARGED?.phone",
-            item.walletDtoGetAllTransaction?.userDtoGetAllTransaction?.phone
-          );
-          return item.walletDtoGetAllTransaction?.userDtoGetAllTransaction?.phone.includes(
-            search
-          );
-        });
-      }
-      setFilteredData(filteredArray);
-    } else {
-      let filteredArray = transactionOther || [];
-      if (search) {
-        filteredArray = filteredArray.filter((item) => {
-          return item.userDtoGetAllTransactions?.phone?.includes(search);
-        });
-      }
-      setFilteredData(filteredArray);
+    let filteredArray = transaction || [];
+    if (search) {
+      filteredArray = filteredArray.filter((item) => {
+        return item.userDtoGetAllTransactions?.phone?.includes(search);
+      });
     }
-  }, [search]);
+    if (selectedDate) {
+      filteredArray = filteredArray.filter((item) => {
+        return item.date.includes(selectedDate);
+      });
+    }
+    if (selectType) {
+      filteredArray = filteredArray.filter((item) => {
+        return item.transactionType === selectType;
+      });
+    }
+    setNewData(filteredArray);
+  }, [search, selectedDate, selectType]);
+  // useEffect(() => {
+  //   let filteredArray = transaction;
+  //   if (selectType) {
+  //     filteredArray = filteredArray.filter((item) => {
+  //       return item.transactionType === selectType;
+  //     });
+  //   }
+  //   setNewData(filteredArray);
+  // }, [selectType]);
+
   return (
     <div className="w-full h-full p-4 rounded-lg">
       <div className="account-search h-[10%] flex items-center  justify-end mb-3">
@@ -330,45 +361,64 @@ const Transaction = () => {
       </div>
       <div className="bg-white  p-4 rounded-lg ">
         <div className="account-search flex items-center justify-between mb-5 lg:w-[100%] md:w-full md:gap-3">
-          <div className="account-search lg:flex items-center justify-between mb-5 lg:w-[100%] md:w-full md:grid md:grid-cols-2 md:gap-3">
-            <div className="my-2 flex flex-row gap-2 justify-center items-center">
+          <div className="account-search lg:flex items-center justify-start mb-5 lg:w-[100%] md:w-full md:grid md:grid-cols-2 md:gap-3">
+            <div className="my-2 flex flex-row gap-2 justify-center items-center w-[20%]">
               <Input
                 placeholder="Enter user phone..."
                 onChange={(e) => {
                   setSearch(e.target.value);
                 }}
-                className="box__shadow"
-                suffix={<TbSearch />}
+                className="box__shadow w-full"
+                // suffix={<TbSearch />}
               />
-              <div>
-                <Switch
-                  className="shadow-lg bg-gray-400"
-                  checkedChildren="Order"
-                  unCheckedChildren="Other"
-                  onChange={() => setSwitchTran(!SwitchTran)}
-                ></Switch>
-              </div>
             </div>
-
-            {/* <div className="my-2">
-              <Popover
-                content={content2}
-                title="Filter"
-                trigger="click"
-                placement="bottomRight"
+            <div className=" flex flex-row gap-2 justify-center items-center w-[20%]">
+              <Select
+                className="w-full mt-[-10px]"
+                placeholder="Choose Type Of Transaction"
+                options={[
+                  {
+                    value: "TRANSFER",
+                    label: "Transfer",
+                  },
+                  {
+                    value: "REFUND",
+                    label: "Refund",
+                  },
+                  {
+                    value: "RECHARGED",
+                    label: "Recharge",
+                  },
+                  {
+                    value: "FINED",
+                    label: "Fined",
+                  },
+                  {
+                    value: "ORDERED",
+                    label: "Order",
+                  },
+                ]}
+                onChange={(value) => {
+                  console.log("value", value);
+                  setSelectType(value);
+                }}
               >
-                <Button className="py-5 px-5 flex justify-center items-center box__shadow">
-                  <FilterFilled />
-                  <span>Filter</span>
-                </Button>
-              </Popover>
-            </div> */}
+                {" "}
+              </Select>
+            </div>
+            <div className=" flex flex-row gap-2 justify-center items-center w-[20%]">
+              <DatePicker
+                className="box__shadow mt-[-5px]"
+                defaultValue={dayjs()}
+                format="DD-MM-YYYY"
+                onChange={(date, dateString) => {
+                  setSelectedDate(dateString);
+                }}
+              ></DatePicker>
+            </div>
           </div>
         </div>
-        <div>
-          <h1 className="text-red-400">RR : Receive Revenue</h1>
-          <h1 className="text-red-400">TT : Total Transfer</h1>
-        </div>
+
         <div className="w-full h-full overflow-auto no-scrollbar">
           <ConfigProvider
             theme={{
@@ -384,26 +434,15 @@ const Transaction = () => {
               },
             }}
           >
-            {SwitchTran ? (
-              <Table
-                dataSource={search ? filteredData : transactionOrder}
-                // dataSource={transactionOrder}
-                columns={columns}
-                loading={loading}
-                rowClassName={(record, index) =>
-                  `custom-row ${index % 2 === 0 ? "even-row" : "odd-row"}`
-                }
-              ></Table>
-            ) : (
-              <Table
-                dataSource={search ? filteredData : transactionOther}
-                columns={columnsOther}
-                loading={loading}
-                rowClassName={(record, index) =>
-                  `custom-row ${index % 2 === 0 ? "even-row" : "odd-row"}`
-                }
-              ></Table>
-            )}
+            <Table
+              dataSource={newData}
+              // dataSource={newData}
+              columns={columns}
+              loading={loading}
+              rowClassName={(record, index) =>
+                `custom-row ${index % 2 === 0 ? "even-row" : "odd-row"}`
+              }
+            ></Table>
           </ConfigProvider>
         </div>
       </div>

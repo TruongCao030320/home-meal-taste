@@ -159,7 +159,9 @@ const ManageMealSessionInKitchen = () => {
       });
   };
   const onHandleNavigateToKitchenInformation = () => {
-    navigate(`/${direction.dashboard}/${direction.kitchen}/${kitchenId}`);
+    navigate(
+      `/${direction.dashboard}/${direction.kitchen}/${kitchen?.userDtoKitchenResponseModel?.userId}`
+    );
   };
   const toggleDrawerType2 = async (mealSessionId) => {
     if (mealSessionId !== null) {

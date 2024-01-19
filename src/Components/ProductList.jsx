@@ -37,12 +37,13 @@ import {
 } from "../API/Admin";
 import { direction } from "../API/Direction";
 import { useDispatch, useSelector } from "react-redux";
-import { showDrawer } from "../redux/ToggleDrawerMealSlice.js";
+import { refresh, showDrawer } from "../redux/ToggleDrawerMealSlice.js";
 import CustomDrawer from "./MealDrawer";
 import { getSingleMealSessionById } from "../API/Admin";
 import alternateImage from "../assets/images/buncha.png";
 import moment from "moment";
 import { formatMoney } from "../API/Money.js";
+import { Rect } from "victory";
 const normalizeString = (str) => {
   return str
     .toLowerCase()
@@ -64,6 +65,8 @@ const ProductList = () => {
   const [session, setSession] = useState([]);
   const [sessionValue, setSessionValue] = useState(null);
   const [area, setArea] = useState([]);
+  const [chefValue, setChefValue] = useState(null);
+
   const [values, setValues] = useState({
     mealSessionIds: [],
     status: "",
@@ -72,10 +75,11 @@ const ProductList = () => {
   const [search, setSearch] = useState("");
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
+  const [firstValueObject, setFirstValueObject] = useState({});
   const showToastMessage = () => {
     toast.success("Delete successfully.");
   };
-  const refresh = useSelector((state) => state.mealDrawer.refresh);
+  const refreshPage = useSelector((state) => state.mealDrawer.refresh);
   const confirm = () => {
     modal.confirm({
       title: "Confirm",
@@ -90,6 +94,7 @@ const ProductList = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [newData, setNewData] = useState([]);
+  const [forcedComplete, setForcedComplete] = useState(false);
   const toggleDrawerType2 = async (mealSessionId) => {
     await getSingleMealSessionById(mealSessionId)
       .then((res) => setDrawerData(res))
@@ -101,33 +106,28 @@ const ProductList = () => {
   //     setArea(res);
   //   });
   // };
-  const onHandleUpdateMulti = () => {
-    updateStatusMultiMealSession(values)
-      .then(() => {
-        toast.success("Update Status Successfully.");
-      })
-      .catch((error) => {
-        toast.warning("Update Status Failed.");
-      });
-  };
+
   const onHandleUpdateStatusMultiMealSession = (status) => {
-    // console.log("Status nhận đc là", status);
-    // setValues({ ...values, status: status });
-    // onHandleUpdateMulti();
-    console.log("trước khi gửi đi", status, values.mealSessionIds);
-    updateStatusMultiMealSession(status, values.mealSessionIds)
+    // updateStatusMultiMealSession(values.mealSessionIds, status)
+    updateStatusMultiMealSession(selectedRowKeys, status)
       .then(() => {
         fetchAllMealSession();
         toast.success("Update Status Successfully.");
       })
       .catch((error) => {
-        toast.warning("Update Status Failed.");
+        toast.warning(
+          "Can Not Change Status Of This Meal Session Cause Have Order For This Meal Session Not Done!"
+        );
+      })
+      .finally(() => {
+        setSelectedRowKeys([]);
       });
   };
   const [searchTerm, setSearchTerm] = useState("");
   const handleResetFilters = () => {
     setAreaValue(null);
     setSessionValue(null);
+    setChefValue(null);
   };
   const content2 = (
     <div className=" grid gap-5 min-w-[400px]">
@@ -153,6 +153,22 @@ const ProductList = () => {
       <div className="flex w-full justify-between items-center">
         <div className="w-[20%]">
           <h2>Area</h2>
+        </div>
+        <div className="w-[70%]">
+          <Select
+            className="w-full"
+            options={area?.map((item) => ({
+              value: item?.areaId,
+              label: item?.areaName,
+            }))}
+            value={areaValue}
+            onChange={(item) => setAreaValue(item)}
+          ></Select>
+        </div>
+      </div>
+      <div className="flex w-full justify-between items-center">
+        <div className="w-[20%]">
+          <h2>Chef</h2>
         </div>
         <div className="w-[70%]">
           <Select
@@ -199,25 +215,49 @@ const ProductList = () => {
       title: (
         <div className="z-50 ">
           {selectedRowIsActive ? (
-            <div className="flex flex-row">
-              <Tag
-                className="p-2 shadow-md min-w-[100px] text-center hover:cursor-pointer hover:border-blue-200"
+            <div className="flex flex-row gap-5">
+              <Button
+                className={`${
+                  selectedRows.some((item) => item.status === "PROCESSING") &&
+                  selectedRowKeys.length > 0
+                    ? "block"
+                    : "hidden"
+                } p-5 shadow-md min-w-[100px] flex justify-center items-center hover:cursor-pointer hover:border-blue-200`}
+                color="red"
+                onClick={() => {
+                  onHandleUpdateStatusMultiMealSession("REJECTED");
+                }}
+              >
+                <span className="font-bold text-red-500">Reject</span>
+              </Button>
+              <Button
+                className={`${
+                  selectedRows.some((item) => item.status === "PROCESSING") &&
+                  selectedRowKeys.length > 0
+                    ? "block"
+                    : "hidden"
+                } p-5 shadow-md min-w-[100px] flex justify-center items-center hover:cursor-pointer hover:border-blue-200`}
+                color="red"
+                onClick={() => {
+                  onHandleUpdateStatusMultiMealSession("APPROVED");
+                }}
+              >
+                <span className="font-bold text-green-500">Approve</span>
+              </Button>
+              <Button
+                className={`${
+                  selectedRowKeys.length > 0 &&
+                  selectedRows.some((item) => item.status === "APPROVED")
+                    ? "block"
+                    : "hidden"
+                } p-5 shadow-md min-w-[100px] flex justify-center items-center hover:cursor-pointer hover:border-blue-200`}
                 color="red"
                 onClick={() => {
                   onHandleUpdateStatusMultiMealSession("CANCELLED");
                 }}
               >
-                <span className="font-bold">CANCELLED</span>
-              </Tag>
-              <Tag
-                className="p-2 shadow-md min-w-[100px] text-center hover:cursor-pointer hover:border-blue-200"
-                color="green"
-                onClick={() => {
-                  onHandleUpdateStatusMultiMealSession("APPROVED");
-                }}
-              >
-                <span className="font-bold">APPROVED</span>
-              </Tag>
+                <span className="font-bold text-red-500">Cancel</span>
+              </Button>{" "}
             </div>
           ) : (
             ""
@@ -230,22 +270,21 @@ const ProductList = () => {
           <div className="lg:flex lg:flex-row lg:justify-between lg:w-[80%] flex flex-col">
             <div className="">
               <div className="">
-                <h1>
+                <h2 className="font-bold">
                   {record.mealDtoForMealSession?.name} #{record.mealSessionId}
-                </h1>
+                </h2>
                 <p>Create At :{record.createDate}</p>
                 <p>Kitchen :{record.kitchenDtoForMealSession?.name}</p>
                 <div className="flex flex-row gap-5">
-                  <p>Selling Slot : {record.quantity}</p>
                   <p>
                     Remain Slot : {record.remainQuantity}/{record.quantity}
                   </p>
                 </div>
               </div>
             </div>
-            <div className=" lg:w-[40%] w-full">
-              <p>Area : {record.areaDtoForMealSession?.areaName}</p>
-              <p>Session : {record.sessionDtoForMealSession?.sessionName}</p>
+            <div className=" lg:w-[50%] w-full">
+              <p>{record.areaDtoForMealSession?.areaName}</p>
+              <p>{record.sessionDtoForMealSession?.sessionName}</p>
             </div>
           </div>
         </div>
@@ -369,46 +408,52 @@ const ProductList = () => {
   //     setNewData(data);
   //   }
   // }, [search, selectedDate]);
-  const onSelectChange = (newSelectedRowKeys) => {
-    console.log("newselected rowkesy là", newSelectedRowKeys);
-    if (newSelectedRowKeys.length > 0) {
-      setSelectedRowIsActive(true);
-    }
-    setSelectedRowKeys(newSelectedRowKeys);
-    setValues({ ...values, mealSessionIds: newSelectedRowKeys });
-  };
+  // const onSelectChange = (newSelectedRowKeys) => {
+  //   console.log("newselected rowkesy là", newSelectedRowKeys);
+  //   if (newSelectedRowKeys.length > 0) {
+  //     setSelectedRowIsActive(true);
+  //   }
+  //   setSelectedRowKeys(newSelectedRowKeys);
+  //   setValues({ ...values, mealSessionIds: newSelectedRowKeys });
+  // };
+  // const onSelectChange = ()=>{}
   // const rowSelection = {
   //   selectedRowKeys,
   //   onChange: onSelectChange,
   // };
-  const rowSelection = {
-    onChange: (selectedRowKeys, selectedRows) => {
-      // Handle selection changes
-      console.log("selectedRowKeys:", selectedRowKeys);
-      console.log("selectedRows:", selectedRows[0]?.status);
-      setSelectedRowKeys(selectedRowKeys);
+  const onSelectChange = (selectedRowKeys, selectedRows) => {
+    setSelectedRowKeys(selectedRowKeys);
+    if (selectedRows.length > 0) {
+      const firstValueObject = selectedRows[0];
+      setFirstValueObject(firstValueObject);
       setSelectedRows(selectedRows);
-      setValues({ ...values, mealSessionIds: selectedRowKeys });
-      if (selectedRows.length > 0) {
-        setSelectedRowIsActive(true);
-        const firstAttributeValue = selectedRows[0].status; // Change 'attribute' to the actual attribute you're checking
-        if (selectedRows.some((row) => row.status !== firstAttributeValue)) {
-          setSelectedRowIsActive(false);
-        }
-      } else {
+      setSelectedRowIsActive(true);
+      if (
+        selectedRows.some((item) => item.status !== firstValueObject.status)
+      ) {
         setSelectedRowIsActive(false);
       }
-    },
+    } else {
+      setFirstValueObject(null);
+      setSelectedRows([]);
+      setSelectedRowKeys([]);
+      setSelectedRowIsActive(false);
+    }
+  };
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
     getCheckboxProps: (record) => ({
-      // Disable checkbox based on some condition (if needed)
+      disabled: record.status === "COMPLETED" || record.status === "CANCELLED",
     }),
   };
-  const hasSelected = selectedRowKeys.length > 0;
   useEffect(() => {
     fetchAllMealSession();
     fetchAllSession();
     setNewData(newData);
-  }, [refresh]);
+    // setSelectedRowKeys([]);
+    // setSelectedRows([]);
+  }, [refreshPage]);
   useEffect(() => {
     // fetchAllAreaAndSession();
     fetchAllSession();
@@ -468,8 +513,6 @@ const ProductList = () => {
     }
 
     if (areaValue) {
-      console.log("in areavalue là", areaValue);
-      console.log("filter array lúc này là", filteredData);
       filteredData = filteredData.filter(
         (item) =>
           // item.sessionDtoForMealSession?.areaDtoForMealSession?.areaId === areaValue
@@ -559,7 +602,12 @@ const ProductList = () => {
               rowSelection={rowSelection}
               pagination={{ pageSize: 5 }}
               rowClassName={(record, index) =>
-                `custom-row ${index % 2 === 0 ? "odd-row" : "even-row"}`
+                `custom-row ${index % 2 === 0 ? "odd-row" : "even-row"} ${
+                  record.status.includes("COMPLETED") ||
+                  record.status.includes("CANCELLED")
+                    ? "disabled-row"
+                    : ""
+                }`
               }
             ></Table>
           </ConfigProvider>

@@ -16,19 +16,37 @@ import toast from "react-hot-toast";
 import { TbSearch } from "react-icons/tb";
 import { Link, useNavigate } from "react-router-dom";
 import { FilterFilled } from "@ant-design/icons";
-import { getAllOrder } from "../../API/Admin";
+import {
+  getAllArea,
+  getAllKitchen,
+  getAllOrder,
+  getAllSession,
+} from "../../API/Admin";
 import { direction } from "../../API/Direction";
 import { formatMoney } from "../../API/Money";
-
+import dayjs from "dayjs";
 const Order = () => {
   const navigate = useNavigate();
   const { RangePicker } = DatePicker;
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [filteredData, setFilteredData] = useState();
-
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [firstValueObject, setFirstValueObject] = useState({});
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRowIsActive, setSelectedRowIsActive] = useState(false);
   const [genderSelected, setGenderSelected] = useState(null);
   const [selectedDateRange, setSelectedDateRange] = useState([]);
+  const [sessionIdValue, setSessionIdValue] = useState(null);
+  const [areaIdValue, setAreaIdValue] = useState(null);
+  const [chefIdValue, setChefIdValue] = useState(null);
+  const [session, setSession] = useState([]);
+  const [area, setArea] = useState([]);
+  const [chef, setChef] = useState([]);
+
+  const [selectedDate, setSelectedDate] = useState(
+    dayjs().format("DD-MM-YYYY")
+  );
   const [data, setData] = useState([]);
   const columns = [
     {
@@ -84,7 +102,23 @@ const Order = () => {
       render: (text) => <p className="font-bold">{formatMoney(text)}</p>,
     },
     {
-      title: "Status",
+      title: selectedRowIsActive ? (
+        <Select
+          className="min-w-[100px]"
+          options={[
+            {
+              value: "COMPLETED",
+              label: "Complete",
+            },
+            {
+              value: "CANCELLED",
+              label: "Cancel",
+            },
+          ]}
+        ></Select>
+      ) : (
+        "Status"
+      ),
       dataIndex: "status",
       render: (text, record, index) => {
         const finalText = text.toUpperCase();
@@ -96,15 +130,15 @@ const Order = () => {
       },
       filters: [
         {
-          text: "DONE",
-          value: "DONE",
+          text: "Complete",
+          value: "COMPLETED",
         },
         {
-          text: "CANCELLED",
+          text: "Cancel",
           value: "CANCELLED",
         },
         {
-          text: "PAID",
+          text: "Paid",
           value: "PAID",
         },
       ],
@@ -131,6 +165,34 @@ const Order = () => {
     setGenderSelected();
     setSelectedDateRange();
   };
+  const onSelectChange = (selectedRowKeys, selectedRows) => {
+    setSelectedRowKeys(selectedRowKeys);
+    if (selectedRows.length > 0) {
+      const firstValueObject = selectedRows[0];
+      setFirstValueObject(firstValueObject);
+      setSelectedRows(selectedRows);
+      setSelectedRowIsActive(true);
+      if (
+        selectedRows.some((item) => item.status !== firstValueObject.status)
+      ) {
+        setSelectedRowIsActive(false);
+      }
+    } else {
+      setFirstValueObject(null);
+      setSelectedRows([]);
+      setSelectedRowIsActive(false);
+    }
+  };
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+    getCheckboxProps: (record) => ({
+      disabled:
+        record.status === "CANCELLED" ||
+        record.status === "COMPLETED" ||
+        record.status === "NOTEAT",
+    }),
+  };
   const content2 = (
     <Form
       className="min-w-[300px] grid gap-5"
@@ -140,15 +202,17 @@ const Order = () => {
       <Form.Item>
         <div className="flex w-full justify-between items-center">
           <div className="w-[20%]">
-            <h2>Status</h2>
+            <h2>Session</h2>
           </div>
           <div className="w-[70%]">
             <Select
               className="w-full"
-              options={[
-                { value: "1", label: "PAID" },
-                { value: "2", label: "CANCELLED" },
-              ]}
+              options={session.map((item) => ({
+                value: item.sessionId,
+                label: item.sessionName,
+              }))}
+              value={setSessionIdValue}
+              onChange={setSessionIdValue}
             ></Select>
           </div>
         </div>
@@ -156,16 +220,16 @@ const Order = () => {
       <Form.Item>
         <div className="flex w-full justify-between items-center">
           <div className="w-[20%]">
-            <h2>Kitchen</h2>
+            <h2>Area</h2>
           </div>
           <div className="w-[70%]">
             <Select
               className="w-full"
-              options={[
-                { value: "male", label: "Male" },
-                { value: "female", label: "Female" },
-              ]}
-              value={genderSelected}
+              options={area.map((item) => ({
+                value: item.areaId,
+                label: item.areaName,
+              }))}
+              value={areaIdValue}
               onChange={(value) => setGenderSelected(value)}
             ></Select>
           </div>
@@ -174,10 +238,18 @@ const Order = () => {
       <Form.Item>
         <div className="flex w-full justify-between items-center">
           <div className="w-[20%]">
-            <h2>Create At</h2>
+            <h2>Chef</h2>
           </div>
           <div className="w-[70%]">
-            <RangePicker onChange={(dates) => setSelectedDateRange(dates)} />
+            <Select
+              className="w-full"
+              options={chef.map((item) => ({
+                value: item.areaId,
+                label: item.areaName,
+              }))}
+              value={chefIdValue}
+              onChange={setChefIdValue}
+            ></Select>
           </div>
         </div>
       </Form.Item>
@@ -189,7 +261,34 @@ const Order = () => {
       </Form.Item>
     </Form>
   );
-
+  const fetchAllSession = () => {
+    getAllSession().then((res) => {
+      console.log("session", res);
+      setSession(res);
+    });
+  };
+  const fetchAllArea = () => {
+    getAllArea().then((res) => {
+      setArea(res);
+    });
+  };
+  const fetchAllChef = () => {
+    getAllKitchen().then((res) => {
+      setChef(res);
+    });
+  };
+  useEffect(() => {}, [
+    search,
+    selectedDate,
+    sessionIdValue,
+    chefIdValue,
+    areaIdValue,
+  ]);
+  useEffect(() => {
+    fetchAllSession();
+    fetchAllArea();
+    fetchAllChef();
+  }, []);
   const newData = data?.filter((item) => {
     if (search) {
       // Check if the phone number exists and includes the search string
@@ -205,7 +304,7 @@ const Order = () => {
       </div>
       <div className="bg-white  p-4 rounded-lg ">
         <div className="account-search flex items-center justify-between mb-5 lg:w-[100%] md:w-full md:gap-3">
-          <div className="account-search lg:flex items-center justify-between mb-5 lg:w-[100%] md:w-full md:grid md:grid-cols-2 md:gap-3">
+          <div className="account-search lg:flex items-center justify-start mb-5 lg:w-[100%] md:w-full md:grid md:grid-cols-2 md:gap-3">
             <div className="my-2">
               <Input
                 placeholder="Enter Phone"
@@ -216,8 +315,19 @@ const Order = () => {
                 suffix={<TbSearch />}
               />
             </div>
-            {/* <div className="my-2">
+            <div>
+              <DatePicker
+                className="box__shadow !h-[50px]"
+                defaultValue={dayjs()}
+                format="DD-MM-YYYY"
+                onChange={(date, dateString) => {
+                  setSelectedDate(dateString);
+                }}
+              ></DatePicker>
+            </div>
+            <div className="my-2">
               <Popover
+                className="h-[50px]"
                 content={content2}
                 title="Filter"
                 trigger="click"
@@ -228,7 +338,7 @@ const Order = () => {
                   <span>Filter</span>
                 </Button>
               </Popover>
-            </div> */}
+            </div>
           </div>
         </div>
         <div className="w-full h-full overflow-auto no-scrollbar">
@@ -253,6 +363,8 @@ const Order = () => {
               columns={columns}
               loading={loading}
               pagination={{ pageSize: 5 }}
+              rowKey={(order) => order.orderId}
+              rowSelection={rowSelection}
               rowClassName={(record, index) =>
                 `custom-row ${index % 2 === 0 ? "even-row" : "odd-row"}`
               }

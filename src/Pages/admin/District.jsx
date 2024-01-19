@@ -202,7 +202,7 @@ const District = () => {
     },
   ];
   const { RangePicker } = DatePicker;
-  const newData = district.filter((area) => {
+  const newData = district.filter((district) => {
     const searchNormalize = normalizeString(search || "");
     const areaNormalize = normalizeString(district?.districtName);
     return areaNormalize.includes(searchNormalize);
@@ -251,7 +251,7 @@ const District = () => {
         <div className="account-search lg:flex items-center justify-between mb-5 lg:w-[100%] md:w-full md:grid md:grid-cols-2 md:gap-3">
           <div className="my-2">
             <Input
-              placeholder="Enter area name want to find..."
+              placeholder="Enter district name want to find..."
               onChange={(e) => {
                 setSearch(e.target.value);
               }}

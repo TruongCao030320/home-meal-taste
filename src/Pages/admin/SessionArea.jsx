@@ -72,6 +72,9 @@ import {
   resetAreaKey,
   setSelectedKey,
 } from "../../redux/SelectecedKeySlice.js";
+import { TbSearch } from "react-icons/tb";
+import AreaComponent from "../../Components/AreaComponent.jsx";
+import MealSessionComponent from "../../Components/MealSessionComponent.jsx";
 const { RangePicker } = DatePicker;
 const normalizeString = (str) => {
   return str
@@ -135,6 +138,7 @@ const SessionArea = () => {
   const [singleSession, setSingleSession] = useState({});
   const [mealSession, setMealSession] = useState([]);
   const [order, setOrder] = useState([]);
+  const [search, setSearch] = useState("");
   // const areaKeys = useSelector((state) => state.selectedSlice.areaKeys) || [];
   const onRowClick = (record) => {
     dispatch(setCurrentSession(record.sessionId));
@@ -181,7 +185,6 @@ const SessionArea = () => {
     setLoading(true);
     getAllSession()
       .then((res) => {
-        console.log("Chạy lần đầu tiên", res, selectedDate);
         setSession(res.slice().reverse());
         setNewData(
           res?.filter((item) => {
@@ -205,12 +208,7 @@ const SessionArea = () => {
         setLoading(false);
       });
   };
-  // end function section
-  //   <div className="w-full grid grid-cols-1 gap-5  md:grid-cols-2 lg:grid-cols-3">
-  //     {area?.map((area, index) => (
-  //       <AreaCard area={area} key={index} />
-  //     ))}
-  //   </div>
+
   const fetchAllMealSessionBySessionId = () => {
     getAllMealSessionBySessionId(sessionIdValue).then((res) => {
       setMealSession(res);
@@ -233,91 +231,40 @@ const SessionArea = () => {
         });
     }
   };
-  const fetchAllOrderBySessionId = () => {
-    getAllOrderBySessionId(sessionIdValue).then((res) => {
-      setOrder(res);
-    });
-  };
-  const AreaComponent = () => (
-    <div className=" h-full min-h-[500px] w-full flex flex-col   justify-around relative">
-      {loading ? (
-        <div className="w-[70vw] min-h-[500px] flex justify-center items-center ">
-          <Spin tip="Loading" size="large" />
-        </div>
-      ) : (
-        <div className="w-full absolute top-0 h-full">
-          <div
-            className="my-2 flex flex-row"
-            style={{
-              display: area.length > 0 ? "block" : "none",
-            }}
-          >
-            <div className="flex flex-row justify-around items-center w-[40%]">
-              <div className="font-bold flex flex-row">
-                <Checkbox
-                  onClick={(e) => {
-                    const areaIds = area.map((item) => {
-                      return item.areaDtoForSessionArea?.areaId;
-                    });
-                    console.log(
-                      "Chạy 2",
-                      areaIds.map((item) => item)
-                    );
-                    if (e.target.checked) {
-                      dispatch(setSelectedKey(areaIds));
-                    } else {
-                      dispatch(resetAreaKey());
-                    }
-                  }}
-                />
-                <span className="mx-2">All</span>
-              </div>
-              <div className="">
-                <Button className="bg-green-400 text-white">Finish</Button>
-              </div>
-              <div className="">
-                <Button className="bg-gray-400 text-white">Cancel</Button>
-              </div>
-            </div>
-          </div>
-          <div className="w-full grid grid-cols-1 gap-5  md:grid-cols-2 lg:grid-cols-3">
-            {area?.map((area, index) => (
-              <AreaCard area={area} key={index} />
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-  const MealSessionComponent = () => (
-    <div className="min-h-[500px] w-full flex flex-row ">
-      {loading ? (
-        <div className="w-[70vw] min-h-[500px] flex justify-center items-center ">
-          <Spin tip="Loading" size="large" />
-        </div>
-      ) : (
-        <div className="w-full grid grid-cols-1 gap-5  md:grid-cols-2 lg:grid-cols-3 ">
-          {mealSession?.map((meal, index) => (
-            <MealSessionCard meal={meal} key={index} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
+  // const fetchAllOrderBySessionId = () => {
+  //   getAllOrderBySessionId(sessionIdValue).then((res) => {
+  //     setOrder(res);
+  //   });
+  // };
+  // const MealSessionComponent = () => (
+  //   <div className="min-h-[500px] w-full flex flex-row ">
+  //     {loading ? (
+  //       <div className="w-[70vw] min-h-[500px] flex justify-center items-center ">
+  //         <Spin tip="Loading" size="large" />
+  //       </div>
+  //     ) : (
+  //       <div className="w-full grid grid-cols-1 gap-5  md:grid-cols-2 lg:grid-cols-3 ">
+  //         {mealSession?.map((meal, index) => (
+  //           <MealSessionCard meal={meal} key={index} />
+  //         ))}
+  //       </div>
+  //     )}
+  //   </div>
+  // );
   const OrderSessionComponent = () => {
-    return <OrderCard order={order} />;
+    return <OrderCard sessionId={sessionIdValue} />;
   };
 
   const tabItems = [
     {
       key: "1",
       label: <div className="font-bold">Areas</div>,
-      children: <AreaComponent />,
+      children: <AreaComponent sessionId={sessionIdValue} />,
     },
     {
       key: "2",
       label: <div className="font-bold">Meal Sessions</div>,
-      children: <MealSessionComponent />,
+      children: <MealSessionComponent sessionId={sessionIdValue} />,
     },
     {
       key: "3",
@@ -334,14 +281,15 @@ const SessionArea = () => {
     );
     fetchAllMealSessionBySessionId();
     fetchAllSessionAreaBySessionId();
-    fetchAllOrderBySessionId();
+    // fetchAllOrderBySessionId();
   }, [sessionIdValue]);
   // }, [selectedDate]);
 
   useEffect(() => {
-    fetchAllSession();
+    // fetchAllSession();
     setSelectedRowKeys([]);
     setIsModalOpen(false);
+    setSessionIdValue(null);
     // fetchAllInformationInSession();
   }, [refresh]);
   useEffect(() => {
@@ -403,14 +351,19 @@ const SessionArea = () => {
   }, []);
   // end content section
   const newDataStatusOpen = newData?.filter((item) => {
-    return (
-      item?.status?.includes("OPEN") ||
-      item?.status?.includes("BOOKING") ||
-      item?.status?.includes("ONGOING")
-    );
+    return item?.status?.includes("OPEN");
+  });
+  const newDataStatusBooking = newData?.filter((item) => {
+    return item?.status?.includes("BOOKING");
+  });
+  const newDataStatusOnGoIng = newData?.filter((item) => {
+    return item?.status?.includes("ONGOING");
+  });
+  const newDataStatusCancel = newData?.filter((item) => {
+    return item?.status?.includes("CANCELLED");
   });
   const newDataStatusClose = newData?.filter((item) => {
-    return item?.status?.includes("CLOSE");
+    return item?.status?.includes("CLOSED");
   });
   return (
     <div className="w-full h-full p-4">
@@ -446,13 +399,19 @@ const SessionArea = () => {
               value={sessionIdValue}
               options={[
                 {
-                  label: "OPEN",
+                  label: "Open",
                   options: newDataStatusOpen.map((item, index) => ({
                     value: item.sessionId,
                     label: (
-                      <div key={index} className="gap-2">
+                      <div
+                        key={index}
+                        className="gap-2 flex flex-row justify-between"
+                      >
                         {item.sessionName}
-                        <Tag color="geekblue" className="mx-2">
+                        <Tag
+                          color="geekblue"
+                          className="mx-2 min-w-[70px] flex justify-center items-center"
+                        >
                           {item?.status}
                         </Tag>
                       </div>
@@ -460,13 +419,73 @@ const SessionArea = () => {
                   })),
                 },
                 {
-                  label: "CLOSE",
+                  label: "Booking",
+                  options: newDataStatusBooking.map((item, index) => ({
+                    value: item.sessionId,
+                    label: (
+                      <div
+                        key={index}
+                        className="gap-2 flex flex-row justify-between"
+                      >
+                        {item.sessionName}
+                        <Tag
+                          color="geekblue"
+                          className="mx-2 min-w-[70px] flex justify-center items-center"
+                        >
+                          {item?.status}
+                        </Tag>
+                      </div>
+                    ),
+                  })),
+                },
+                {
+                  label: "On Going",
+                  options: newDataStatusOnGoIng.map((item, index) => ({
+                    value: item.sessionId,
+                    label: (
+                      <div
+                        key={index}
+                        className="gap-2 flex flex-row justify-between"
+                      >
+                        {item.sessionName}
+                        <Tag
+                          color="geekblue"
+                          className="mx-2 min-w-[70px] flex justify-center items-center"
+                        >
+                          {item?.status}
+                        </Tag>
+                      </div>
+                    ),
+                  })),
+                },
+                {
+                  label: "Close",
                   options: newDataStatusClose.map((item, index) => ({
                     value: item.sessionId,
                     label: (
-                      <div key={index}>
+                      <div className="gap-2 flex flex-row justify-between">
                         {item.sessionName}{" "}
-                        <Tag color="geekblue" className="mx-2">
+                        <Tag
+                          color="geekblue"
+                          className="mx-2 min-w-[70px] flex justify-center items-center"
+                        >
+                          {item?.status}
+                        </Tag>
+                      </div>
+                    ),
+                  })),
+                },
+                {
+                  label: "Cancel",
+                  options: newDataStatusCancel.map((item, index) => ({
+                    value: item.sessionId,
+                    label: (
+                      <div className="gap-2 flex flex-row justify-between">
+                        {item.sessionName}{" "}
+                        <Tag
+                          color="geekblue"
+                          className="mx-2 min-w-[70px] flex justify-center items-center"
+                        >
                           {item?.status}
                         </Tag>
                       </div>
@@ -502,7 +521,11 @@ const SessionArea = () => {
           <div className="w-[20%] h-full flex flex-col justify-between items-center relative min-h-[500px]">
             <div className="w-full bg-slate-50 h-full rounded-lg min-h-[400px] flex flex-col p-4 justify-between">
               <div className="h-[20%] bg-blue-200 p-2 rounded-2xl font-bold">
-                Status:
+                Revenue :{" "}
+                {information?.totalPriceOrders > 0
+                  ? formatMoney((information?.totalPriceOrders * 90) / 100)
+                  : 0}{" "}
+                VND
               </div>
               <div className="h-full">
                 <h1 className="my-2">Meal Session</h1>

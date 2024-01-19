@@ -16,40 +16,34 @@ import { useDispatch } from "react-redux";
 import { useNavigate, useNavigation } from "react-router-dom";
 import { setCurrentArea } from "../redux/directionSlice";
 import { direction } from "../API/Direction";
-import { Tag, Space, Table, ConfigProvider, Input } from "antd";
+import { Tag, Space, Table, ConfigProvider, Input, Select } from "antd";
 import { LuChefHat } from "react-icons/lu";
 import { formatMoney } from "../API/Money";
+import {
+  cancelOrder,
+  getAllMealSessionBySessionId,
+  getAllOrderBySessionId,
+} from "../API/Admin";
+import moment from "moment";
+import { toast } from "react-toastify";
 
-const OrderCard = ({ order }) => {
+const OrderCard = ({ sessionId }) => {
   const navigate = useNavigate();
-  console.log("AreaCard", order);
   const dispatch = useDispatch();
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [newData, setNewData] = useState([]);
+  const [order, setOrder] = useState([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [firstValueObject, setFirstValueObject] = useState({});
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [mealSession, setMealSession] = useState([]);
+  const [selectedRowIsActive, setSelectedRowIsActive] = useState(false);
   const [newOrder, setNewOrder] = useState(order || []);
-  // const {
-  //   // areaId,
-  //   // address,
-  //   // areaName,
-  //   status,
-  //   districtId,
-  //   totalMealSessions,
-  //   totalOrders,
-  //   totalChefs,
-  // } = area || {};
-  // const { areaId, address, areaName } = area?.areaDtoForSessionArea || {};
-  //   const onHandleNavigateToAreaDetail = () => {
-  //     navigate(`${direction.mealSessionInKitchen}/${record.kitchenId}`, {
-  //       kitchenId: 2,
-  //     });
-  //   };
-  const onHandleNavigateToAreaDetail = () => {
-    // dispatch(setCurrentArea(areaId));
-    // localStorage.setItem("areaId", areaId);
-    // navigate(`${direction.manageChefInArea}/${areaId}`, {
-    //   areaId: areaId,
-    // });
+  const fetchAllMealSessionBySessionId = () => {
+    getAllMealSessionBySessionId(sessionId).then((res) => {
+      setMealSession(res);
+    });
   };
   const columns = [
     {
@@ -74,7 +68,7 @@ const OrderCard = ({ order }) => {
       ),
     },
     {
-      title: "Product",
+      title: "Meal Session",
       dataIndex: "meal",
       render: (_, record) => (
         <p className="">
@@ -96,13 +90,38 @@ const OrderCard = ({ order }) => {
       render: (text) => <p className="">{text}</p>,
     },
     {
+      title: "Slot",
+      dataIndex: "quantity",
+      sorter: (a, b) => a.quantity - b.quantity,
+      render: (text) => <p className="">{text}</p>,
+    },
+    {
       title: "Price/VND",
       dataIndex: "totalPrice",
       sorter: (a, b) => a.price - b.price,
       render: (text) => <p className="">{formatMoney(text)}</p>,
     },
     {
-      title: "Status",
+      title: selectedRowIsActive ? (
+        <Select
+          className="min-w-[100px]"
+          options={[
+            {
+              value: "COMPLETED",
+              label: "Complete",
+            },
+            {
+              value: "CANCELLED",
+              label: "Cancel",
+            },
+          ]}
+          onChange={() => {
+            onHandleCancelOrder();
+          }}
+        ></Select>
+      ) : (
+        "Status"
+      ),
       dataIndex: "status",
       render: (text, record, index) => {
         const finalText = text?.toUpperCase();
@@ -114,26 +133,80 @@ const OrderCard = ({ order }) => {
       },
       filters: [
         {
-          text: "DONE",
-          value: "DONE",
+          text: "Completed",
+          value: "Completed",
         },
         {
-          text: "CANCELLED",
+          text: "Cancelled",
           value: "CANCELLED",
         },
         {
-          text: "PAID",
+          text: "Paid",
           value: "PAID",
+        },
+        {
+          text: "Accepted",
+          value: "ACCEPTED",
         },
       ],
       onFilter: (value, record) => record.status.toUpperCase().includes(value),
     },
   ];
-  useEffect(() => {
-    console.log("vào đây nhé");
+  const fetchAllOrderBySessionId = () => {
+    setLoading(true);
+    getAllOrderBySessionId(sessionId)
+      .then((res) => {
+        setOrder(res);
+      })
+      .finally(() => setLoading(false));
+  };
 
-    let filterArray = newOrder;
-    console.log("filteraarray", newOrder);
+  const onHandleCancelOrder = () => {
+    cancelOrder(selectedRowKeys)
+      .then((res) => {
+        toast.success("Cancel Order Completed.");
+        fetchAllOrderBySessionId();
+      })
+      .catch(() => {
+        toast.warning("Can Not Cancel Order.");
+      })
+      .finally(() => {
+        setSelectedRows([]);
+        setSelectedRowKeys([]);
+        setFirstValueObject({});
+        setSelectedRowIsActive(false);
+      });
+  };
+  const onSelectChange = (selectedRowKeys, selectedRows) => {
+    setSelectedRowKeys(selectedRowKeys);
+    if (selectedRows.length > 0) {
+      const firstValueObject = selectedRows[0];
+      setFirstValueObject(firstValueObject);
+      setSelectedRows(selectedRows);
+      setSelectedRowIsActive(true);
+      if (
+        selectedRows.some((item) => item.status !== firstValueObject.status)
+      ) {
+        setSelectedRowIsActive(false);
+      }
+    } else {
+      setFirstValueObject(null);
+      setSelectedRows([]);
+      setSelectedRowIsActive(false);
+    }
+  };
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+    getCheckboxProps: (record) => ({
+      disabled:
+        record.status === "CANCELLED" ||
+        record.status === "COMPLETED" ||
+        record.status === "NOTEAT",
+    }),
+  };
+  useEffect(() => {
+    let filterArray = order;
     if (search) {
       filterArray = filterArray.filter((item) => {
         return item.customerDtoForGetAllOrderBySessionId?.phone.includes(
@@ -143,16 +216,21 @@ const OrderCard = ({ order }) => {
     }
     setNewData(filterArray);
   }, [search]);
+  useEffect(() => {
+    fetchAllOrderBySessionId();
+    // fetchAllMealSessionBySessionId();
+  }, [sessionId]);
   return (
-    <div className="min-h-[500px] w-full flex flex-col ">
+    <div className={` min-h-[500px] w-full flex flex-col`}>
       <div className="my-5 w-[30%]">
         <Input
+          className="box__shadow"
           placeholder="Enter Customer's Number Phone"
           prefix={<FontAwesomeIcon icon={faSearch} />}
           onChange={(text) => setSearch(text.target.value)}
         ></Input>
       </div>
-      <div className="w-full h-full overflow-auto no-scrollbar">
+      <div className="w-full h-full overflow-auto no-scrollbar ">
         <ConfigProvider
           theme={{
             components: {
@@ -170,13 +248,15 @@ const OrderCard = ({ order }) => {
           }}
         >
           <Table
-            dataSource={newData}
+            dataSource={search ? newData : order}
             columns={columns}
             loading={loading}
             pagination={{ pageSize: 5 }}
             rowClassName={(record, index) =>
               `custom-row ${index % 2 === 0 ? "even-row" : "odd-row"}`
             }
+            rowKey={(order) => order.orderId}
+            rowSelection={rowSelection}
             // onRow={(record, index) => {
             //   return {
             //     onClick: (event) => {

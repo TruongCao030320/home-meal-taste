@@ -60,19 +60,15 @@ const SessionCreating = () => {
   const [checkboxAutoCreateNewSession, setCheckboxAutoCreateNewSession] =
     useState(true);
   const dateFormatList = ["DD/MM/YYYY", "DD/MM/YY", "DD-MM-YYYY", "DD-MM-YY"];
-
+  const [sessionTypeArray, setSessionTypeArray] = useState([]);
   const [selectedDate, setSelectedDate] = useState(
     dayjs().format(dateFormatList[2])
   );
-  console.log("enddate bằng bao nhiêu,sesionType", endDate, sessionType);
   const [values, setValues] = useState({
     sessionId: null,
     endDate: dayjs().format("DD-MM-YYYY"),
-    sessionType: null,
-    status: true,
-    registerForMealStatus: true,
-    bookingSlotStatus: false,
-    areaIds: [],
+    status: "",
+    areaIds: [0],
   });
   const disabledDate = (current) => {
     // Disable past dates (dates before today)
@@ -111,7 +107,7 @@ const SessionCreating = () => {
     selectedRowKeys,
     onChange: onSelectChange,
     getCheckboxProps: (record) => ({
-      checked: selectedRowKeys.includes(record.areaId),
+      checked: selectedRowKeys?.includes(record.areaId),
     }),
   };
   const fetchSingleSessionById = () => {
@@ -122,18 +118,17 @@ const SessionCreating = () => {
         // setSelectedDate(res.endDate);
         setValues({
           ...values,
-          sessionId: res.sessionId,
-          endDate: res.endDate,
-          sessionType: res.sessionType?.toUpperCase(),
-          registerForMealStatus: res.registerForMealStatus,
-          bookingSlotStatus: res.bookingSlotStatus,
-          areaIds: res.areaDtoGetSingleSessionBySessionId.map(
+          sessionId: res?.sessionId,
+          endDate: res?.endDate,
+          sessionType: res?.sessionType?.toUpperCase(),
+          status: res?.status,
+          areaIds: res?.areaDtoGetSingleSessionBySessionId.map(
             (item) => item.areaId
           ),
         });
         console.log("selectedrowkesy ban đầu là");
         setSelectedRowKeys(
-          res.areaDtoGetSingleSessionBySessionId.map((item) => {
+          res?.areaDtoGetSingleSessionBySessionId.map((item) => {
             return item.areaId;
           })
         );
@@ -143,9 +138,14 @@ const SessionCreating = () => {
       });
   };
   const onAddNewSession = () => {
-    if (selectedDate && values.sessionType && values.areaIds.length > 0) {
+    if (
+      selectedDate &&
+      sessionTypeArray.length > 0 &&
+      values.areaIds.length > 0
+    ) {
       setLoading(true);
-      createNewSession(values)
+      // console.log("trước khi truyền đi", sessionTypeArray?.length);
+      createNewSession(values, sessionTypeArray)
         .then((res) => {
           navigate(`/${direction.dashboard}/${direction.session}`);
           toast.success("Create New Session Successfully.");
@@ -163,7 +163,12 @@ const SessionCreating = () => {
   };
   const onHandleUpdateSession = () => {
     setLoading(true);
-    if (values.endDate && values.sessionType && values.areaIds.length > 0) {
+    if (
+      values.endDate &&
+      values.sessionType &&
+      values.areaIds.length > 0 &&
+      values.status
+    ) {
       updateSession(values)
         .then((res) => {
           toast.success("Update Session Success.");
@@ -245,6 +250,15 @@ const SessionCreating = () => {
     // seshowAddForm(true);
     updateSessionStatus();
     setShowAddForm(false);
+  };
+  const onSessionTypeCheck = (value) => {
+    // console.log("Sau khi check", value.target.value);
+    setSessionTypeArray(sessionId ? value : value.target.value);
+    // console.log(sessionTypeArray.map((item) => item));
+    // console.log(
+    //   "sau khi thêm vào arrray là bao nhiêu",
+    //   sessionTypeArray?.map((item) => item)
+    // );
   };
   const columns = [
     {
@@ -339,7 +353,15 @@ const SessionCreating = () => {
       <div className="account-search h-[10%] flex items-center  justify-end mb-3">
         <div className="h-[40%] add-btn flex justify-between items-center w-full">
           <div className="flex items-center">
-            <h1>{sessionId == "null" ? "Add New" : "Update"} Session View </h1>
+            <h1>
+              {sessionId == "null" ? (
+                "Add New Session View"
+              ) : (
+                <div className="flex justify-center items-center gap-5">
+                  {session?.sessionName} <Tag>{session?.status}</Tag>
+                </div>
+              )}{" "}
+            </h1>
             {/* {session?.status == true ? (
               <FontAwesomeIcon
                 icon={faCircle}
@@ -391,7 +413,9 @@ const SessionCreating = () => {
             ) : (
               <Link>
                 <Button
-                  disabled={loading ? true : false}
+                  disabled={
+                    loading || session.status === "CLOSED" ? true : false
+                  }
                   className="border-none mr-3 bg-bgBtnColor text-white"
                   onClick={() => onHandleUpdateSession()}
                 >
@@ -406,7 +430,7 @@ const SessionCreating = () => {
       <div className="bg-white p-4 rounded-lg flex justify-between w-full h-full">
         <div className="w-[100%] h-full">
           <Divider orientation="left">Session Information</Divider>
-          <Row className="flex justify-around h-[10%] my-5 lg:my-5">
+          <Row className="flex justify-around items-center h-[10%] my-5 lg:my-5">
             <Col className="" xs={24} md={11} lg={11}>
               <div>
                 <label htmlFor="" className=" flex justify-start pb-2">
@@ -437,32 +461,30 @@ const SessionCreating = () => {
                 />
               </div>
             </Col>
-            <Col className="" xs={24} md={11} lg={11}>
-              <div>
-                <label htmlFor="" className=" flex justify-start pb-2">
-                  Session's Type
-                </label>
-                <Select
+            <Col className="flex flex-col" xs={24} md={11} lg={11}>
+              <label htmlFor="" className=" flex justify-start pb-2">
+                Session's Type
+              </label>
+              {sessionId == "null" ? (
+                <Checkbox.Group
+                  onChange={onSessionTypeCheck}
                   disabled={loading ? true : false}
-                  className="w-full"
-                  placeholder="Choose Session Type"
-                  value={values.sessionType}
-                  options={[
-                    {
-                      value: "LUNCH",
-                      label: "LUNCH",
-                    },
-                    {
-                      value: "DINNER",
-                      label: "DINNER",
-                    },
-                  ]}
-                  onChange={(item) => {
-                    console.log(item);
-                    setValues({ ...values, sessionType: item });
+                >
+                  <Checkbox value="LUNCH">Lunch</Checkbox>
+                  <Checkbox value="DINNER">Dinner</Checkbox>
+                </Checkbox.Group>
+              ) : (
+                <Radio.Group
+                  onChange={(e) => {
+                    setValues({ ...values, sessionType: e.target.value });
                   }}
-                ></Select>
-              </div>
+                  disabled={loading ? true : false}
+                  value={values.sessionType}
+                >
+                  <Radio value="LUNCH">Lunch</Radio>
+                  <Radio value="DINNER">Dinner</Radio>
+                </Radio.Group>
+              )}
             </Col>
           </Row>
           <Row className="flex justify-around h-[10%] my-5 lg:my-5">
@@ -518,29 +540,29 @@ const SessionCreating = () => {
                 disabled={loading ? true : false}
                 options={[
                   {
-                    value: "Open",
+                    value: "OPEN",
                     label: "Open",
                   },
                   {
-                    value: "Booking",
+                    value: "BOOKING",
                     label: "Booking",
                   },
                   {
-                    value: "OnGoing",
+                    value: "ONGOING",
                     label: "On Going",
                   },
                   {
-                    value: "Close",
+                    value: "CLOSED",
                     label: <div>Close</div>,
                   },
                   {
-                    value: "Cancel",
+                    value: "CANCELLED",
                     label: <div>Cancel</div>,
                   },
                 ]}
-                defaultValue="Open"
+                value={values?.status}
                 onChange={(value) => {
-                  console.log("value khi select là", value);
+                  setValues({ ...values, status: value });
                 }}
               ></Select>
             </Col>

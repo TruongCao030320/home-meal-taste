@@ -16,22 +16,25 @@ import {
   faUtensils,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BiRestaurant } from "react-icons/bi";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useNavigation } from "react-router-dom";
 import { setCurrentArea } from "../redux/directionSlice";
 import { direction } from "../API/Direction";
-import { Image } from "antd";
+import { Checkbox, Image } from "antd";
 import { formatMoney } from "../API/Money";
 import MealDrawer from "./MealDrawer";
 import { showDrawer } from "../redux/ToggleDrawerMealSlice.js";
 import CustomDrawer from "./MealDrawer";
-import { LuChefHat } from "react-icons/lu";
+import { LuAreaChart, LuChefHat } from "react-icons/lu";
+import {
+  removeSelectedMealSessionKey,
+  setSelectedMealSessionKey,
+} from "../redux/SelectecedMealSessionKeySlice.js";
+import { TbHome2 } from "react-icons/tb";
 const MealSessionCard = ({ meal }) => {
   const navigate = useNavigate();
-  console.log("MealSessionCard", meal);
-  console.log(meal);
   const dispatch = useDispatch();
   const {
     mealDtoForMealSession,
@@ -40,10 +43,18 @@ const MealSessionCard = ({ meal }) => {
     remainQuantity,
     mealSessionId,
     kitchenDtoForMealSession,
+    areaDtoForMealSession,
     status,
   } = meal || {};
+  console.log(meal);
   const { name, image } = mealDtoForMealSession || {};
   const { name: kitchenName } = kitchenDtoForMealSession || {};
+  const { areaName } = areaDtoForMealSession || {};
+  const [check, setCheck] = useState(false);
+
+  const mealSessionIdKeys = useSelector(
+    (state) => state.selectedMealSessionSlice.mealSessionKeys
+  );
   // const { name: kitchenName } = kitchenDtoForMealSessions || {};
   //   const onHandleNavigateToAreaDetail = () => {
   //     navigate(`${direction.mealSessionInKitchen}/${record.kitchenId}`, {
@@ -60,11 +71,49 @@ const MealSessionCard = ({ meal }) => {
   const toggleDrawerType2 = async () => {
     dispatch(showDrawer(mealSessionId));
   };
+  const onHandleCheckWhenAll = () => {
+    const newArray = mealSessionIdKeys.flat();
+    const isChecked = newArray.includes(mealSessionId);
+    setCheck(isChecked);
+    console.log("isCheck", isChecked);
+  };
+  useEffect(() => {
+    // console.log(
+    //   "Chạy",
+    //   areaKeys.map((item) => item)
+    // );
+    onHandleCheckWhenAll();
+    console.log("mealsesionIdkeys", mealSessionIdKeys);
+  }, [mealSessionIdKeys]);
+  const onHandleCheck = (e) => {
+    e.stopPropagation();
+    if (e.target.checked) {
+      dispatch(setSelectedMealSessionKey(mealSessionId));
+      console.log(
+        "có chạy checked là mealsessiondi lúc này truyền đi là",
+        mealSessionId
+      );
+    } else {
+      dispatch(removeSelectedMealSessionKey(mealSessionId));
+    }
+  };
   return (
     <div
       className="w-[100%] min-h-[300px] max-h-[300px]  lg:min-h-[200px]   rounded-2xl shadow-lg border-none p-2 relative hover:cursor-pointer hover:shadow-2xl transition-all duration-500 "
       onClick={toggleDrawerType2}
     >
+      <Checkbox
+        className="absolute top-2 left-3"
+        onClick={onHandleCheck}
+        checked={check}
+        disabled={
+          status === "CANCELLED" ||
+          status === "COMPLETED" ||
+          status === "REJECTED"
+            ? true
+            : false
+        }
+      ></Checkbox>
       {/* <CustomDrawer meal={{}} /> */}
       <div className="  h-[40%] rounded-lg overflow-hidden">
         <img src={image} className=" max-w-full max-h-[200px] w-full"></img>
@@ -74,7 +123,7 @@ const MealSessionCard = ({ meal }) => {
           {name}
         </h1>
       </div>
-      <div className="w-full flex flex-col h-[35%]">
+      <div className="w-full flex flex-col h-[35%] gap-1">
         <div>
           <FontAwesomeIcon icon={faCoins} color="#FFD44E" className="mx-2" />
           <span className="font-bold text-blue-300">
@@ -95,6 +144,10 @@ const MealSessionCard = ({ meal }) => {
         <div className="flex flex-row ">
           <LuChefHat color="#FFD44E" fontSize={18} className="mx-2" />
           <span className="font-bold text-blue-300">{kitchenName}</span>
+        </div>
+        <div className="flex flex-row ">
+          <TbHome2 color="#FFD44E" fontSize={18} className="mx-2" />
+          <span className="font-bold text-blue-300">{areaName}</span>
         </div>
         <div className="absolute bottom-2 right-5">
           <span
