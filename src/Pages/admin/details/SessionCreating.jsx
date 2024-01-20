@@ -532,22 +532,6 @@ const SessionCreating = () => {
                       value: "OPEN",
                       label: "Open",
                     },
-                    {
-                      value: "BOOKING",
-                      label: "Booking",
-                    },
-                    {
-                      value: "ONGOING",
-                      label: "On Going",
-                    },
-                    {
-                      value: "CLOSED",
-                      label: <div>Close</div>,
-                    },
-                    {
-                      value: "CANCELLED",
-                      label: <div>Cancel</div>,
-                    },
                   ]}
                   value={values?.status}
                   onChange={(value) => {

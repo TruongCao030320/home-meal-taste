@@ -315,10 +315,8 @@ const Order = () => {
     if (areaIdValue) {
       console.log("areaIdValue", areaIdValue);
       fillteredArray = fillteredArray.filter((item) => {
-        console.log(item.mealSessionDto1?.mealDto1?.kitchenDto1?.areaId);
-        return (
-          item.mealSessionDto1?.mealDto1?.kitchenDto1?.areaId === areaIdValue
-        );
+        console.log(item.mealSessionDto1?.sessionDto1?.areaId);
+        return item.mealSessionDto1?.sessionDto1?.areaId === areaIdValue;
       });
     }
     if (chefIdValue) {

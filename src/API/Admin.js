@@ -260,7 +260,7 @@ export const getDishByMealId = async (id) => {
 };
 export const deleteSession = async (id) => {
   await axios.delete(
-    `https://homemealtaste.azurewebsites.net/api/Session?sessionid=${id}`
+    `https://homemealtaste.azurewebsites.net/api/Session/delete-session?sessionid=${id}`
   );
 };
 export const updateStatusMealSession = async (id, status) => {

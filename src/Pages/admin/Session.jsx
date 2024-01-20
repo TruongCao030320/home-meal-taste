@@ -121,9 +121,10 @@ const Session = () => {
     deleteSession(id)
       .then((res) => {
         toast.success("Delete completed.");
-        fetchSessionByArea(areaValue ? areaValue : areaDefault);
+        // fetchSessionByArea(areaValue ? areaValue : areaDefault);
+        fetchAllSession();
       })
-      .catch((error) => toast.error("Can't Delete Session !"))
+      .catch((error) => toast.error("Can Not Delete Session !"))
       .finally(() => {
         setShow(false);
       });
@@ -539,7 +540,7 @@ const Session = () => {
               onHandleNavigateToSessionDetail(record);
             }}
           />
-          {/* <Link to="#">
+          <Link to="#">
             <FontAwesomeIcon
               icon={faTrash}
               fontSize={22}
@@ -547,7 +548,7 @@ const Session = () => {
               className="hover:text-green-500 "
               onClick={() => onHandleShowModalDeleteSession(record.sessionId)}
             />
-          </Link> */}
+          </Link>
         </Space>
       ),
     },
@@ -656,7 +657,7 @@ const Session = () => {
           </ConfigProvider>
         </div>
       </div>
-      {/* <Modal
+      <Modal
         title="Confirmation"
         open={show}
         onOk={onHandleDeleteSession}
@@ -665,7 +666,7 @@ const Session = () => {
         cancelText="Cancel"
       >
         <p>Are you sure to delete this record?</p>
-      </Modal> */}
+      </Modal>
       <Modal
         title="Confirm On Off Session"
         open={showAddForm}
