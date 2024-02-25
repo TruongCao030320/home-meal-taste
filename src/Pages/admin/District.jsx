@@ -202,7 +202,7 @@ const District = () => {
     },
   ];
   const { RangePicker } = DatePicker;
-  const newData = district.filter((district) => {
+  const newData = district?.filter((district) => {
     const searchNormalize = normalizeString(search || "");
     const areaNormalize = normalizeString(district?.districtName);
     return areaNormalize.includes(searchNormalize);

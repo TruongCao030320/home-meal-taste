@@ -38,6 +38,7 @@ import {
 } from "../../API/Admin";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDeleteLeft, faEdit } from "@fortawesome/free-solid-svg-icons";
+import { getAllCategories } from "../../API/newApi";
 const normalizeString = (str) => {
   return str
     .toLowerCase()
@@ -85,7 +86,7 @@ const DishType = () => {
   };
   const fetchAllDishType = () => {
     setLoading(true);
-    getAllDishType()
+    getAllCategories()
       .then((res) => {
         setDishType(res.slice().reverse());
       })
@@ -139,10 +140,9 @@ const DishType = () => {
   };
   const onHandleUpdateDishType = () => {
     setLoading(true);
-    console.log("on handle update dishtype", updateItem);
     updateDishType(updateItem)
       .then((res) => {
-        fetchAllDishType();
+        // fetchAllDishType();
         toast.success("Update Dish Type Success");
       })
       .finally(() => {
@@ -162,24 +162,8 @@ const DishType = () => {
   const columns = [
     {
       title: "ID",
-      dataIndex: "dishTypeId",
       render: (text) => <div className="font-bold">{text}</div>,
     },
-    {
-      title: "Type Name",
-      dataIndex: "name",
-      render: (text) => {
-        return <div className="font-bold py-2 px-6">{text}</div>;
-      },
-    },
-    {
-      title: "Description",
-      dataIndex: "description",
-      render: (text) => {
-        return <div className="font-bold py-2 px-6">{text}</div>;
-      },
-    },
-
     {
       title: "Action",
       key: "action",
@@ -219,18 +203,18 @@ const DishType = () => {
   ];
 
   const onHandleDisableUpdateForm = () => {
-    if (
-      normalizeString(firstValueUpdate?.name.trim() || "") ===
-        normalizeString(updateItem?.name.trim() || "") &&
-      normalizeString(firstValueUpdate?.description.trim() || "") ===
-        normalizeString(updateItem?.description.trim() || "")
-    ) {
-      console.log("Strings are equal name");
-      setDisableUpdateSaveButton(true);
-    } else {
-      console.log("Strings are not equal name");
-      setDisableUpdateSaveButton(false);
-    }
+    // if (
+    //   normalizeString(firstValueUpdate?.name.trim() || "") ===
+    //     normalizeString(updateItem?.name.trim() || "") &&
+    //   normalizeString(firstValueUpdate?.description.trim() || "") ===
+    //     normalizeString(updateItem?.description.trim() || "")
+    // ) {
+    //   console.log("Strings are equal name");
+    //   setDisableUpdateSaveButton(true);
+    // } else {
+    //   console.log("Strings are not equal name");
+    //   setDisableUpdateSaveButton(false);
+    // }
   };
   useEffect(() => {
     onHandleDisableUpdateForm();

@@ -1,27 +1,3 @@
-/* @tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@layer base {
-  body{
-    @apply flex items-center justify-center m-auto p-[1rem] bg-slate-100;
-  }
-  html{
-    @apply font-festive
-  }
-}
-@layer components {
-  .mainContainer {
-    @apply w-[95vw] h-[95vh] shadow bg-white border-solid border-stone-300 rounded-lg p-5  overflow-y-scroll  relative;
-  }
-  .container {
-    @apply h-full;
-  }
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-} */
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

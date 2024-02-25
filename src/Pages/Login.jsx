@@ -10,23 +10,32 @@ import { login } from "../API/Login";
 import { direction } from "../API/Direction";
 import { getAllRevenue } from "../API/Admin";
 import { useDispatch } from "react-redux";
-import { getUserInfor } from "../redux/userSlice";
+import { getUserInforAction } from "../redux/userSlice";
+import video from "../assets/images/pan.mp4";
 const Login = () => {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+    username: "kminchelle",
+    password: "0lelplR",
   });
+
   const [loading, setLoading] = useState(false);
   const handleInputChange = (e) => {
+    console.log("E la2", e.target.name);
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+  const handleInputChangeUserName = (e) => {
+    console.log("Input name form", e.target.name);
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
   const navigate = useNavigate();
   const onFinish = (values) => {
     setLoading(true);
-    login(values, navigate, message)
+    login(formData, navigate, message)
       .then((res) => {
-        dispatch(getUserInfor(res));
+        // dispatch(getUserInforAction(res));
+        message.success("Login completed.");
+        dispatch({ type: "LOGIN" });
       })
       .catch((err) => {
         console.log(err);
@@ -34,6 +43,8 @@ const Login = () => {
       .finally(() => {
         setLoading(false);
       });
+    // dispatch({ type: "LOGIN" });
+    // setLoading(false);
   };
 
   return (
@@ -68,12 +79,16 @@ const Login = () => {
         </h3>
         <Form name="login" onFinish={onFinish} className="w-full">
           <Form.Item
-            name="phone"
-            rules={[{ required: true, message: "Please enter your email!" }]}
+            name="username"
+            // rules={[{ required: true, message: "Please enter your email!" }]}
           >
             <Input
+              onChange={handleInputChangeUserName}
+              value={formData.username}
               prefix={<UserOutlined />}
+              defaultValue="kminchelle"
               size="large"
+              name="username"
               placeholder="Enter your phone"
               className="w-full p-2   border box__shadow border-solid border-[#0066ff61] focus:outline-none text-[16px] focus:border-b-primaryColor
               leading-7 text-headingColor placeholder:text-textColor rounded-md cursor-pointer mt-3
@@ -83,11 +98,12 @@ const Login = () => {
 
           <Form.Item
             name="password"
-            rules={[{ required: true, message: "Please enter your password!" }]}
+            // rules={[{ required: true, message: "Please enter your password!" }]}
           >
             <Input.Password
               onChange={handleInputChange}
               value={formData.password}
+              defaultValue="0lelplR"
               prefix={<RiLockPasswordLine className="text-[20px]" />}
               type="password"
               placeholder="Enter your password"
@@ -125,10 +141,7 @@ const Login = () => {
         muted
         className="absolute top-0 left-0 w-full h-full object-cover z-10 opacity-80"
       >
-        <source
-          src={`${"https://homemealtaste.blob.core.windows.net/video/309320ef-804a-4451-bfb0-95c205c9ea4b.mp4"}`}
-          type="video/mp4"
-        />
+        <source src={video} type="video/mp4" />
         {/* You can also add additional source elements for different video formats */}
         {/* <source src="path/to/your/background-video.webm" type="video/webm" /> */}
         {/* <source src="path/to/your/background-video.ogv" type="video/ogg" /> */}

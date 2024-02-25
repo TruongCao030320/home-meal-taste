@@ -182,20 +182,20 @@ const SessionArea = () => {
     setShowAddForm(false);
   };
   const fetchAllSession = () => {
-    setLoading(true);
-    getAllSession()
-      .then((res) => {
-        setSession(res.slice().reverse());
-        setNewData(
-          res?.filter((item) => {
-            return item.endDate.includes(selectedDate);
-          })
-        );
-      })
-      .catch((error) => console.log(error))
-      .finally(() => {
-        setLoading(false);
-      });
+    setLoading(false);
+    // getAllSession()
+    //   .then((res) => {
+    //     setSession(res.slice().reverse());
+    //     setNewData(
+    //       res?.filter((item) => {
+    //         return item.endDate.includes(selectedDate);
+    //       })
+    //     );
+    //   })
+    //   .catch((error) => console.log(error))
+    //   .finally(() => {
+    //     setLoading(false);
+    //   });
   };
   const fetchAllInformationInSession = () => {
     setLoading(true);
@@ -258,12 +258,12 @@ const SessionArea = () => {
   const tabItems = [
     {
       key: "1",
-      label: <div className="font-bold">Areas</div>,
+      label: <div className="font-bold">Branch</div>,
       children: <AreaComponent sessionId={sessionIdValue} />,
     },
     {
       key: "2",
-      label: <div className="font-bold">Meal Sessions</div>,
+      label: <div className="font-bold">Products</div>,
       children: <MealSessionComponent sessionId={sessionIdValue} />,
     },
     {
@@ -293,7 +293,7 @@ const SessionArea = () => {
     // fetchAllInformationInSession();
   }, [refresh]);
   useEffect(() => {
-    fetchAllSession();
+    // fetchAllSession();
     setSelectedRowKeys([]);
     setIsModalOpen(false);
     // fetchAllInformationInSession();

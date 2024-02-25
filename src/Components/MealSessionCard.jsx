@@ -27,27 +27,31 @@ import { formatMoney } from "../API/Money";
 import MealDrawer from "./MealDrawer";
 import { showDrawer } from "../redux/ToggleDrawerMealSlice.js";
 import CustomDrawer from "./MealDrawer";
-import { LuAreaChart, LuChefHat } from "react-icons/lu";
+import { LuAreaChart, LuChefHat, LuPercent } from "react-icons/lu";
 import {
   removeSelectedMealSessionKey,
   setSelectedMealSessionKey,
 } from "../redux/SelectecedMealSessionKeySlice.js";
-import { TbHome2 } from "react-icons/tb";
+import { TbBrand4Chan, TbHome2 } from "react-icons/tb";
 const MealSessionCard = ({ meal }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const {
-    mealDtoForMealSession,
+    description,
     price,
+    title,
+    images,
     quantity,
     remainQuantity,
     mealSessionId,
     kitchenDtoForMealSession,
     areaDtoForMealSession,
     status,
+    discountPercentage,
+    stock,
+    brand,
   } = meal || {};
   // console.log(meal);
-  const { name, image } = mealDtoForMealSession || {};
   const { name: kitchenName } = kitchenDtoForMealSession || {};
   const { areaName } = areaDtoForMealSession || {};
   const [check, setCheck] = useState(false);
@@ -118,15 +122,18 @@ const MealSessionCard = ({ meal }) => {
         }
       ></Checkbox>
       {/* <CustomDrawer meal={{}} /> */}
-      <div className="  h-[40%] rounded-lg overflow-hidden">
-        <img src={image} className=" max-w-full max-h-[200px] w-full"></img>
+      <div className="h-[40%] rounded-lg overflow-hidden">
+        <img src={images[0]} className=" max-w-full max-h-[200px] w-full"></img>
       </div>
       <div className="w-full flex flex-col justify-center items-center bg-[#F1ECFF] rounded-lg my-2 h-[10%]">
         <h1 className="p-2 rounded-lg text-[#A285EE]  font-bold text-xs">
-          {name}
+          {title}
         </h1>
       </div>
-      <div className="w-full flex flex-col h-[35%] gap-1">
+      <div className="w-full flex flex-col h-[30%] gap-1 ">
+        {/* <div className="overflow-hidden h-[70%] w-full flex justify-center items-start text-blue-300">
+          {description}
+        </div> */}
         <div>
           <FontAwesomeIcon icon={faCoins} color="#FFD44E" className="mx-2" />
           <span className="font-bold text-blue-300">
@@ -134,34 +141,28 @@ const MealSessionCard = ({ meal }) => {
             {formatMoney(price)} VND
           </span>
         </div>
-        <div>
-          <FontAwesomeIcon
-            icon={faUserGroup}
-            color="#FFD44E"
-            className="mx-2"
-          />
-          <span className="font-bold text-blue-300">
-            {remainQuantity}/{quantity} Slots
-          </span>
-        </div>
         <div className="flex flex-row ">
-          <LuChefHat color="#FFD44E" fontSize={18} className="mx-2" />
-          <span className="font-bold text-blue-300">{kitchenName}</span>
+          <LuPercent color="#FFD44E" fontSize={18} className="mx-2" />
+          <span className="font-bold text-blue-300">{discountPercentage}%</span>
         </div>
         <div className="flex flex-row ">
           <TbHome2 color="#FFD44E" fontSize={18} className="mx-2" />
-          <span className="font-bold text-blue-300">{areaName}</span>
+          <span className="font-bold text-blue-300">{stock}</span>
+        </div>
+        <div className="flex flex-row ">
+          <TbBrand4Chan color="#FFD44E" fontSize={18} className="mx-2" />
+          <span className="font-bold text-blue-300">{brand}</span>
         </div>
         <div className="absolute bottom-2 right-5">
           <span
             className={`font-bold ${
-              status.includes("APPROVED")
+              status?.includes("APPROVED")
                 ? "text-green-300"
-                : status.includes("PROCESSING")
+                : status?.includes("PROCESSING")
                 ? "text-blue-300"
-                : status.includes("MAKING")
+                : status?.includes("MAKING")
                 ? "text-yellow-300"
-                : status.includes("COMPLETED")
+                : status?.includes("COMPLETED")
                 ? "text-orange-300"
                 : "text-gray-400"
             }`}

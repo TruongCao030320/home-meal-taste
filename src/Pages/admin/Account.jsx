@@ -19,6 +19,7 @@ import { Modal } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { direction } from "../../API/Direction";
+import axios from "axios";
 const { RangePicker } = DatePicker;
 
 const Account = () => {
@@ -153,12 +154,16 @@ const Account = () => {
   const columns = [
     {
       title: "ID",
-      dataIndex: "userId",
+      dataIndex: "id",
       render: (text) => (
         <div className="rounded-full overflow-hidden min-w-[120px] flex justify-start items-center font-bold">
           {text}
         </div>
       ),
+    },
+    {
+      title: "Avatar",
+      render: (record) => <img src={record?.image} className="w-32 h-32"></img>,
     },
     {
       title: "Phone Number",
@@ -257,12 +262,19 @@ const Account = () => {
   });
   useEffect(() => {
     setLoading(true);
-    getAllUser(toast, navigate)
+    // getAllUser(toast, navigate)
+    axios
+      .get("https://dummyjson.com/users")
       .then((res) => {
-        setData(res.slice().reverse());
+        return res.data;
+      })
+      .then((res) => {
+        console.log("res", res.users);
+        setData(res.users.slice().reverse());
         setLoading(false);
       })
-      .catch((error) => console.log(error));
+      .catch((error) => console.log(error))
+      .finally(() => setLoading(false));
   }, []);
   return (
     <div className="w-full h-full p-4 rounded-lg">
@@ -319,7 +331,7 @@ const Account = () => {
             }}
           >
             <Table
-              dataSource={newData ? newData : data}
+              dataSource={data}
               columns={columns}
               loading={loading}
               pagination={{ pageSize: 5 }}

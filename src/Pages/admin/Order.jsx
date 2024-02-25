@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { fakerDE as faker } from "@faker-js/faker";
 import {
   Table,
   Tag,
@@ -47,7 +48,45 @@ const Order = () => {
   const [selectedDate, setSelectedDate] = useState(
     dayjs().format("DD-MM-YYYY")
   );
-  const [data, setData] = useState([]);
+  // const [data, setData] = useState([]);
+  const data = [
+    {
+      orderId: faker.number.int(),
+      product: "Iphone 15 Pro Max",
+      name: faker.internet.userName(),
+      email: faker.internet.email(),
+      store: faker.internet.userName(),
+      time: faker.date.birthdate(),
+      price: Math.random() * 100000 + 32000,
+    },
+    {
+      orderId: faker.number.int(),
+      product: "Iphone 15 Pro Max",
+      name: faker.internet.userName(),
+      email: faker.internet.email(),
+      store: faker.internet.userName(),
+      time: faker.date.birthdate(),
+      price: Math.random() * 100000 + 32000,
+    },
+    {
+      orderId: faker.number.int(),
+      product: "Iphone 15 Pro Max",
+      name: faker.internet.userName(),
+      email: faker.internet.email(),
+      store: faker.internet.userName(),
+      time: faker.date.birthdate(),
+      price: Math.random() * 100000 + 32000,
+    },
+    {
+      orderId: faker.number.int(),
+      product: "Iphone 15 Pro Max",
+      name: faker.internet.userName(),
+      email: faker.internet.email(),
+      store: faker.internet.userName(),
+      time: faker.date.birthdate(),
+      price: Math.random() * 100000 + 32000,
+    },
+  ];
   const columns = [
     {
       title: "ID",
@@ -64,36 +103,25 @@ const Order = () => {
       // render: (name) => `${name.first} ${name.last}`
       render: (_, record) => (
         <div className="flex flex-col">
-          <p className="font-bold">{record.customerDto1?.name}</p>
-          <p className="font-bold">{record.customerDto1?.phone}</p>
+          <p className="font-bold">{record.name}</p>
+          <p className="font-bold">{record.email}</p>
         </div>
       ),
     },
     {
       title: "Store",
       dataIndex: "meal",
-      render: (_, record) => (
-        <p className="font-bold">
-          {record.mealSessionDto1.mealDto1?.kitchenDto1?.name}
-        </p>
-      ),
+      render: (_, record) => <p className="font-bold">{record.store}</p>,
     },
     {
       title: "Product",
-      dataIndex: "meal",
-      render: (_, record) => (
-        <p className="font-bold">{record.mealSessionDto1?.mealDto1?.name}</p>
-      ),
+      dataIndex: "product",
+      render: (_, record) => <p className="font-bold">{record.product}</p>,
     },
     {
       title: "Create At",
       dataIndex: "time",
-      sorter: (a, b) => {
-        const dateA = moment(a.time, "DD-MM-YYYY HH:mm");
-        const dateB = moment(b.time, "DD-MM-YYYY HH:mm");
-        return dateA - dateB;
-      },
-      render: (text) => <p className="font-bold">{text}</p>,
+      render: (record) => <p className="font-bold">{record.time}</p>,
     },
     {
       title: "Price/VND",
@@ -121,7 +149,7 @@ const Order = () => {
       ),
       dataIndex: "status",
       render: (text, record, index) => {
-        const finalText = text.toUpperCase();
+        const finalText = "PAID";
         return (
           <Tag color="green" className="px-4 py-1">
             <p className="font-bold">{finalText}</p>
@@ -153,16 +181,19 @@ const Order = () => {
       onFilter: (value, record) => record.status.toUpperCase().includes(value),
     },
   ];
-  useEffect(() => {
-    setLoading(true);
-    getAllOrder()
-      .then((res) => {
-        setData(res.slice().reverse());
-        setNewData(res.slice().reverse());
-        setLoading(false);
-      })
-      .catch((error) => console.log(error));
-  }, []);
+  // useEffect(() => {
+  //   setLoading(true);
+  //   getAllOrder()
+  //     .then((res) => {
+  //       setData(res.slice().reverse());
+  //       setNewData(res.slice().reverse());
+  //       setLoading(false);
+  //     })
+  //     .catch((error) => console.log(error))
+  //     .finally(() => {
+  //       setLoading(false);
+  //     });
+  // }, []);
   useEffect(() => {
     console.log(typeof search);
   }, [search]);
@@ -222,7 +253,7 @@ const Order = () => {
           <div className="w-[70%]">
             <Select
               className="w-full"
-              options={session.map((item) => ({
+              options={session?.map((item) => ({
                 value: item.sessionId,
                 label: item.sessionName,
               }))}
@@ -240,7 +271,7 @@ const Order = () => {
           <div className="w-[70%]">
             <Select
               className="w-full"
-              options={area.map((item) => ({
+              options={area?.map((item) => ({
                 value: item.areaId,
                 label: item.areaName,
               }))}
@@ -258,7 +289,7 @@ const Order = () => {
           <div className="w-[70%]">
             <Select
               className="w-full"
-              options={chef.map((item) => ({
+              options={chef?.map((item) => ({
                 value: item.kitchenId,
                 label: item.name,
               }))}
@@ -294,42 +325,42 @@ const Order = () => {
       setChef(res);
     });
   };
-  useEffect(() => {
-    let fillteredArray = data;
-    if (selectedDate) {
-      fillteredArray = fillteredArray.filter((item) => {
-        return item.time?.split(" ")[0].includes(selectedDate);
-      });
-    }
-    if (search) {
-      fillteredArray = fillteredArray.filter((item) => {
-        return item.customerDto1?.phone.includes(search);
-      });
-    }
-    if (sessionIdValue) {
-      console.log("SessionIdValue", sessionIdValue);
-      fillteredArray = fillteredArray.filter((item) => {
-        return item.mealSessionDto1?.sessionDto1?.sessionId === sessionIdValue;
-      });
-    }
-    if (areaIdValue) {
-      console.log("areaIdValue", areaIdValue);
-      fillteredArray = fillteredArray.filter((item) => {
-        console.log(item.mealSessionDto1?.sessionDto1?.areaId);
-        return item.mealSessionDto1?.sessionDto1?.areaId === areaIdValue;
-      });
-    }
-    if (chefIdValue) {
-      console.log("chefIdvalue", chefIdValue);
-      fillteredArray = fillteredArray.filter((item) => {
-        return (
-          item.mealSessionDto1?.mealDto1?.kitchenDto1?.kitchenId === chefIdValue
-        );
-      });
-    }
-    setNewData(fillteredArray);
-    fetchAllSession();
-  }, [search, selectedDate, sessionIdValue, chefIdValue, areaIdValue]);
+  // useEffect(() => {
+  //   let fillteredArray = data;
+  //   if (selectedDate) {
+  //     fillteredArray = fillteredArray.filter((item) => {
+  //       return item.time?.split(" ")[0].includes(selectedDate);
+  //     });
+  //   }
+  //   if (search) {
+  //     fillteredArray = fillteredArray.filter((item) => {
+  //       return item.customerDto1?.phone.includes(search);
+  //     });
+  //   }
+  //   if (sessionIdValue) {
+  //     console.log("SessionIdValue", sessionIdValue);
+  //     fillteredArray = fillteredArray.filter((item) => {
+  //       return item.mealSessionDto1?.sessionDto1?.sessionId === sessionIdValue;
+  //     });
+  //   }
+  //   if (areaIdValue) {
+  //     console.log("areaIdValue", areaIdValue);
+  //     fillteredArray = fillteredArray.filter((item) => {
+  //       console.log(item.mealSessionDto1?.sessionDto1?.areaId);
+  //       return item.mealSessionDto1?.sessionDto1?.areaId === areaIdValue;
+  //     });
+  //   }
+  //   if (chefIdValue) {
+  //     console.log("chefIdvalue", chefIdValue);
+  //     fillteredArray = fillteredArray.filter((item) => {
+  //       return (
+  //         item.mealSessionDto1?.mealDto1?.kitchenDto1?.kitchenId === chefIdValue
+  //       );
+  //     });
+  //   }
+  //   setNewData(fillteredArray);
+  //   fetchAllSession();
+  // }, [search, selectedDate, sessionIdValue, chefIdValue, areaIdValue]);
   useEffect(() => {
     fetchAllSession();
     fetchAllArea();
@@ -400,7 +431,7 @@ const Order = () => {
           >
             <Table
               // dataSource={search ? newData : data}
-              dataSource={newData}
+              dataSource={data}
               columns={columns}
               loading={loading}
               pagination={{ pageSize: 5 }}
@@ -409,13 +440,6 @@ const Order = () => {
               rowClassName={(record, index) =>
                 `custom-row ${index % 2 === 0 ? "even-row" : "odd-row"}`
               }
-              onRow={(record, index) => {
-                return {
-                  onClick: (event) => {
-                    navigatePage(record.orderId);
-                  },
-                };
-              }}
             ></Table>
           </ConfigProvider>
         </div>

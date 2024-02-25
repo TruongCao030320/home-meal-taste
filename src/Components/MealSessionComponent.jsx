@@ -14,6 +14,7 @@ import {
   setSelectedMealSessionKey,
 } from "../redux/SelectecedMealSessionKeySlice";
 import { toast } from "react-toastify";
+import axios from "axios";
 const normalizeString = (str) => {
   return str
     .toLowerCase()
@@ -38,10 +39,19 @@ const MealSessionComponent = ({ sessionId }) => {
   const [sessionArea, setSessionArea] = useState([]);
   const fetchAllMealSessionBySessionId = () => {
     setLoading(true);
-    getAllMealSessionBySessionId(sessionId)
+    axios
+      .get("https://dummyjson.com/products")
       .then((res) => {
-        setMealSession(res);
-        setNewData(res);
+        // console.log("lấy đc gì đây", res?.json().products);
+        // setMealSession(res.products);
+        // setNewData(res.products);
+        console.log("res là", res);
+        return res.data;
+      })
+      .then((data) => {
+        console.log("lấy đc gì đây", data.products);
+        setMealSession(data.products);
+        setNewData(data.products);
       })
       .finally(() => {
         setLoading(false);
@@ -360,7 +370,7 @@ const MealSessionComponent = ({ sessionId }) => {
                 </div>
               </div>
             </div>
-            <div className=" h-full min-h-[500px] w-full flex flex-col justify-around relative">
+            <div className=" h-full min-h-[800px] w-full flex flex-col justify-around relative overflow-auto no-scrollbar">
               <div className="w-full absolute top-0 h-full">
                 <div className="w-full grid grid-cols-1 gap-5  md:grid-cols-2 lg:grid-cols-3 ">
                   {newData?.map((meal, index) => (

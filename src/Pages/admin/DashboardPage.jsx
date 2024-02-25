@@ -13,6 +13,7 @@ import {
   LineChart,
 } from "recharts";
 import { Component } from "react";
+import { fakerDE as faker } from "@faker-js/faker";
 import {
   countAllOrder,
   countCustomer,
@@ -26,7 +27,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { formatMoney } from "../../API/Money";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { paperclip } from "fontawesome";
+import { paperclip, user } from "fontawesome";
 import { faNewspaper, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import { direction } from "../../API/Direction";
 import alternateImage from "../../assets/images/buncha.png";
@@ -38,14 +39,86 @@ const DashboardPage = () => {
   const [topCustomer, setTopCustomer] = useState([]);
   const [customer, setCustomer] = useState();
   const [order, setOrder] = useState(0);
-  const [money, setMoney] = useState([
+  const money = [
     {
-      month: "",
-      money: 0,
+      month: "Feb",
+      money: 5000,
     },
-  ]);
+    {
+      month: "Jan",
+      money: 5000,
+    },
+    {
+      month: "Mar",
+      money: 12000,
+    },
+    {
+      month: "Apr",
+      money: 70000,
+    },
+    {
+      month: "May",
+      money: 36000,
+    },
+    {
+      month: "Jun",
+      money: 30100,
+    },
+    {
+      month: "July",
+      money: 30200,
+    },
+    {
+      month: "Aug",
+      money: 39000,
+    },
+    {
+      month: "Sep",
+      money: 30001,
+    },
+    {
+      month: "Nov",
+      money: 30002,
+    },
+    {
+      month: "Dec",
+      money: 300055,
+    },
+  ];
   const [revenue, setRevenue] = useState({});
-  const [transaction, setTransaction] = useState([]);
+
+  const transaction = [
+    {
+      user: faker.number.int(),
+      status: "has paid for order",
+      order: Math.random(),
+    },
+    {
+      user: faker.number.int(),
+      status: "has paid for order",
+      order: faker.number.int(),
+    },
+    {
+      user: faker.number.int(),
+      status: "has paid for order",
+      order: faker.number.int(),
+    },
+    {
+      user: faker.number.int(),
+      status: "has paid for order",
+      order: faker.number.int(),
+    },
+    {
+      user: faker.number.int(),
+      status: "has paid for order",
+      order: faker.number.int(),
+    },
+    {
+      user: faker.number.int(),
+      status: "has paid for order",
+      order: faker.number.int(),
+    },
+  ];
   const card = [
     {
       icon: (
@@ -65,7 +138,7 @@ const DashboardPage = () => {
         </svg>
       ),
       title: "Revenue",
-      number: formatMoney(revenue.result) + " VND",
+      number: formatMoney(revenue?.result || 0) + " VND",
       bgColor: "bg-green-300",
       bgCard: "bg-gray-400",
     },
@@ -120,9 +193,9 @@ const DashboardPage = () => {
     });
   };
   const fetchAllTransaction = () => {
-    getAllTransactionOrderType().then((res) => {
-      setTransaction(res?.slice().reverse());
-    });
+    // getAllTransactionOrderType().then((res) => {
+    //   setTransaction(res?.slice().reverse());
+    // });
   };
   const fetchCountAllOrder = () => {
     countAllOrder().then((res) => {
@@ -329,25 +402,21 @@ const DashboardPage = () => {
     },
   ];
   const renderTimelineItems = (transactions) => {
-    return transactions.slice(0, 10).map((transaction) => (
+    return transactions?.map((transaction) => (
       <Timeline.Item key={transaction.id}>
         <p
           className="text-sm font-bold text-amber-400 underline hover:cursor-pointer hover:text-zinc-400"
           onClick={() => {
-            handleUserTimelineClick(
-              transaction.walletDtoGetAllTransaction?.userDtoGetAllTransaction
-                ?.userId
-            );
+            // handleUserTimelineClick(
+            //   transaction.walletDtoGetAllTransaction?.userDtoGetAllTransaction
+            //     ?.userId
+            // );
           }}
         >
-          {"User #" +
-            transaction.walletDtoGetAllTransaction?.userDtoGetAllTransaction
-              ?.name}{" "}
+          {"User #" + transaction.user}
         </p>
-        <p className="font-bold">
-          {" "}
-          - {transaction.description} - {transaction.date}
-        </p>
+        <p className="font-bold">{transaction.status}</p>
+        <p className="font-bold"> - #{transaction.order}</p>
       </Timeline.Item>
     ));
   };
@@ -438,7 +507,7 @@ const DashboardPage = () => {
               <div className="account-search h-[10%] flex items-center  justify-end mb-3 p-3">
                 <div className="h-[40%]  add-btn flex flex-col justify-between items-center w-full">
                   <div className="my-3">
-                    <h1>Top Kitchen</h1>
+                    <h1>Top Branch</h1>
                   </div>
                   <div className="w-full h-full  no-scrollbar p-1">
                     <ConfigProvider

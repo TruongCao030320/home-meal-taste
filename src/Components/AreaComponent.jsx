@@ -10,6 +10,7 @@ import {
   getSingleArea,
 } from "../API/Admin";
 import { toast } from "react-toastify";
+import { getAllUsers } from "../API/newApi";
 const normalizeString = (str) => {
   return str
     .toLowerCase()
@@ -29,72 +30,51 @@ const AreaComponent = ({ sessionId }) => {
 
   const fetchAllSessionAreaBySessionId = () => {
     setLoading(true);
-    if (sessionId == null) {
-      setArea([]);
-      setLoading(false);
-    } else {
-      // getAllSessionAreaBySessionId(sessionIdValue)
-      getAllInformationInSession(sessionId)
-        .then((res) => {
-          setArea(res.areaList || []);
-          console.log(
-            "AreaList Information",
-            res?.areaList.map((item) => item)
-          );
-          setNewAreaData(
-            res.areaList?.filter((area) => {
-              return area.status === "OPEN";
-            })
-          );
-          // setInformation(res);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }
-  };
-  const onHandleChangeStatusSessionArea = (value) => {
-    changeStatusSessionArea(selectedRowKeys?.flat(), value)
+    // getAllSessionAreaBySessionId(sessionIdValue)
+    getAllUsers()
       .then((res) => {
-        toast.success("Change Status Session-Area Completed.");
-        fetchAllSessionAreaBySessionId();
+        console.log("Users dummyjson", res.users);
+        setNewAreaData(res.users);
+        console.log("Goi5 thi2 d9", res.users);
+
+        // setInformation(res);
       })
-      .catch(() => {
-        toast.warning("Can Not Change Status Session-Area.");
+      .finally(() => {
+        setLoading(false);
       });
   };
-  const SwitchCaseOffSessionArea = (value) => {
-    switch (value) {
-      case "FINISHED":
-        changeStatusSessionArea(selectedRowKeys?.flat(), value)
-          .then((res) => {
-            toast.success("Change Status Session-Area Completed.");
-            fetchAllSessionAreaBySessionId();
-          })
-          .catch(() => {
-            toast.warning("Can Not Change Session-Area Status!");
-          });
-        break;
-      case "CANCELLED":
-        changeStatusSessionArea(selectedRowKeys?.flat(), value)
-          .then((res) => {
-            toast.success("Change Status Session-Area Completed.");
-            fetchAllSessionAreaBySessionId();
-          })
-          .catch(() => {
-            toast.warning("Can Not Change Session-Area Status!");
-          });
-        break;
-      default:
-        break;
-    }
-  };
+  // const SwitchCaseOffSessionArea = (value) => {
+  //   switch (value) {
+  //     case "FINISHED":
+  //       changeStatusSessionArea(selectedRowKeys?.flat(), value)
+  //         .then((res) => {
+  //           toast.success("Change Status Session-Area Completed.");
+  //           fetchAllSessionAreaBySessionId();
+  //         })
+  //         .catch(() => {
+  //           toast.warning("Can Not Change Session-Area Status!");
+  //         });
+  //       break;
+  //     case "CANCELLED":
+  //       changeStatusSessionArea(selectedRowKeys?.flat(), value)
+  //         .then((res) => {
+  //           toast.success("Change Status Session-Area Completed.");
+  //           fetchAllSessionAreaBySessionId();
+  //         })
+  //         .catch(() => {
+  //           toast.warning("Can Not Change Session-Area Status!");
+  //         });
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // };
   const onChange = (list) => {
     setCheckboxCheck(list);
   };
   useEffect(() => {
     fetchAllSessionAreaBySessionId();
-  }, [sessionId]);
+  }, []);
   useEffect(() => {
     dispatch(resetAreaKey());
   }, []);
@@ -104,7 +84,6 @@ const AreaComponent = ({ sessionId }) => {
     // let promises = selectedRowKeys
     //   .flat()
     //   .map((areaID) => getSingleArea(areaID));
-
     // // Use Promise.all to wait for all promises to resolve
     // Promise.all(promises)
     //   .then((results) => {
@@ -114,34 +93,29 @@ const AreaComponent = ({ sessionId }) => {
     //     console.error(error); // Handle any errors that occurred during the async calls
     //   });
     // console.log(selectedRowKeys.flat());
-    console.log(
-      "Sau khi unchecked",
-      selectedRowKeys.flat().map((item) => item)
-    );
   }, [selectedRowKeys]);
-  useEffect(() => {
-    let filteredData = area;
-    if (search) {
-      filteredData = filteredData.filter((area) => {
-        const searchNormalize = normalizeString(search);
-        const areaNormalize = normalizeString(area.areaName);
-        return areaNormalize.includes(searchNormalize);
-      });
-    }
-    if (checkboxCheck) {
-      console.log("Now Checkbox", checkboxCheck);
-      filteredData = filteredData.filter((area) => {
-        return checkboxCheck.includes(area.status);
-      });
-    }
-    setNewAreaData(filteredData);
-  }, [search, checkboxCheck]);
+  // useEffect(() => {
+  //   let filteredData = area;
+  //   if (search) {
+  //     filteredData = filteredData.filter((area) => {
+  //       const searchNormalize = normalizeString(search);
+  //       const areaNormalize = normalizeString(area.areaName);
+  //       return areaNormalize.includes(searchNormalize);
+  //     });
+  //   }
+  //   if (checkboxCheck) {
+  //     filteredData = filteredData.filter((area) => {
+  //       return checkboxCheck.includes(area.status);
+  //     });
+  //   }
+  //   // setNewAreaData(filteredData);
+  // }, [search, checkboxCheck]);
   return (
     <div className="w-full h-full  min-h-[500px] relative ">
       {loading ? (
         <Spin size="large" className=" absolute top-[50%] left-[50%]"></Spin>
       ) : (
-        <div className={`${area.length > 0 ? "block" : "hidden"} `}>
+        <div>
           <div className={`flex flex-col w-full justify-between `}>
             <div className="w-full lg:w-full flex flex-row justify-between items-center ">
               <Input
@@ -237,11 +211,11 @@ const AreaComponent = ({ sessionId }) => {
           {loading ? (
             <Spin></Spin>
           ) : (
-            <div className=" h-full min-h-[500px] w-full flex flex-col justify-around relative">
-              <div className="w-full absolute top-0 h-full">
+            <div className=" h-full min-h-[800px] w-full flex flex-col justify-around relative">
+              <div className="w-full absolute top-0 bottom-0 h-full overflow-auto no-scrollbar">
                 <div className="w-full grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-                  {newAreaData?.map((area, index) => (
-                    <AreaCard area={area} key={index} />
+                  {newAreaData?.map((branch, index) => (
+                    <AreaCard branch={branch} key={index} />
                   ))}
                 </div>
               </div>

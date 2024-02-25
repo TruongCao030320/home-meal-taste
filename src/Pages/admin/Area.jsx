@@ -179,7 +179,7 @@ const Area = () => {
           {record?.districtDtoAreaResponseModel?.districtName}
         </div>
       ),
-      filters: district.map((item) => ({
+      filters: district?.map((item) => ({
         text: item.districtName,
         value: item.districtId,
       })),
@@ -222,7 +222,7 @@ const Area = () => {
     },
   ];
   const { RangePicker } = DatePicker;
-  const newData = area.filter((area) => {
+  const newData = area?.filter((area) => {
     const searchNormalize = normalizeString(search);
     const areaNormalize = normalizeString(area.areaName);
     return areaNormalize.includes(searchNormalize);
@@ -377,7 +377,7 @@ const Area = () => {
               >
                 <Select
                   placeholder="Select district"
-                  options={district.map((item) => ({
+                  options={district?.map((item) => ({
                     value: item.districtId,
                     label: item.districtName,
                   }))}
@@ -432,7 +432,7 @@ const Area = () => {
             <Col span={11}>
               <Form.Item name="districtDtoAreaResponseModel">
                 <Select
-                  options={district.map((item) => ({
+                  options={district?.map((item) => ({
                     value: item?.districtId,
                     label: item?.districtName,
                   }))}
@@ -447,7 +447,7 @@ const Area = () => {
                 <Select
                   hidden
                   defaultValue={updateItem.district}
-                  options={district.map((item) => ({
+                  options={district?.map((item) => ({
                     value: item.districtName,
                     label: item.districtName,
                   }))}

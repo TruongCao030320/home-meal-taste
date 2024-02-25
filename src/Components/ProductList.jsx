@@ -45,6 +45,7 @@ import alternateImage from "../assets/images/buncha.png";
 import moment from "moment";
 import { formatMoney } from "../API/Money.js";
 import { Rect } from "victory";
+import axios from "axios";
 const normalizeString = (str) => {
   return str
     .toLowerCase()
@@ -133,7 +134,7 @@ const ProductList = () => {
   };
   const content2 = (
     <div className=" grid gap-5 min-w-[400px]">
-      <div className="flex w-full justify-between items-center">
+      {/* <div className="flex w-full justify-between items-center">
         <div className="w-[20%]">
           <h2>Session</h2>
         </div>
@@ -151,7 +152,7 @@ const ProductList = () => {
             }}
           ></Select>
         </div>
-      </div>
+      </div> */}
       <div className="flex w-full justify-between items-center">
         <div className="w-[20%]">
           <h2>Area</h2>
@@ -170,7 +171,7 @@ const ProductList = () => {
       </div>
       <div className="flex w-full justify-between items-center">
         <div className="w-[20%]">
-          <h2>Chef</h2>
+          <h2>Brand</h2>
         </div>
         <div className="w-[70%]">
           <Select
@@ -191,17 +192,13 @@ const ProductList = () => {
   );
   const columns = [
     {
-      title: "Menu",
+      title: "Stocks",
       dataIndex: "image",
       render: (_, record) => (
         <div className="lg:w-[100px] md:w-[100px] h-[120px] p-1 flex justify-center items-center">
           <img
             className="!rounded-2xl box__shadow bg-yellow-50 hover:scale-110 transition-all duration-500 h-full min-w-[120px] "
-            src={
-              record.mealDtoForMealSession.image
-                ? record.mealDtoForMealSession.image
-                : alternateImage
-            }
+            src={record.thumbnail}
           ></img>
         </div>
       ),
@@ -273,20 +270,17 @@ const ProductList = () => {
             <div className="">
               <div className="">
                 <h2 className="font-bold">
-                  {record.mealDtoForMealSession?.name} #{record.mealSessionId}
+                  {record.title} #{record.id}
                 </h2>
-                <p>Create At :{record.createDate}</p>
-                <p>Kitchen :{record.kitchenDtoForMealSession?.name}</p>
+                <p>Discount : {record.discountPercentage}%</p>
+                <p>Price: {record.stock} VND</p>
                 <div className="flex flex-row gap-5">
-                  <p>
-                    Remain Slot : {record.remainQuantity}/{record.quantity}
-                  </p>
+                  <p>Remain : {record.stock}</p>
                 </div>
               </div>
             </div>
             <div className=" lg:w-[50%] w-full">
-              <p>{record.areaDtoForMealSession?.areaName}</p>
-              <p>{record.sessionDtoForMealSession?.sessionName}</p>
+              <p className="text-blue-300 font-bold">{record.description}</p>
             </div>
           </div>
         </div>
@@ -306,15 +300,15 @@ const ProductList = () => {
           <div className="w-full">
             <Tag
               className="p-2 shadow-md min-w-[100px] text-center"
-              color={`${
-                record.status.includes("PROCESSING")
-                  ? "blue"
-                  : record.status.includes("APPROVED")
-                  ? "green"
-                  : "red"
-              }`}
+              // color={`${
+              //   record.status.includes("PROCESSING")
+              //     ? "blue"
+              //     : record.status.includes("APPROVED")
+              //     ? "green"
+              //     : "red"
+              // }`}
             >
-              <span className="font-bold">{record.status}</span>
+              <span className="font-bold">{record.brand}</span>
             </Tag>
           </div>
         </div>
@@ -373,19 +367,18 @@ const ProductList = () => {
   };
   const fetchAllMealSession = () => {
     setLoading(true);
-    getAllMealSession().then((res) => {
-      setData(res.slice().reverse());
-      setNewData(
-        res
-          .slice()
-          .reverse()
-          .filter((item) => {
-            return item.createDate.includes(selectedDate);
-          })
-      );
-      // setNewData(res);
-      setLoading(false);
-    });
+    // getAllMealSession().then((res) => {
+    axios
+      .get("https://dummyjson.com/products")
+      .then((res) => {
+        return res.data;
+      })
+      .then((res) => {
+        setData(res.products.slice().reverse());
+
+        // setNewData(res);
+      })
+      .finally(() => setLoading(false));
   };
 
   // useEffect(() => {
@@ -504,12 +497,12 @@ const ProductList = () => {
     }
 
     if (selectedDate) {
-      filteredData = filteredData.filter((item) =>
-        item.createDate.includes(selectedDate)
+      filteredData = filteredData?.filter((item) =>
+        item.createDate?.includes(selectedDate)
       );
       getAllSession().then((res) => {
         setSession(
-          res.filter((item) => {
+          res?.filter((item) => {
             return item?.endDate?.includes(selectedDate);
           })
         );
@@ -548,7 +541,7 @@ const ProductList = () => {
       {contextHolder}
       <div className="account-search flex items-center justify-end mb-3">
         <div className="h-[40%] add-btn flex justify-between items-center w-full">
-          <h1>Meal Session Management</h1>
+          <h1>Stock Management</h1>
         </div>
       </div>
       <div className="bg-white p-4 rounded-lg">
@@ -603,20 +596,20 @@ const ProductList = () => {
           >
             <Table
               className="overflow-auto"
-              dataSource={newData}
+              dataSource={data}
               columns={columns}
               loading={loading}
               rowKey={(item) => item.mealSessionId}
               rowSelection={rowSelection}
               pagination={{ pageSize: 5 }}
-              rowClassName={(record, index) =>
-                `custom-row ${index % 2 === 0 ? "odd-row" : "even-row"} ${
-                  record.status.includes("COMPLETED") ||
-                  record.status.includes("CANCELLED")
-                    ? "disabled-row"
-                    : ""
-                }`
-              }
+              // rowClassName={(record, index) =>
+              //   `custom-row ${index % 2 === 0 ? "odd-row" : "even-row"} ${
+              //     record.status.includes("COMPLETED") ||
+              //     record.status.includes("CANCELLED")
+              //       ? "disabled-row"
+              //       : ""
+              //   }`
+              // }
             ></Table>
           </ConfigProvider>
         </div>

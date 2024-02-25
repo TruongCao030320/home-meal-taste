@@ -7,10 +7,12 @@ const userSlice = createSlice({
   name: "user",
   initialState: initialState,
   reducers: {
-    getUserInfor: (state, action) => {
+    getUserInforAction: (state, action) => {
+      console.log("action payload lấy đc", action.payload);
       state.user = action.payload;
+      console.log("State sauupdate la", state.user);
     },
   },
 });
-export const { getUserInfor } = userSlice.actions;
+export const { getUserInforAction } = userSlice.actions;
 export default userSlice.reducer;

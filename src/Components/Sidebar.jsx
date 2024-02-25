@@ -25,6 +25,7 @@ import {
   FaClock,
   FaTypo3,
   FaAddressBook,
+  FaPhone,
 } from "react-icons/fa6";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { MdPayment, MdManageAccounts } from "react-icons/md";
@@ -100,7 +101,7 @@ const Sidebar = () => {
             onClick={handleHiddenSidebar}
             to={`/${direction.dashboard}/${direction.sessionArea}`}
           >
-            Session-Area
+            Sale Session
           </Link>,
           "15",
 
@@ -146,25 +147,25 @@ const Sidebar = () => {
           <FaEarthEurope size={15} />
         ),
 
-        getItem(
-          <Link
-            onClick={handleHiddenSidebar}
-            to={`/${direction.dashboard}/${direction.kitchen}`}
-          >
-            Kitchen
-          </Link>,
-          "7",
-          <AiFillHome size={15} />
-        ),
+        // getItem(
+        //   <Link
+        //     onClick={handleHiddenSidebar}
+        //     to={`/${direction.dashboard}/${direction.kitchen}`}
+        //   >
+        //     Kitchen
+        //   </Link>,
+        //   "7",
+        //   <AiFillHome size={15} />
+        // ),
         getItem(
           <Link
             onClick={handleHiddenSidebar}
             to={`/${direction.dashboard}/${direction.meal}`}
           >
-            Meal Session
+            Products
           </Link>,
           "6",
-          <FaBowlFood size={12} />
+          <FaPhone size={12} />
         ),
 
         getItem(

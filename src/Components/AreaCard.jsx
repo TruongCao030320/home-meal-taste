@@ -12,7 +12,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
 import { BiRestaurant } from "react-icons/bi";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useNavigation } from "react-router-dom";
+import { Link, useNavigate, useNavigation } from "react-router-dom";
 import { setCurrentArea } from "../redux/directionSlice";
 import { direction } from "../API/Direction";
 import { Checkbox, Tag } from "antd";
@@ -24,7 +24,7 @@ import {
   setSelectedKey,
 } from "../redux/SelectecedKeySlice";
 import { refresh } from "../redux/ToggleDrawerMealSlice.js";
-const AreaCard = ({ area }) => {
+const AreaCard = ({ branch }) => {
   const navigate = useNavigate();
   // console.log("AreaCard", area.status);
   const availableSelectedKey = useSelector(
@@ -33,17 +33,8 @@ const AreaCard = ({ area }) => {
   const dispatch = useDispatch();
   const areaKeys = useSelector((state) => state.selectedSlice.areaKeys) || [];
   const [check, setCheck] = useState(false);
-  const {
-    areaId,
-    address,
-    areaName,
-    status,
-    districtId,
-    totalMealSessions,
-    totalOrders,
-    totalChefs,
-    sessionAreaId,
-  } = area || {};
+  const { id, lastName, maidenName, phone, domain } = branch || {};
+  const { address, city } = branch.address || {};
   // const { areaId, address, areaName } = area?.areaDtoForSessionArea || {};
   //   const onHandleNavigateToAreaDetail = () => {
   //     navigate(`${direction.mealSessionInKitchen}/${record.kitchenId}`, {
@@ -51,8 +42,8 @@ const AreaCard = ({ area }) => {
   //     });
   //   };
   const onHandleNavigateToAreaDetail = () => {
-    dispatch(setCurrentArea(areaId));
-    localStorage.setItem("areaId", areaId);
+    // dispatch(setCurrentArea(areaId));
+    // localStorage.setItem("areaId", areaId);
     console.log("SessionAreaId truyền đi là", sessionAreaId);
     navigate(`${direction.manageChefInArea}/${sessionAreaId}`, {
       sessionAreaId: sessionAreaId,
@@ -117,7 +108,7 @@ const AreaCard = ({ area }) => {
   // };
   const onHandleCheck = () => {
     const newArray = areaKeys.flat();
-    const isChecked = newArray.includes(sessionAreaId);
+    const isChecked = newArray.includes(id);
     setCheck(isChecked);
   };
   useEffect(() => {
@@ -142,9 +133,9 @@ const AreaCard = ({ area }) => {
   const onCheck = () => {
     if (check) {
       setCheck(false);
-      dispatch(removeSelectedKey(sessionAreaId));
+      dispatch(removeSelectedKey(id));
     } else {
-      dispatch(setSelectedKey(sessionAreaId));
+      dispatch(setSelectedKey(id));
       setCheck(true);
     }
   };
@@ -155,9 +146,8 @@ const AreaCard = ({ area }) => {
     >
       <div className="p-2">
         <div
-          className={`w-full flex flex-col justify-center items-center ${
-            status.includes("FINISHED") ? "bg-[#F6FFED] border" : ""
-          } bg-[#F1ECFF] rounded-lg`}
+          className={`w-full flex flex-col justify-center items-center  
+           bg-[#F1ECFF] rounded-lg`}
         >
           <div className="flex flex-row relative">
             <Checkbox
@@ -172,23 +162,20 @@ const AreaCard = ({ area }) => {
                 status === "FINISHED" || status === "CANCELLED" ? true : false
               }
             ></Checkbox>
-            <h1
-              className={`p-2 rounded-lg  ${
-                status.includes("FINISHED") ? "text-black" : "text-[#A285EE]"
-              }  font-bold text-xs`}
-            >
-              {areaName} #{sessionAreaId}
+            <h1 className={`p-2 rounded-lg font-bold text-xs`}>
+              {lastName}
+              {maidenName}
             </h1>
           </div>
         </div>
         <div className="w-full flex justify-center items-center">
           <p>{address}</p>
         </div>
-        <div className="w-full flex flex-row justify-around items-center mt-4">
+        <div className="w-full flex flex-col justify-around items-center mt-4">
           <div className="flex flex-row justify-center items-center">
             {/* <FontAwesomeIcon icon={faUtensils} color="#FFD44E" className="mx-2" /> */}
             <LuChefHat color="#FFD44E" className="mx-2" />
-            {totalChefs}
+            <Link to="#">{domain}</Link>
           </div>
           <div className="flex flex-row justify-center items-center">
             {/* <FontAwesomeIcon
@@ -201,31 +188,13 @@ const AreaCard = ({ area }) => {
               color="#FFD44E"
               fontSize={20}
             />
-            {totalOrders}
-          </div>
-          <div>
-            <FontAwesomeIcon
-              icon={faPlateWheat}
-              color="#FFD44E"
-              className="mx-2"
-            />
-
-            {totalMealSessions}
+            {phone}
           </div>
         </div>
       </div>
 
-      <Tag
-        color={
-          status.includes("OPEN")
-            ? "blue"
-            : status.includes("CANCELLED")
-            ? "red"
-            : "green"
-        }
-        className="p-2 text-xs w-full absolute bottom-0 rounded-b-2xl text-center font-bold border-none"
-      >
-        {status}
+      <Tag className="p-2 text-xs w-full absolute bottom-0 rounded-b-2xl text-center font-bold border-none">
+        {/* {status} */}
       </Tag>
     </div>
   );

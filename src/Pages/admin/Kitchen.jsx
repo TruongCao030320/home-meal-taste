@@ -82,7 +82,7 @@ const Kitchen = () => {
       render: (_, record) => (
         <div className="font-bold">{record.areaDtoGetKitchen?.areaName}</div>
       ),
-      filters: area.map((item) => ({
+      filters: area?.map((item) => ({
         text: item.areaName,
         value: item.areaId,
       })),

@@ -29,9 +29,9 @@ const Dashboard = () => {
           <Header className="hidden md:hidden  lg:border lg:border-colorBg lg:rounded-lg lg:shadow-lg lg:bg-white lg:flex lg:flex-col">
             <div className="font-semibold text-bgBtnColor  w-full flex flex-col h-full justify-center items-center">
               <div className="font-festive text-2xl flex flex-row gap-2">
-                <span>Home</span> <span>Meal</span>{" "}
+                <span>T&S</span>{" "}
               </div>
-              <div className="font-festive leading-3 text-2xl">Taste</div>
+              <div className="font-festive leading-3 text-2xl">Store</div>
             </div>
           </Header>
           <Content className="mt-4 md:hidden lg:flex hidden w-full">

@@ -8,16 +8,19 @@ import { direction } from "../../../API/Direction";
 import { getAllTransactionRecharge, getSingleUser } from "../../../API/Admin";
 import { login } from "../../../API/Login";
 import { formatMoney } from "../../../API/Money";
+import { useSelector } from "react-redux";
 const AdminProfile = () => {
   const [data, setData] = useState({});
   const [transaction, setTransaction] = useState([]);
   const [loading, setLoading] = useState(false);
   const { id } = useParams();
-  const [image, setImage] = useState("");
-  const [title, setTitle] = useState("");
-  const [price, setPrice] = useState("");
+
   const [description, setDescription] = useState("");
-  const [object, setObject] = useState({});
+  // const [object, setObject] = useState({});
+  const object = useSelector((state) => state.userSlice.user) || {};
+  const { username, email, firstName, lastName, gender, image, token } =
+    object || {};
+  console.log("object là", object);
   const [formData, setFormData] = useState({
     password: "",
     email: "",
@@ -38,7 +41,7 @@ const AdminProfile = () => {
   const fetchAccount = () => {
     getSingleUser(id)
       .then((res) => {
-        setObject(res);
+        // setObject(res);
       })
       .catch((error) => console.log(error));
   };
@@ -49,8 +52,6 @@ const AdminProfile = () => {
     });
     fetchAccount();
   }, []);
-  const { username, email, phone } = object;
-
   return (
     <div className="w-full h-full p-4 rounded-lg">
       <div className="account-search h-[10%] flex items-center  justify-end mb-3">
@@ -79,7 +80,7 @@ const AdminProfile = () => {
               <label htmlFor="">Wallet</label>
               <Input
                 className="box__shadow"
-                value={`${formatMoney(data.walletDto?.balance)} VND`}
+                // value={`${formatMoney(data.walletDto?.balance)} VND`}
               ></Input>
             </Col>
           </Row>
@@ -90,7 +91,7 @@ const AdminProfile = () => {
             </Col>
             <Col xs={24} md={11} lg={11}>
               <label htmlFor="">Phone</label>
-              <Input className="box__shadow" value={phone}></Input>
+              <Input className="box__shadow"></Input>
             </Col>
           </Row>
         </div>
