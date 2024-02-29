@@ -8,8 +8,6 @@ import Top from "../Components/Top";
 const LayoutPage = () => {
   return (
     <div className="mainContainer">
-      {/* devdemo.fnb@gmail.com
-Password2022@10 */}
       <ToastContainer className="z-[9999999] mr-1 top-[5.5rem] " />
       <Router />
     </div>

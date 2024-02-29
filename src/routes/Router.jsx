@@ -30,13 +30,25 @@ import ManageChefInArea from "../Pages/admin/sessions/ManageChefInArea";
 import District from "../Pages/admin/District";
 import SessionArea from "../Pages/admin/SessionArea";
 import MealSessionDetail from "../Pages/admin/details/MealSessionDetail";
+import HomePage from "../Pages/customer/HomePage";
+import Home from "../Pages/customer/Home";
+import ShopPage from "../Pages/customer/ShopPage";
+import CartPage from "../Pages/customer/CartPage";
+import ProductDetailPage from "../Pages/customer/ProductDetailPage";
 const Router = () => {
   return (
     <>
       <Routes>
         <Route path={`/${direction.register}`} element={<Signup />}></Route>
-        <Route path="/" element={<Login />}></Route>
+        {/* <Route path="/" element={<Login />}></Route> */}
         <Route path={`/${direction.error}`} element={<ErrorPage />}></Route>
+        <Route path="/" element={<HomePage />}>
+          <Route path="" element={<Login />} />
+          <Route path="customerHome" element={<Home />} />
+          <Route path="shop" element={<ShopPage />} />
+          <Route path="cart" element={<CartPage />} />
+          <Route path="product-detail/:id" element={<ProductDetailPage />} />
+        </Route>
         <Route path={`/${direction.dashboard}/`} element={<Dashboard />}>
           <Route path="" element={<DashboardPage />} />
           <Route path={direction.user} element={<Account />} />

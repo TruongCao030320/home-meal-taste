@@ -19,12 +19,24 @@ export default {
           "0%": { transform: "scale(1)", opacity: 0.8 },
           "100%": { transform: "scale(1.5)", opacity: 0 },
         },
-        appear: {
+        appearRight: {
           "0%": {
             opacity: 0,
+            transform: "translateX(500px)",
           },
           "100%": {
             opacity: 1,
+            transform: "translateX(0)",
+          },
+        },
+        appearLeft: {
+          "0%": {
+            opacity: 0,
+            transform: "translateX(-500px)",
+          },
+          "100%": {
+            opacity: 1,
+            transform: "translateX(0)",
           },
         },
         rightTag: {
@@ -50,8 +62,9 @@ export default {
         wiggle: "wiggle 2s ease-in-out infinite",
         fadeOut: "fadeOut 0.2s ease-in-out",
         bigScale: "bigScale 1s ease-in-out infinite",
-        appear: "appear 1s ease-in-out forwards",
-        skewRightTag: "rightTag .5s ease-in-out",
+        appear2: "appearRight 1s ease-in-out",
+        appear1: "appearLeft 1s ease-in-out",
+        skewRightTag: "rightTag 2s ease-in-out",
         closeSkewRightTag: "closeRightTag .5s ease-in-out",
       },
       fontFamily: { festive: ["Festive", "Manrope"] },

@@ -81,6 +81,9 @@
   .ant-picker {
     @apply h-[40px];
   }
+  .active {
+    @apply bg-white text-black;
+  }
 }
 @media only screen and (max-width: 1024px) {
   .container {
@@ -97,4 +100,7 @@
   .text__para {
     @apply text-[16px] leading-7 mt-3;
   }
+}
+.slick-arrow {
+  display: none !important;
 }

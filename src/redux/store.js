@@ -8,6 +8,8 @@ import selectedSlice from "./SelectecedKeySlice.js";
 import SelectecedMealSessionKeySlice from "./SelectecedMealSessionKeySlice.js";
 import createSagaMiddleware from "redux-saga";
 import rootSaga from "../saga/saga.js";
+import cartSlice from "./cartSlice.js";
+import productCart from "./productCart.js";
 const sagaMiddleware = createSagaMiddleware();
 const store = configureStore({
   reducer: {
@@ -18,6 +20,8 @@ const store = configureStore({
     directionSlice: directionSlice,
     selectedSlice: selectedSlice,
     selectedMealSessionSlice: SelectecedMealSessionKeySlice,
+    cartSlice: cartSlice,
+    productSlice: productCart,
   },
   middleware: [sagaMiddleware],
 });
