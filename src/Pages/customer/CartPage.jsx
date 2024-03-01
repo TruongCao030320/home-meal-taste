@@ -11,7 +11,7 @@ const CartPage = () => {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.productSlice) || [];
   const totalPrice = cartItems.reduce((total, item) => {
-    return total + item.price;
+    return total + item.price * item.quantity;
   }, 0);
   const columns = [
     {

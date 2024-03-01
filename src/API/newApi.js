@@ -27,3 +27,12 @@ export const getAllCategories = async () => {
     console.log(error);
   }
 };
+export const getSingleProduct = async (id) => {
+  try {
+    const response = await axios.get(`https://dummyjson.com/products/${id}`);
+    if (!response) throw Error;
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};

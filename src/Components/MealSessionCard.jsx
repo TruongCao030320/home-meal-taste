@@ -37,6 +37,7 @@ const MealSessionCard = ({ meal }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const {
+    id,
     description,
     price,
     title,
@@ -73,7 +74,7 @@ const MealSessionCard = ({ meal }) => {
     // });
   };
   const toggleDrawerType2 = async () => {
-    dispatch(showDrawer(mealSessionId));
+    dispatch(showDrawer(id));
   };
   const onHandleCheckWhenAll = () => {
     const newArray = mealSessionIdKeys.flat();
@@ -138,7 +139,7 @@ const MealSessionCard = ({ meal }) => {
           <FontAwesomeIcon icon={faCoins} color="#FFD44E" className="mx-2" />
           <span className="font-bold text-blue-300">
             {" "}
-            {formatMoney(price)} VND
+            {formatMoney(price)} $
           </span>
         </div>
         <div className="flex flex-row ">
@@ -147,7 +148,7 @@ const MealSessionCard = ({ meal }) => {
         </div>
         <div className="flex flex-row ">
           <TbHome2 color="#FFD44E" fontSize={18} className="mx-2" />
-          <span className="font-bold text-blue-300">{stock}</span>
+          <span className="font-bold text-blue-300">Remain : {stock}</span>
         </div>
         <div className="flex flex-row ">
           <TbBrand4Chan color="#FFD44E" fontSize={18} className="mx-2" />

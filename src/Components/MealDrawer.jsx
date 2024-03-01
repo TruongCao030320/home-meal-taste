@@ -30,6 +30,7 @@ import {
   updateStatusMultiMealSession,
 } from "../API/Admin.js";
 import { MdFeaturedPlayList } from "react-icons/md";
+import { getSingleProduct } from "../API/newApi.js";
 const { TextArea } = Input;
 const CustomDrawer = () => {
   const dispatch = useDispatch();
@@ -40,10 +41,18 @@ const CustomDrawer = () => {
   const [firstValueObject, setFirstValueObject] = useState({});
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectedRowIsActive, setSelectedRowIsActive] = useState(false);
-  const { mealSessionId, price, remainQuantity, quantity, status, createDate } =
-    meal1 || {};
-  const { name, image, description, mealId, dishesDtoMealSession } =
-    meal1?.mealDtoForMealSessions || {};
+  const {
+    title,
+    id,
+    thumbnail,
+    description,
+    category,
+    price,
+    rating,
+    discountPercentage,
+    stock,
+    brand,
+  } = meal1 || {};
   const { areaName } = meal1?.areaDtoForMealSessions || {};
 
   const mealsessionIDGetFromRedux = useSelector(
@@ -56,7 +65,7 @@ const CustomDrawer = () => {
     dispatch(hideDrawer());
   };
   const fetchSingleMeal = () => {
-    getSingleMealSessionById(mealsessionIDGetFromRedux).then((res) => {
+    getSingleProduct(mealsessionIDGetFromRedux).then((res) => {
       console.log(res);
       setMeal1(res);
     });
@@ -216,12 +225,12 @@ const CustomDrawer = () => {
       })
       .catch((error) => toast.error("Can Not Update Status Of This Meal!"));
   };
-
+  useEffect(() => {}, []);
   return (
     <div>
       {" "}
       <Drawer
-        title={`${name} #${mealSessionId}`}
+        title={`${title} #${id}`}
         placement="right"
         size="large"
         onClose={onClose}
@@ -229,57 +238,15 @@ const CustomDrawer = () => {
         extra={
           <Space>
             <Tag color="cyan-inverse" className="p-1 ">
-              {status}
+              {brand}
             </Tag>
-            <Button
-              onClick={onClose}
-              className={`bg-red-600 ${
-                status?.includes("PROCESSING") ? "hidden" : "block"
-              }`}
-              onClickCapture={() => confirmMealSession("CANCELLED")}
-              disabled={
-                status?.includes("CANCELLED") || status?.includes("COMPLETED")
-              }
-            >
-              <span className="text-white">Cancelled</span>
-            </Button>
-            <Button
-              onClick={onClose}
-              className={`bg-red-600 ${
-                status?.includes("PROCESSING") || status?.includes("APPROVED")
-                  ? "block"
-                  : "hidden"
-              }`}
-              onClickCapture={() => confirmMealSession("REJECTED")}
-              disabled={
-                status?.includes("CANCELLED") ||
-                status?.includes("COMPLETED") ||
-                status?.includes("APPROVED")
-              }
-            >
-              <span className="text-white">Reject</span>
-            </Button>
-            <Button
-              onClick={onClose}
-              className={`${
-                status?.includes("APPROVED") ? "hidden" : "block"
-              } bg-green-700`}
-              onClickCapture={() => confirmMealSession("Approved")}
-              disabled={
-                status?.includes("CANCELLED") ||
-                status?.includes("COMPLETED") ||
-                status?.includes("APPROVED")
-              }
-            >
-              <span className="text-white">Approve</span>
-            </Button>
           </Space>
         }
       >
         <form action="" className="p-5 grid gap-5">
           <div className="form-item w-[100%] flex justify-center">
             <img
-              src={image ? image : alternateImage}
+              src={thumbnail ? thumbnail : alternateImage}
               alt=""
               className="rounded-lg shadow-md mb-3 w-[450px] h-[300px]"
             />
@@ -287,15 +254,15 @@ const CustomDrawer = () => {
           <div className="form-item flex flex-row justify-between">
             <div className="w-[45%]">
               <label htmlFor="">Title</label>
-              <Input className="my-2 box__shadow h-[40px]" value={name} />
+              <Input className="my-2 box__shadow h-[40px]" value={title} />
             </div>
             <div className="w-[45%]">
-              <label htmlFor="">Create Date</label>
-              <Input className="my-2 box__shadow h-[40px]" value={createDate} />
+              <label htmlFor="">Category</label>
+              <Input className="my-2 box__shadow h-[40px]" value={category} />
             </div>
           </div>
 
-          <div className="form-item">
+          {/* <div className="form-item">
             <label htmlFor="">Meal include:</label>
             <div className=" grid grid-cols-2 gap-2 p-4 bg-colorBg rounded-lg w-full">
               {dishesDtoMealSession?.map((item) => (
@@ -317,12 +284,12 @@ const CustomDrawer = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
           <div className="form-item">
             {}
             <Row className="w-full flex justify-between">
               <Col span={24}>
-                <label htmlFor="">Price (VND)</label>
+                <label htmlFor="">Price ($)</label>
                 <Input
                   className="my-2 box__shadow h-[40px]"
                   value={formatMoney(price)}
@@ -333,26 +300,26 @@ const CustomDrawer = () => {
           <div className="form-item">
             <Row className="w-full flex justify-between">
               <Col span={11}>
-                <label htmlFor="">Selling Slot</label>
+                <label htmlFor="">Remain In Stock</label>
                 <Input
                   className="my-2 box__shadow h-[40px]"
                   type="number"
                   min={1}
                   max={8}
                   defaultValue={1}
-                  value={quantity}
+                  value={stock}
                 />
               </Col>
               <Col span={11}>
-                <label htmlFor="">Remain Slot</label>
+                <label htmlFor="">Discount percent (%)</label>
                 <Input
                   className="my-2 box__shadow h-[40px]"
-                  value={remainQuantity}
+                  value={discountPercentage}
                 />
               </Col>
             </Row>
           </div>
-          <div className="form-item">
+          {/* <div className="form-item">
             <Row className="flex flex-row justify-between">
               <Col span={11}>
                 <label htmlFor="">Kitchen</label>
@@ -366,7 +333,7 @@ const CustomDrawer = () => {
                 <Input className="my-2 box__shadow h-[40px]" value={areaName} />
               </Col>
             </Row>
-          </div>
+          </div> */}
           <div className="form-item">
             <label htmlFor="">Description</label>
             <TextArea className="box__shadow h-[40px]" value={description} />

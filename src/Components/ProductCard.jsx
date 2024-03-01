@@ -91,7 +91,7 @@ const ProductCard = ({ food }) => {
           {description.slice(0, 90)}...
         </p>
         <h2 className="absolute left-4 bottom-2 text-black font-bold    ">
-          {price} VND
+          {price} $
         </h2>
       </div>
     </div>
