@@ -84,23 +84,35 @@
   .active {
     @apply bg-white text-black;
   }
+  @media only screen and (max-width: 1024px) {
+    .container {
+      @apply w-full;
+    }
+    .section {
+      @apply py-[35px];
+    }
+  }
+  @media only screen and (max-width: 768px) {
+    .heading {
+      @apply text-[26px] leading-[36px];
+    }
+    .text__para {
+      @apply text-[16px] leading-7 mt-3;
+    }
+  }
+  .slick-arrow {
+    display: none !important;
+  }
 }
-@media only screen and (max-width: 1024px) {
-  .container {
-    @apply w-full;
-  }
-  .section {
-    @apply py-[35px];
-  }
+.ant-select-selector {
+  @apply !h-full flex !items-center;
 }
-@media only screen and (max-width: 768px) {
-  .heading {
-    @apply text-[26px] leading-[36px];
-  }
-  .text__para {
-    @apply text-[16px] leading-7 mt-3;
-  }
+.ant-select-arrow {
+  @apply !mt-[-5px];
 }
-.slick-arrow {
-  display: none !important;
+.ant-select {
+  @apply !h-[40px] !flex !items-center !mt-0;
+}
+.ant-input-suffix {
+  @apply !mx-0;
 }

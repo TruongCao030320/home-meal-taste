@@ -31,6 +31,8 @@ import { paperclip, user } from "fontawesome";
 import { faNewspaper, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import { direction } from "../../API/Direction";
 import alternateImage from "../../assets/images/buncha.png";
+import { getAllUsers } from "../../API/newApi";
+import { dataArray } from "../../data/resources";
 const DashboardPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -39,6 +41,8 @@ const DashboardPage = () => {
   const [topCustomer, setTopCustomer] = useState([]);
   const [customer, setCustomer] = useState();
   const [order, setOrder] = useState(0);
+  const [revenue, setRevenue] = useState({});
+
   const money = [
     {
       month: "Feb",
@@ -85,7 +89,38 @@ const DashboardPage = () => {
       money: 300055,
     },
   ];
-  const [revenue, setRevenue] = useState({});
+  const topCus = [
+    {
+      id: faker.number.int(),
+      name: faker.internet.userName(),
+      rank: 1,
+      orders: Math.floor(Math.random() * 100) + 10,
+    },
+    {
+      id: faker.number.int(),
+      name: faker.internet.userName(),
+      rank: 2,
+      orders: Math.floor(Math.random() * 100) + 10,
+    },
+    {
+      id: faker.number.int(),
+      name: faker.internet.userName(),
+      rank: 3,
+      orders: Math.floor(Math.random() * 100) + 10,
+    },
+    {
+      id: faker.number.int(),
+      name: faker.internet.userName(),
+      rank: 5,
+      orders: Math.floor(Math.random() * 100) + 10,
+    },
+    {
+      id: faker.number.int(),
+      name: faker.internet.userName(),
+      rank: 6,
+      orders: Math.floor(Math.random() * 100) + 10,
+    },
+  ];
 
   const transaction = [
     {
@@ -137,7 +172,7 @@ const DashboardPage = () => {
           />
         </svg>
       ),
-      title: "Revenue",
+      title: "Revenues",
       number: formatMoney(revenue?.result || 0) + " VND",
       bgColor: "bg-green-300",
       bgCard: "bg-gray-400",
@@ -159,8 +194,8 @@ const DashboardPage = () => {
           />
         </svg>
       ),
-      title: "Order",
-      number: order,
+      title: "Orders",
+      number: formatMoney(21023),
       bgColor: "bg-yellow-200",
       bgCard: "bg-red-400",
     },
@@ -182,7 +217,7 @@ const DashboardPage = () => {
         </svg>
       ),
       title: "Happy Client",
-      number: customer,
+      number: formatMoney(7201),
       bgColor: "bg-blue-300",
       bgCard: "bg-light-400",
     },
@@ -254,10 +289,10 @@ const DashboardPage = () => {
       .catch((error) => console.log(error));
   };
   const fetchTop5Customer = () => {
-    getTop5Customer()
+    getAllUsers()
       .then((res) => {
         console.log(res);
-        setTopCustomer(res);
+        setTopCustomer(res.users.splice(1, 6));
       })
       .catch((error) => {
         console.log(error);
@@ -285,61 +320,60 @@ const DashboardPage = () => {
   //   const { id, description, price, thumbnail } = data;
   const columns = [
     {
-      title: <p className="font-bold text-xl">Recent Orders</p>,
-      dataIndex: "thumbnail",
-      render: (_, record, index) => (
-        <div className=" w-[100px] h-[100px] rounded-lg overflow-hidden">
-          <img
-            src={
-              record.mealSessionDto1?.mealDto1?.image
-                ? record.mealSessionDto1?.mealDto1?.image
-                : alternateImage
-            }
-            className="w-full h-[100%]"
-          ></img>
-        </div>
-      ),
-    },
-    {
       dataIndex: "title",
       render: (_, record, index) => (
         <div className="leading-7 md:overflow-auto md:w-[200px]">
-          <h1 className="font-bold">
-            {record.mealSessionDto1?.mealDto1?.name}
-          </h1>
-          <p className="text-gray-400">
-            {record.mealSessionDto1?.mealDto1?.description}
-          </p>
-          <p className="font-bold text-2xl">#{index + 1}</p>
+          <p className="font-bold">#{record.ID}</p>
           <p className="font-bold">{record.time}</p>
         </div>
       ),
     },
     {
+      title: "Product",
       dataIndex: "",
       render: (_, record) => (
         <div className="md:w-[200px]">
-          <h1 className=" font-bold">
-            <span className="text-red-400">{record.customerDto1?.userId}#</span>
-            {record.customerDto1?.name}
-          </h1>
+          <span className="font-bold">{record.productName}</span>
         </div>
       ),
     },
     {
+      title: "Customer's Name",
+      render: (_, record) => (
+        <div className="">
+          <p className="font-bold">{record.name}</p>
+        </div>
+      ),
+    },
+    {
+      title: "Address",
+      render: (_, record) => (
+        <div className="">
+          <p className="font-bold">{record.address}</p>
+        </div>
+      ),
+    },
+    {
+      title: "Quantity",
+      render: (_, record) => (
+        <div className="">
+          <p className="font-bold">{record.quantity}</p>
+        </div>
+      ),
+    },
+    {
+      title: "Price",
       dataIndex: "price",
       render: (_, record) => (
         <div className="">
-          <p className="font-bold">
-            {formatMoney(record.mealSessionDto1?.price)} VND
-          </p>
+          <p className="font-bold">{formatMoney(record.price)} $</p>
         </div>
       ),
     },
     {
       dataIndex: "",
       render: (_, record) => (
-        <Tag color="geekblue" className=" py-2 px-3">
+        <Tag color="geekblue" className="px-3">
           {record.status}
         </Tag>
       ),
@@ -353,21 +387,16 @@ const DashboardPage = () => {
     },
     {
       dataIndex: "title",
-      render: (_, record) => <div>{record.customerDtoGetTop5?.name}</div>,
-    },
-    {
-      dataIndex: "title",
       render: (_, record) => (
-        <div>
-          <h1 className="font-bold text-sm text-black">{record.title}</h1>
-        </div>
+        <div className=" max-w-[150px]">{record.name}</div>
       ),
     },
+
     {
       dataIndex: "price",
       render: (_, record) => (
         <div className="flex flex-row gap-3 justify-between">
-          <p className="font-bold text-sm">{record.orderTimes}</p>
+          <p className="font-bold text-sm">{record.orders}</p>
           <FontAwesomeIcon icon={faNewspaper} color="#F0E901" />
         </div>
       ),
@@ -381,7 +410,7 @@ const DashboardPage = () => {
     },
     {
       dataIndex: "title",
-      render: (_, record) => <div>{record.chefDtoGetTop5?.name}</div>,
+      render: (_, record) => <div>{record.address?.address}</div>,
     },
     {
       dataIndex: "title",
@@ -487,7 +516,7 @@ const DashboardPage = () => {
                     >
                       <Table
                         showHeader={false}
-                        dataSource={topCustomer}
+                        dataSource={topCus}
                         loading={loading}
                         columns={columns1}
                         pagination={{ pageSize: 5, hideOnSinglePage: true }}
@@ -524,7 +553,7 @@ const DashboardPage = () => {
                     >
                       <Table
                         showHeader={false}
-                        dataSource={kitchen}
+                        dataSource={topCustomer}
                         loading={loading}
                         columns={columnsKitchen}
                         pagination={{ pageSize: 5, hideOnSinglePage: true }}
@@ -550,8 +579,9 @@ const DashboardPage = () => {
         </div>
       </div>
       <div className="recentOrder mt-10 lg:overflow-auto md:overflow-auto md:w-full lg:w-full">
+        <h1>Recent Orders</h1>
         <Table
-          dataSource={data?.slice(0, 5)}
+          dataSource={dataArray}
           columns={columns}
           loading={loading}
           className=""

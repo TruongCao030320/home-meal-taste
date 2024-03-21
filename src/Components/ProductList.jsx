@@ -134,28 +134,9 @@ const ProductList = () => {
   };
   const content2 = (
     <div className=" grid gap-5 min-w-[400px]">
-      {/* <div className="flex w-full justify-between items-center">
-        <div className="w-[20%]">
-          <h2>Session</h2>
-        </div>
-        <div className="w-[70%]">
-          <Select
-            className="w-full"
-            options={session?.map((item) => ({
-              value: item?.sessionId,
-              label: item?.sessionName,
-            }))}
-            value={sessionValue}
-            onChange={(item) => {
-              console.log("sessopm va lue là", item);
-              setSessionValue(item);
-            }}
-          ></Select>
-        </div>
-      </div> */}
       <div className="flex w-full justify-between items-center">
         <div className="w-[20%]">
-          <h2>Area</h2>
+          <h2>Category</h2>
         </div>
         <div className="w-[70%]">
           <Select
@@ -192,123 +173,60 @@ const ProductList = () => {
   );
   const columns = [
     {
-      title: "Stocks",
+      title: "Thumbnail",
       dataIndex: "image",
       render: (_, record) => (
-        <div className="lg:w-[100px] md:w-[100px] h-[120px] p-1 flex justify-center items-center">
-          <img
-            className="!rounded-2xl box__shadow bg-yellow-50 hover:scale-110 transition-all duration-500 h-full min-w-[120px] "
-            src={record.thumbnail}
-          ></img>
-        </div>
+        <img className="w-10 h-10  rounded-full" src={record.thumbnail}></img>
       ),
     },
     {
-      title: "",
-      dataIndex: "",
-      render: (_, record) => (
-        <Divider type="vertical" className="h-[70px] bg-slate-300" />
-      ),
-    },
-    {
-      title: (
-        <div className="z-50 ">
-          {selectedRowIsActive ? (
-            <div className="flex flex-row gap-5">
-              <Button
-                className={`${
-                  selectedRows.some((item) => item.status === "PROCESSING") &&
-                  selectedRowKeys.length > 0
-                    ? "block"
-                    : "hidden"
-                } p-5 shadow-md min-w-[100px] flex justify-center items-center hover:cursor-pointer hover:border-blue-200`}
-                color="red"
-                onClick={() => {
-                  onHandleUpdateStatusMultiMealSession("REJECTED");
-                }}
-              >
-                <span className="font-bold text-red-500">Reject</span>
-              </Button>
-              <Button
-                className={`${
-                  selectedRows.some((item) => item.status === "PROCESSING") &&
-                  selectedRowKeys.length > 0
-                    ? "block"
-                    : "hidden"
-                } p-5 shadow-md min-w-[100px] flex justify-center items-center hover:cursor-pointer hover:border-blue-200`}
-                color="red"
-                onClick={() => {
-                  onHandleUpdateStatusMultiMealSession("APPROVED");
-                }}
-              >
-                <span className="font-bold text-green-500">Approve</span>
-              </Button>
-              <Button
-                className={`${
-                  selectedRowKeys.length > 0 &&
-                  selectedRows.some((item) => item.status === "APPROVED")
-                    ? "block"
-                    : "hidden"
-                } p-5 shadow-md min-w-[100px] flex justify-center items-center hover:cursor-pointer hover:border-blue-200`}
-                color="red"
-                onClick={() => {
-                  onHandleUpdateStatusMultiMealSession("CANCELLED");
-                }}
-              >
-                <span className="font-bold text-red-500">Cancel</span>
-              </Button>{" "}
-            </div>
-          ) : (
-            ""
-          )}
-        </div>
-      ),
+      title: "Product",
       dataIndex: "name",
       render: (_, record) => (
         <div className="flex  justify-between items-center">
           <div className="lg:flex lg:flex-row lg:justify-between lg:w-[80%] flex flex-col">
             <div className="">
               <div className="">
-                <h2 className="font-bold">
-                  {record.title} #{record.id}
-                </h2>
-                <p>Discount : {record.discountPercentage}%</p>
-                <p>Price: {record.stock} VND</p>
-                <div className="flex flex-row gap-5">
-                  <p>Remain : {record.stock}</p>
-                </div>
+                <h2 className="font-bold">{record.title}</h2>
               </div>
-            </div>
-            <div className=" lg:w-[50%] w-full">
-              <p className="text-blue-300 font-bold">{record.description}</p>
             </div>
           </div>
         </div>
       ),
     },
     {
-      title: "",
+      title: "Price",
       dataIndex: "",
       render: (_, record) => (
-        <Divider type="vertical" className="h-[70px] bg-slate-300" />
+        <span className="font-bold">{formatMoney(record.price)}$</span>
       ),
+      sorter: (a, b) => a.price > b.price,
     },
     {
+      title: "Discount(%)",
+      dataIndex: "",
+      render: (_, record) => (
+        <p className="font-bold">{record.discountPercentage}</p>
+      ),
+      sorter: (a, b) => a.discountPercentage > b.discountPercentage,
+    },
+    {
+      title: "Remain",
+      dataIndex: "",
+      render: (_, record) => <span className="font-bold">{record.stock}</span>,
+      sorter: (a, b) => a.stock > b.stock,
+    },
+    {
+      title: "Category",
       dataIndex: "name",
       render: (_, record) => (
         <div className="flex  justify-between items-center">
           <div className="w-full">
             <Tag
               className="p-2 shadow-md min-w-[100px] text-center"
-              // color={`${
-              //   record.status.includes("PROCESSING")
-              //     ? "blue"
-              //     : record.status.includes("APPROVED")
-              //     ? "green"
-              //     : "red"
-              // }`}
+              color="green"
             >
-              <span className="font-bold">{record.brand}</span>
+              <span className="font-bold">{record.category}</span>
             </Tag>
           </div>
         </div>
@@ -340,14 +258,13 @@ const ProductList = () => {
       key: "action",
       render: (_, record) => (
         <Space className="flex flex-col">
-          <h2 className="font-semibold">{formatMoney(record.price)} VND</h2>
           <div
             onClick={() => console.log(record)}
             className="flex justify-between w-[50px] items-center "
           >
             <AiTwotoneEdit
               size={20}
-              className="text-bgBtnColor hover:text-bgColorBtn "
+              className="text-bgBtnColor hover:text-bgColorBtn cursor-pointer"
               // onClick={() => toggleDrawerType2(record.mealSessionId)}
               onClick={() => navigateToMealSessionDetail(record)}
             />
@@ -357,12 +274,9 @@ const ProductList = () => {
       sorter: (a, b) => a.price - b.price,
     },
   ];
-  const goToProductDetail = (id) => {
-    navigate(`/${direction.dashboard}/${direction.meal}/${id}`);
-  };
   const navigateToMealSessionDetail = (record) => {
-    navigate(`${direction.mealSessionDetail}/${record.mealSessionId}`, {
-      mealSessionId: record.mealSessionId,
+    navigate(`${direction.mealSessionDetail}/${record.id}`, {
+      mealSessionId: record.id,
     });
   };
   const fetchAllMealSession = () => {
@@ -376,46 +290,11 @@ const ProductList = () => {
       .then((res) => {
         setData(res.products.slice().reverse());
 
-        // setNewData(res);
+        setNewData(res.products);
       })
       .finally(() => setLoading(false));
   };
 
-  // useEffect(() => {
-  //   if (search) {
-  //     setNewData(
-  //       newData.filter((item) => {
-  //         const inforNormalize = normalizeString(
-  //           item?.mealDtoForMealSession?.name
-  //         );
-  //         const searchNormalize = normalizeString(search);
-  //         return inforNormalize.includes(searchNormalize);
-  //       })
-  //     );
-  //   } else if (selectedDate) {
-  //     setNewData(
-  //       data.filter((item) => {
-  //         console.log("vào đc filter k");
-  //         return item.createDate.includes(selectedDate);
-  //       })
-  //     );
-  //   } else {
-  //     setNewData(data);
-  //   }
-  // }, [search, selectedDate]);
-  // const onSelectChange = (newSelectedRowKeys) => {
-  //   console.log("newselected rowkesy là", newSelectedRowKeys);
-  //   if (newSelectedRowKeys.length > 0) {
-  //     setSelectedRowIsActive(true);
-  //   }
-  //   setSelectedRowKeys(newSelectedRowKeys);
-  //   setValues({ ...values, mealSessionIds: newSelectedRowKeys });
-  // };
-  // const onSelectChange = ()=>{}
-  // const rowSelection = {
-  //   selectedRowKeys,
-  //   onChange: onSelectChange,
-  // };
   const onSelectChange = (selectedRowKeys, selectedRows) => {
     setSelectedRowKeys(selectedRowKeys);
     if (selectedRows.length > 0) {
@@ -450,25 +329,9 @@ const ProductList = () => {
     // setSelectedRows([]);
   }, [refreshPage]);
   useEffect(() => {
-    // fetchAllAreaAndSession();
     fetchAllSession();
   }, []);
-  // useEffect(() => {
-  //   onHandleUpdateStatusMultiMealSession();
-  // }, [values.status]);
-  const fetchAllSessionByAreaId = () => {
-    getAllSessionByAreaId(areaValue).then((res) => {
-      if (selectedDate) {
-        setSession(
-          res?.filter((item) => {
-            return item?.createDate.includes(selectedDate);
-          })
-        );
-      } else {
-        setSession(res);
-      }
-    });
-  };
+
   const fetchAllSession = () => {
     getAllSession().then((res) => {
       setSession(res);
@@ -479,62 +342,20 @@ const ProductList = () => {
       setKitchen(res);
     });
   };
-  // useEffect(() => {
-  //   fetchAllSessionByAreaId();
-  //   setSessionValue(null);
-  // }, [areaValue, selectedDate]);
+
   useEffect(() => {
     let filteredData = data;
-    let filtertedSessionData = session;
+    console.log("filterdata", filteredData);
+    console.log("search là", search);
     if (search) {
       const searchNormalize = normalizeString(search);
       filteredData = filteredData.filter((item) => {
-        const inforNormalize = normalizeString(
-          item?.mealDtoForMealSession?.name
-        );
+        const inforNormalize = normalizeString(item?.title);
         return inforNormalize.includes(searchNormalize);
       });
     }
-
-    if (selectedDate) {
-      filteredData = filteredData?.filter((item) =>
-        item.createDate?.includes(selectedDate)
-      );
-      getAllSession().then((res) => {
-        setSession(
-          res?.filter((item) => {
-            return item?.endDate?.includes(selectedDate);
-          })
-        );
-      });
-      filtertedSessionData = filtertedSessionData?.filter((item) => {
-        item.endDate?.includes(selectedDate);
-      });
-    }
-
-    if (areaValue) {
-      filteredData = filteredData.filter(
-        (item) =>
-          // item.sessionDtoForMealSession?.areaDtoForMealSession?.areaId === areaValue
-          item?.areaDtoForMealSession?.areaId == areaValue
-      );
-    }
-    if (sessionValue) {
-      filteredData = filteredData.filter(
-        (item) => item.sessionDtoForMealSession?.sessionId === sessionValue
-      );
-      setArea(
-        session.find((item) => item.sessionId === sessionValue)
-          ?.areaDtoGetAllSession
-      );
-      fetchAllKitchenBySessionId(sessionValue);
-    }
-    // You can add more conditions as needed...
-
     setNewData(filteredData);
-    setSession(filtertedSessionData);
-  }, [search, selectedDate, areaValue, sessionValue, data]);
-
+  }, [search]);
   return (
     <div className="h-full w-full p-4">
       <CustomDrawer meal={drawerData || {}} />
@@ -551,15 +372,6 @@ const ProductList = () => {
               placeholder="Enter meal's name..."
               onChange={(e) => setSearch(e.target.value)}
               className="box__shadow !h-[50px] lg:w-[30%] md:w-[30%]"
-            />
-            <DatePicker
-              // value={selectedDate}
-              defaultValue={dayjs()}
-              format="DD-MM-YYYY"
-              onChange={(date, dateString) => {
-                setSelectedDate(dateString);
-              }}
-              className="box__shadow !h-[50px] w-full lg:w-[30%] md:w-[30%]"
             />
             <div className=" w-full lg:w-[20%] md:w-[20%] !h-[50px] ">
               <Popover
@@ -596,12 +408,12 @@ const ProductList = () => {
           >
             <Table
               className="overflow-auto"
-              dataSource={data}
+              dataSource={newData}
               columns={columns}
               loading={loading}
-              rowKey={(item) => item.mealSessionId}
+              rowKey={(item) => item.id}
               rowSelection={rowSelection}
-              pagination={{ pageSize: 5 }}
+              pagination={{ pageSize: 10 }}
               // rowClassName={(record, index) =>
               //   `custom-row ${index % 2 === 0 ? "odd-row" : "even-row"} ${
               //     record.status.includes("COMPLETED") ||

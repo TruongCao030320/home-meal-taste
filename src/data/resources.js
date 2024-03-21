@@ -1,0 +1,61 @@
+import { faker } from "@faker-js/faker";
+
+export const dataArray = [
+  {
+    ID: faker.number.int(),
+    productName: "Laptop",
+    name: "John Doe",
+    address: "123 Main St, City, Country",
+    date: "2024-03-20",
+    quantity: 1,
+    price: 800,
+    totalAmount: 800,
+    status: "Delivered",
+  },
+  {
+    ID: faker.number.int(),
+
+    productName: "Smartphone",
+    name: "Jane Smith",
+    address: "456 Elm St, Town, Country",
+    date: "2024-03-19",
+    quantity: 2,
+    price: 500,
+    totalAmount: 1000,
+    status: "In Transit",
+  },
+  {
+    ID: faker.number.int(),
+    productName: "Headphones",
+    name: "Michael Johnson",
+    address: "789 Oak St, Village, Country",
+    date: "2024-03-18",
+    quantity: 3,
+    price: 50,
+    totalAmount: 150,
+    status: "Pending",
+  },
+  {
+    ID: faker.number.int(),
+    productName: "Tablet",
+    name: "Emily Brown",
+    address: "321 Pine St, Hamlet, Country",
+    date: "2024-03-17",
+    quantity: 1,
+    price: 300,
+    totalAmount: 300,
+    status: "Delivered",
+  },
+  {
+    ID: faker.number.int(),
+
+    productName: "Printer",
+    name: "David Lee",
+    address: "654 Cedar St, Village, Country",
+    date: "2024-03-16",
+    quantity: 1,
+    price: 200,
+    totalAmount: 200,
+    status: "Delivered",
+  },
+];

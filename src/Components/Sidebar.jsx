@@ -91,51 +91,41 @@ const Sidebar = () => {
       "group"
     ),
 
-    getItem(
-      "Market",
-      "g2",
-      null,
-      [
-        getItem(
-          <Link
-            onClick={handleHiddenSidebar}
-            to={`/${direction.dashboard}/${direction.sessionArea}`}
-          >
-            Sale Session
-          </Link>,
-          "15",
+    // getItem(
+    //   "Market",
+    //   "g2",
+    //   null,
+    //   [
+    //     getItem(
+    //       <Link
+    //         onClick={handleHiddenSidebar}
+    //         to={`/${direction.dashboard}/${direction.sessionArea}`}
+    //       >
+    //         Sale Session
+    //       </Link>,
+    //       "15",
 
-          <SiHomeassistant size={15} />
-        ),
-        getItem(
-          <Link
-            onClick={handleHiddenSidebar}
-            to={`/${direction.dashboard}/${direction.session}`}
-          >
-            Session
-          </Link>,
-          "14",
-          <FaClock size={15} />
-        ),
-      ],
-      "group"
-    ),
+    //       <SiHomeassistant size={15} />
+    //     ),
+    //     getItem(
+    //       <Link
+    //         onClick={handleHiddenSidebar}
+    //         to={`/${direction.dashboard}/${direction.session}`}
+    //       >
+    //         Session
+    //       </Link>,
+    //       "14",
+    //       <FaClock size={15} />
+    //     ),
+    //   ],
+    //   "group"
+    // ),
 
     getItem(
       "System",
       "g3",
       null,
       [
-        getItem(
-          <Link
-            onClick={handleHiddenSidebar}
-            to={`/${direction.dashboard}/${direction.district}`}
-          >
-            District
-          </Link>,
-          "12",
-          <FaEarthEurope size={15} />
-        ),
         getItem(
           <Link
             onClick={handleHiddenSidebar}

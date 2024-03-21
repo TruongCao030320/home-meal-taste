@@ -26,7 +26,7 @@ const productSlice = createSlice({
           ...state,
           {
             id: action.payload.id,
-            imageUrl: action.payload.image,
+            imageUrl: action.payload.thumbnail,
             title: action.payload.title,
             price: action.payload.price,
             quantity: 1,
@@ -47,7 +47,11 @@ const productSlice = createSlice({
       const newItem = action.payload;
       return (state = state.filter((item) => item?.id !== newItem?.id));
     },
+    deleteAllItems: (state, action) => {
+      return (state = []);
+    },
   },
 });
-export const { addItemToCart, minusItem, removeItem } = productSlice.actions;
+export const { addItemToCart, minusItem, removeItem, deleteAllItems } =
+  productSlice.actions;
 export default productSlice.reducer;

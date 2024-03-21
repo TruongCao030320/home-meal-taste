@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   fa1,
@@ -17,12 +17,15 @@ import image3 from "../../assets/images/camera.jpg";
 import ProductCard from "./child/ProductCard";
 import Slider from "react-slick";
 import TrackingCard from "./child/TrackingCard";
-import { faker } from "@faker-js/faker";
+import { da, faker } from "@faker-js/faker";
 import human1 from "../../assets/images/human1.jpg";
 import human2 from "../../assets/images/human2.jpg";
 import human3 from "../../assets/images/human3.jpg";
 import ClientSayCard from "./child/ClientSayCard";
-
+import { useQuery } from "@tanstack/react-query";
+import { getAllProducts } from "../../API/newApi";
+import { easeInOut, motion } from "framer-motion";
+import ProductSlideCard from "./child/ProductSlideCard";
 var settings = {
   dots: true,
   infinite: true,
@@ -81,140 +84,107 @@ var setting2 = {
   slidesToShow: 1,
   slidesToScroll: 1,
 };
-const data = [
-  {
-    id: faker.string.uuid(),
 
-    title: "Smart Headphone",
-    image: image,
-  },
-  {
-    title: "Smart Watch",
-    image: image2,
-  },
-  {
-    title: "Smart Camera",
-    image: image3,
-  },
-];
-const products = [
-  {
-    id: faker.string.uuid(),
-
-    title: "Smart Headphone",
-    image: image,
-    description: "Description",
-    price: 25,
-    isLike: false,
-  },
-  {
-    id: faker.string.uuid(),
-
-    title: "Smart Watch",
-    image: image2,
-    description: "Description",
-    price: 25,
-    isLike: false,
-  },
-  {
-    id: faker.string.uuid(),
-
-    title: "Smart Camera",
-    image: image3,
-    description: "Description",
-    price: 25,
-    isLike: false,
-  },
-  {
-    id: faker.string.uuid(),
-
-    title: "Smart Headphone",
-    image: image,
-    description: "Description",
-    price: 25,
-    isLike: false,
-  },
-  {
-    id: faker.string.uuid(),
-
-    title: "Smart Watch",
-    image: image2,
-    description: "Description",
-    price: 25,
-    isLike: false,
-  },
-  {
-    id: faker.string.uuid(),
-
-    title: "Smart Camera",
-    image: image3,
-    description: "Description",
-    price: 25,
-    isLike: true,
-  },
-  {
-    id: faker.string.uuid(),
-
-    title: "Smart Headphone",
-    image: image,
-    description: "Description",
-    price: 25,
-    isLike: true,
-  },
-  {
-    id: faker.string.uuid(),
-
-    title: "Smart Watch",
-    image: image2,
-    description: "Description",
-    price: 25,
-    isLike: true,
-  },
-  {
-    id: faker.string.uuid(),
-
-    title: "Smart Camera",
-    image: image3,
-    description: "Description",
-    price: 25,
-    isLike: true,
-  },
-];
 const Home = () => {
-  const [isActive, setIsActive] = useState(0);
+  const [isActive, setIsActive] = useState(1);
+  const [result, setResult] = useState([]);
+  useEffect(() => {
+    getAllProducts().then((res) => setResult(res.products));
+  }, [isActive]);
+  // useEffect(() => {
+  //   let filteredArray = data?.products || [];
+
+  //   if (isActive === 1) {
+  //     filteredArray = filteredArray.filter((item) => {
+  //       if (item.category.includes("laptops")) console.log("Tìm đc laptop");
+  //       return item.category.includes("laptops");
+  //     });
+  //     console.log("vào đây", { filteredArray });
+  //   }
+  //   if (isActive === 1) {
+  //     filteredArray = filteredArray.filter((item) => {
+  //       return item.category.includes("smartphones");
+  //     });
+  //   }
+  //   setResult(filteredArray);
+  // }, [isActive]);
   return (
     <div className="">
       {/* infor-section */}
       <section className="mt-36 infor">
         <Carousel autoplay>
-          {data.map((item) => (
+          {result.splice(0, 5).map((item) => (
             <InforSection item={item} key={item.title} />
           ))}
         </Carousel>
       </section>
       {/* product-section */}
-      <section className="product-section bg-white my-5">
-        <h1 className="font-sans my-10 text-5xl">
+      <section className="product-section bg-white my-5 py-1 px-5">
+        <motion.h1
+          initial={{
+            y: -10,
+            opacity: 0,
+          }}
+          whileInView={{
+            y: 0,
+            opacity: 1,
+          }}
+          transition={{
+            duration: 2,
+            ease: "easeInOut",
+            repeat: Infinity,
+            repeatDelay: 0.5,
+          }}
+          className="font-sans my-10 text-5xl"
+        >
           Best-seller <FontAwesomeIcon icon={faFire} />
-        </h1>
-        <Slider {...settings}>
-          {products?.map((product) => (
-            <ProductCard product={product} />
+        </motion.h1>
+        <Slider {...settings} className="my-10">
+          {result?.map((product) => (
+            <ProductSlideCard product={product} />
           ))}
         </Slider>
+        <Divider className="bg-white" />
       </section>
       {/* tracking-section */}
-      <section className="my-10">
-        <Divider className="bg-white" />
+      <section className="my-10 py-10">
         <TrackingCard />
       </section>
       {/* category section */}
-      <section className="my-10">
+      <section className="my-10 py-1 px-5">
         <Divider className="bg-white" />
-        <h1 className="font-sans my-10 text-5xl text-white">
+        <motion.h1
+          initial={{
+            x: -50,
+            opacity: 0.2,
+          }}
+          whileInView={{
+            x: 0,
+            opacity: 1,
+          }}
+          transition={{
+            duration: 2,
+            ease: "easeInOut",
+          }}
+          className="font-sans my-10 text-5xl text-white"
+        >
           Store <FontAwesomeIcon icon={faStore} />
-        </h1>
-        <div className="flex flex-col justify-center items-center">
+        </motion.h1>
+        <motion.div
+          initial={{
+            x: 50,
+            opacity: 0.2,
+          }}
+          whileInView={{
+            x: 0,
+            opacity: 1,
+          }}
+          transition={{
+            duration: 2,
+            ease: "easeInOut",
+          }}
+          className="flex flex-col justify-center items-center lg:my-10 "
+        >
           <ul className="grid grid-cols-1 gap-4  w-[50%] justify-between text-white md:grid md:grid-cols-2 md:gap-4 lg:grid-cols-4">
             <li
               className={`${
@@ -253,34 +223,51 @@ const Home = () => {
               <h1>Camera</h1>
             </li>
           </ul>
-          <div className="w-[95%] bg-white p-5 my-10 rounded-2xl">
+          <div className="w-full bg-white  rounded-2xl flex  my-10 p-5">
             {isActive == 1 ? (
-              <div className="grid grid-cols-1 gap-2 transition-all animate-appear1 md:grid-cols-2 lg:grid lg:grid-cols-3">
-                {products?.map((product) => (
+              <motion.div
+                initial={{
+                  opacity: 0,
+                  x: -500,
+                  scale: 0.7,
+                }}
+                whileInView={{
+                  opacity: 1,
+                  x: [100, 50, 20, 0],
+                  scale: 1,
+                }}
+                transition={{
+                  duration: 0.8,
+                  ease: easeInOut,
+                  damping: 1000,
+                }}
+                className="grid grid-cols-1 gap-2 transition-all animate-appear1 md:grid-cols-2 lg:grid lg:grid-cols-4"
+              >
+                {result?.splice(0, 8).map((product) => (
                   <ProductCard product={product} />
                 ))}
-              </div>
+              </motion.div>
             ) : isActive == 2 ? (
-              <div className="grid grid-cols-1 gap-2 transition-all animate-appear2 md:grid-cols-2 lg:grid lg:grid-cols-3">
-                {products?.map((product) => (
+              <div className="grid grid-cols-1 gap-2 transition-all animate-appear2 md:grid-cols-2  lg:grid lg:grid-cols-4">
+                {result?.splice(0, 8).map((product) => (
                   <ProductCard product={product} />
                 ))}
               </div>
             ) : isActive == 3 ? (
-              <div className="grid grid-cols-1 gap-2 transition-all animate-appear1 md:grid-cols-2 lg:grid lg:grid-cols-3">
-                {products?.map((product) => (
+              <div className="grid grid-cols-1 gap-2 transition-all animate-appear1 md:grid-cols-2 lg:grid lg:grid-cols-4">
+                {result?.splice(0, 8).map((product) => (
                   <ProductCard product={product} />
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-2 transition-all animate-appear2 md:grid-cols-2 lg:grid lg:grid-cols-3">
-                {products?.map((product) => (
+              <div className="grid grid-cols-1 gap-2 transition-all animate-appear2 md:grid-cols-2 lg:grid lg:grid-cols-4">
+                {result?.splice(0, 8).map((product) => (
                   <ProductCard product={product} />
                 ))}
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
       </section>
       {/* what client say section */}
       <section className="w-full bg-white min-h-[300px] p-2 flex flex-col">

@@ -5,7 +5,7 @@ import React from "react";
 import CartDrawer from "./CartDrawer";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { useDispatch, useSelector } from "react-redux";
-import { removeItem } from "../../redux/productCart";
+import { deleteAllItems, removeItem } from "../../redux/productCart";
 
 const CartPage = () => {
   const dispatch = useDispatch();
@@ -72,7 +72,12 @@ const CartPage = () => {
               dataSource={cartItems}
               footer={() => (
                 <div className="w-full flex justify-end">
-                  <Button className="border-none bg-[#D4B19E]">
+                  <Button
+                    className="border-none bg-[#D4B19E]"
+                    onClick={() => {
+                      dispatch(deleteAllItems());
+                    }}
+                  >
                     Delete All
                   </Button>
                 </div>

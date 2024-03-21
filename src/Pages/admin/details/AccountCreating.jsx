@@ -76,15 +76,8 @@ const AccountCreating = () => {
   const AddNewChef = (values) => {
     if (values.email && values.phone && values.password) {
       setLoading(true);
-      AddNewUser(values)
-        .then((res) => {
-          toast.success("Add new chef successfully.");
-          navigate(`/${direction.dashboard}/${direction.user}`);
-        })
-        .catch((res) => toast.error("Add new chef failed!"))
-        .finally(() => {
-          setLoading(false);
-        });
+      toast.success("Add new user successfully.");
+      navigate(`/${direction.dashboard}/${direction.user}`);
     } else {
       toast.error("Please enter full fields.");
     }
@@ -124,33 +117,7 @@ const AccountCreating = () => {
         <Form form={form} onFinish={AddNewChef} className="h-full">
           <Row className="flex justify-around my-4  w-full h-[70%]  ">
             <Divider orientation="left">General Information</Divider>
-            <Col className="" xs={24} md={11} lg={11}>
-              <div>
-                <label htmlFor="" className=" flex justify-start pb-2">
-                  Kitchen's Name
-                </label>
-                <Form.Item name="name">
-                  <Input className="box__shadow" classNames="mt-2" />
-                </Form.Item>
-              </div>
-            </Col>
-            <Col className="" xs={24} md={11} lg={11}>
-              <label htmlFor="" className=" flex justify-start pb-2">
-                Role
-              </label>
-              <div>
-                <Radio.Group
-                  onChange={onChange}
-                  value={value}
-                  className=" w-full h-[40px] flex justify-start items-center"
-                >
-                  <Radio value={3}>Chef</Radio>
-                  <Radio value={2} disabled>
-                    Customer
-                  </Radio>
-                </Radio.Group>
-              </div>
-            </Col>
+
             <Col className="" xs={24} md={11} lg={11}>
               <div>
                 <label htmlFor="" className=" flex justify-start pb-2">
@@ -191,7 +158,7 @@ const AccountCreating = () => {
                   District
                 </label>
                 <Form.Item
-                  name="districtId"
+                  name="district"
                   rules={[
                     {
                       required: true,
@@ -199,17 +166,7 @@ const AccountCreating = () => {
                     },
                   ]}
                 >
-                  <Select
-                    className="w-full h-10"
-                    options={district.map((item) => ({
-                      value: item.districtId,
-                      label: item.districtName,
-                    }))}
-                    onChange={(item) => {
-                      console.log("item là", item);
-                      setDistrictId(item);
-                    }}
-                  ></Select>
+                  <Input type="text" className="box__shadow"></Input>
                 </Form.Item>
               </div>
             </Col>
@@ -219,7 +176,7 @@ const AccountCreating = () => {
                   Area
                 </label>
                 <Form.Item
-                  name="areaId"
+                  name="area"
                   rules={[
                     {
                       required: true,
@@ -227,13 +184,7 @@ const AccountCreating = () => {
                     },
                   ]}
                 >
-                  <Select
-                    className="w-full h-10"
-                    options={area?.map((item) => ({
-                      value: item.areaId,
-                      label: item.areaName,
-                    }))}
-                  ></Select>
+                  <Input type="text" className="box__shadow"></Input>
                 </Form.Item>
               </div>
             </Col>

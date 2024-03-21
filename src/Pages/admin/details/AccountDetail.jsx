@@ -7,7 +7,6 @@ import {
   changeIsActive,
   getAllTransactionByUserId,
   getOrderByUserId,
-  getSingleUser,
 } from "../../../API/Admin";
 import { direction } from "../../../API/Direction";
 import { formatMoney } from "../../../API/Money";
@@ -20,13 +19,13 @@ import {
   faUserAltSlash,
   faUsersRectangle,
 } from "@fortawesome/free-solid-svg-icons";
+import { getSingleUser } from "../../../API/newApi";
 const AccountDetail = () => {
   const [data, setData] = useState({});
   const [order, setOrder] = useState([]);
   const [loading, setLoading] = useState(false);
   const user = useSelector((state) => state.userSlice.user);
   const { id } = useParams();
-  const [image, setImage] = useState("");
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
@@ -40,7 +39,7 @@ const AccountDetail = () => {
   };
   useEffect(() => {
     const fetch = async () => {
-      const user = await getSingleUser(id, navigate);
+      const user = await getSingleUser(id);
       if (user) {
         setData(user);
       }
@@ -56,7 +55,8 @@ const AccountDetail = () => {
       .catch((error) => console.log(error));
     fetchAllTransaction();
   }, []);
-  const { username, email, phone, address, districtId, roleId } = data || {};
+  const { username, email, phone, districtId, roleId, image } = data || {};
+  const { address, city } = data?.address || {};
   const { districtName } = data?.districtDto || {};
   const { balance } = data?.walletDto || {};
   // const columns = [
@@ -270,8 +270,8 @@ const AccountDetail = () => {
           </Link>
         </div>
       </div>
-      <div className="bg-white p-4 rounded-lg flex justify-between w-full h-full flex-col md:flex-row lg:flex-row">
-        <div className="w-full h-full p-6 rounded-lg shadow-lg bg-white flex flex-col items-center  md:w-[25%] lg:w-[25%]">
+      <div className="bg-white p-4 rounded-lg flex justify-between items-center w-full h-full flex-col md:flex-row lg:flex-row">
+        <div className="w-full h-full p-6 rounded-lg box__shadow bg-white flex flex-col items-center  md:w-[25%] lg:w-[25%]">
           <div className="w-full min-h-[150px] h-full flex justify-center items-center rounded-full overflow-hidden">
             {image ? (
               <img
@@ -282,23 +282,14 @@ const AccountDetail = () => {
               <FontAwesomeIcon icon={faUser} fontSize={50} color="gray" />
             )}
           </div>
-          <div className=" flex flex-col items-center w-full h-full mt-5">
-            <div className="gender h-[15%] flex w-[90%] justify-between items-center ">
-              <p>Role</p>{" "}
-              <span>
-                {roleId === 1 ? "Admin" : roleId === 2 ? "Customer" : "Chef"}
-              </span>
-            </div>
-            {/* <div className="gender h-[15%] flex w-[90%] justify-between items-center">
-              <p>Rank</p> <Tag className="m-0">Classic</Tag>
-            </div> */}
+          {/* <div className=" flex flex-col items-center w-full h-full mt-5">
             <div className="gender h-[15%] flex w-[90%] justify-between items-center">
               <p>Total Order</p> <span>{countOrder}</span>
             </div>
             <div className="gender h-[15%] flex w-[90%] justify-between items-center">
               <p>Balance</p> <span>{formatMoney(balance)} VND</span>
             </div>
-          </div>
+          </div> */}
         </div>
         <div className=" lg:w-[70%] md:w-[70%] w-full">
           <Divider orientation="left">General Information</Divider>
@@ -358,12 +349,9 @@ const AccountDetail = () => {
             <Col className="" span={11}>
               <div>
                 <label htmlFor="" className=" flex justify-start pb-2">
-                  District
+                  City
                 </label>
-                <Input
-                  value={districtName}
-                  className="w-full box__shadow"
-                ></Input>
+                <Input value={city} className="w-full box__shadow"></Input>
               </div>
             </Col>
           </Row>

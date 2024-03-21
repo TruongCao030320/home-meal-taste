@@ -85,11 +85,7 @@ const Account = () => {
     setSelectedDateRange();
   };
   const navigateToUserDetail = (id, roleId) => {
-    if (roleId == 2) {
-      navigate(`/${direction.dashboard}/${direction.user}/${id}`);
-    } else {
-      navigate(`/${direction.dashboard}/${direction.kitchen}/${id}`);
-    }
+    navigate(`/${direction.dashboard}/${direction.user}/${id}`);
   };
   const content2 = (
     <Form
@@ -156,14 +152,14 @@ const Account = () => {
       title: "ID",
       dataIndex: "id",
       render: (text) => (
-        <div className="rounded-full overflow-hidden min-w-[120px] flex justify-start items-center font-bold">
+        <div className="rounded-full overflow-hidden flex justify-start items-center font-bold">
           {text}
         </div>
       ),
     },
     {
       title: "Avatar",
-      render: (record) => <img src={record?.image} className="w-32 h-32"></img>,
+      render: (record) => <img src={record?.image} className="w-10 h-10"></img>,
     },
     {
       title: "Phone Number",
@@ -207,24 +203,7 @@ const Account = () => {
       ],
       onFilter: (value, record) => record.status === value,
     },
-    {
-      title: "Role",
-      dataIndex: "roleId",
-      render: (text) => {
-        const roleName = text == 1 ? "Admin" : text == 2 ? "Customer" : "Chef";
-        const roleColor = text == 1 ? "gray" : text == 2 ? "blue" : "green";
-        return (
-          <div className="min-w-[70px] p-1 font-bold" color={roleColor}>
-            {roleName}
-          </div>
-        );
-      },
-      filters: [
-        { text: "Chef", value: 3 },
-        { text: "Customer", value: 2 },
-      ],
-      onFilter: (value, record) => record.roleId === value,
-    },
+
     {
       title: "Action",
       key: "action",
@@ -232,7 +211,7 @@ const Account = () => {
         <Space
           size="middle"
           className="p-1 border rounded-md hover:border-gray-600"
-          onClick={() => navigateToUserDetail(record.userId, record.roleId)}
+          onClick={() => navigateToUserDetail(record.id)}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

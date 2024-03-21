@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Table,
   Tag,
@@ -33,16 +33,24 @@ import {
 import { Label } from "recharts";
 import TextArea from "antd/es/input/TextArea";
 import { useDispatch } from "react-redux";
+import { getAllCategories, getSingleProduct } from "../../../API/newApi";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faDollar,
+  faPercent,
+  faPlus,
+  faPlusCircle,
+} from "@fortawesome/free-solid-svg-icons";
 
 const MealSessionDetail = () => {
   const navigate = useNavigate();
   const { mealSessionId } = useParams();
   const { RangePicker } = DatePicker;
+  const currentRef = useRef(1);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [filteredData, setFilteredData] = useState();
   const [meal, setMeal] = useState({});
-  const { dishesDtoMealSession } = meal?.mealDtoForMealSessions || {};
   const [genderSelected, setGenderSelected] = useState(null);
   const [selectedDateRange, setSelectedDateRange] = useState([]);
   const [order, setOrder] = useState([]);
@@ -53,74 +61,31 @@ const MealSessionDetail = () => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectedRowIsActive, setSelectedRowIsActive] = useState(false);
   const [newOrder, setNewOrder] = useState(order || []);
-  const fetchSingleMealSession = () => {
+  const [categories, setCategories] = useState([]);
+  const [product, setProduct] = useState({
+    id: null,
+    title: "",
+    description: "",
+    price: null,
+    discountPercentage: null,
+    rating: null,
+    stock: null,
+    brand: "",
+    category: "",
+    thumbnail: "",
+    images: [],
+  });
+  const [reviewImg, setReviewImg] = useState();
+  const fetchSingleProduct = () => {
     setLoading(true);
-    getSingleMealSessionById(mealSessionId)
-      .then((res) => {
-        console.log(res);
-        setMeal(res);
-      })
-      .finally(() => {
-        setLoading(false);
+    getSingleProduct(mealSessionId).then((res) => {
+      setProduct(res);
+      getAllCategories().then((res) => {
+        setCategories(res);
       });
-  };
-  const fetchAllOrderByMealSesionId = () => {
-    getAllOrderByMealSessionId(mealSessionId).then((res) => {
-      setOrder(res);
+      setLoading(false);
     });
   };
-  const onHandleCancelOrder = () => {
-    setLoading(true);
-    cancelOrder(selectedRowKeys)
-      .then((res) => {
-        toast.success("Cancel Order Completed.");
-        fetchSingleMealSession();
-        fetchAllOrderByMealSesionId();
-      })
-      .catch(() => {
-        toast.warning("Can Not Cancel Order");
-      })
-      .finally(() => {
-        setSelectedRows([]);
-        setSelectedRowKeys([]);
-        setFirstValueObject({});
-        setLoading(false);
-      });
-  };
-  const onHandleUpdateStatusMultiMealSession = (status) => {
-    console.log(" meal session id", mealSessionId);
-    console.log("Status lúc này", status);
-    updateStatusMultiMealSession([mealSessionId], status)
-      .then(() => {
-        fetchSingleMealSession();
-        toast.success("Update Status Successfully. thanh cong");
-        setSelectedRowKeys([]);
-      })
-      .catch((error) => {
-        toast.warning(
-          "Can Not Change Status Of This Meal Session Cause It Already Over!"
-        );
-      })
-      .finally(() => {
-        setSelectedRowKeys([]);
-      });
-  };
-  // const onHandleSelectStatusToChange = (value) => {
-  //   console.log("value nhận đc là", value);
-  //   switch (value) {
-  //     case "APPROVED":
-  //       onHandleUpdateStatusMultiMealSession(value);
-  //       break;
-  //     case "CANCELLED":
-  //       onHandleUpdateStatusMultiMealSession(value);
-  //       break;
-  //     case "COMPLETED":
-  //       onHandleUpdateStatusMultiMealSession(value);
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  // };
   const onSelectChange = (selectedRowKeys, selectedRows) => {
     setSelectedRowKeys(selectedRowKeys);
     if (selectedRows.length > 0) {
@@ -211,40 +176,13 @@ const MealSessionDetail = () => {
       dataIndex: "status",
       render: (text, record, index) => {
         const finalText = text.toUpperCase();
-        return (
-          // <Select
-          //   className="min-w-[100px]"
-          //   options={[
-          //     {
-          //       value: "CANCEL",
-          //       label: "Cancel",
-          //     },
-          //     {
-          //       value: "APPROVED",
-          //       label: "Approve",
-          //     },
-          //     {
-          //       value: "COMPLETE",
-          //       label: "Complete",
-          //     },
-          //   ]}
-          //   value={finalText}
-          //   onChange={onHandleSelectStatusToChange}
-          // ></Select>
-          <Tag className="px-5 py-1">{finalText}</Tag>
-        );
+        return <Tag className="px-5 py-1">{finalText}</Tag>;
       },
     },
   ];
   useEffect(() => {
-    setLoading(true);
-    // getAllOrder()
-    //   .then((res) => {
-    //     setData(res.slice().reverse());
-    //     setLoading(false);
-    //   })
-    //   .catch((error) => console.log(error));
-  }, []);
+    fetchSingleProduct();
+  }, [mealSessionId]);
 
   useEffect(() => {
     console.log(typeof search);
@@ -252,10 +190,6 @@ const MealSessionDetail = () => {
   const navigatePage = (id) => {
     navigate(`/${direction.dashboard}/${direction.order}/${id}`);
   };
-  useEffect(() => {
-    fetchSingleMealSession();
-    fetchAllOrderByMealSesionId();
-  }, [mealSessionId]);
   const resetFilter = () => {
     setFilteredData();
     setGenderSelected();
@@ -272,6 +206,13 @@ const MealSessionDetail = () => {
       return item.customerDto1?.phone.includes(search);
     }
   });
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0];
+    if (selectedFile) {
+      const fileUrl = URL.createObjectURL(selectedFile);
+      setReviewImg(fileUrl);
+    }
+  };
   return (
     <div className="w-full h-full p-4 rounded-lg min-h-[100vh]">
       {loading ? (
@@ -284,30 +225,18 @@ const MealSessionDetail = () => {
           <div className="account-search h-[10%] flex items-center  justify-end mb-3">
             <div className="h-[40%] add-btn flex justify-between items-center w-full py-3 ">
               <h1>
-                {meal?.mealDtoForMealSessions?.name} #{meal?.mealSessionId}
+                {product?.category} #{product?.id}
               </h1>
-              <Button onClick={onHandleBack}>Leave</Button>
-              {/* <Space className="w-full flex flex-row">
-            <Tag color="cyan-inverse" className="p-1 ">
-              {meal?.status}
-            </Tag>
-            <Button
-              className="bg-red-600"
-              onClickCapture={() => confirmMealSession("CANCELLED")}
-              disabled={meal?.status?.includes("CANCELLED")}
-            >
-              <span className="text-white">CANCEL</span>
-            </Button>
-            <Button
-              className="bg-green-700 "
-              onClickCapture={() => confirmMealSession("Approved")}
-              disabled={meal?.status?.includes("APPROVED")}
-            >
-              <span className="text-white">APPROVE</span>
-            </Button>
-
-          </Space> */}
-              {/* <Tag className="p-1">{meal?.status}</Tag> */}
+              <div className="flex gap-4">
+                <Button onClick={onHandleBack}>Leave</Button>
+                <Button
+                  onClick={() => {
+                    toast.success("Update completed.");
+                  }}
+                >
+                  Submit
+                </Button>
+              </div>
             </div>
           </div>
           <div className="bg-white  p-4 rounded-lg ">
@@ -315,10 +244,24 @@ const MealSessionDetail = () => {
               <div className="w-[30%] p-5">
                 <div className="w-full border-2 rounded-3xl p-5 box__shadow">
                   <h1>Thumbnail</h1>
-                  <div className="w-full border-dashed  border-2 p-2 rounded-lg my-2">
+                  <div
+                    className="w-full border-dashed  border-2 p-2 rounded-lg my-2 cursor-pointer"
+                    onClick={() => {}}
+                  >
+                    <input
+                      type="file"
+                      ref={currentRef}
+                      hidden
+                      id="choose"
+                      onChange={handleFileChange}
+                    />
+
                     <img
-                      src={meal?.mealDtoForMealSessions?.image}
+                      src={reviewImg ? reviewImg : product?.thumbnail}
                       className="h-full w-[100%] max-h-[200px] rounded-lg"
+                      onClick={() => {
+                        currentRef.current.click();
+                      }}
                     ></img>
                   </div>
                 </div>
@@ -338,7 +281,7 @@ const MealSessionDetail = () => {
                           : "",
                       }}
                     >
-                      {meal?.status}
+                      Available
                     </div>
                   </div>
                   <Divider></Divider>
@@ -357,19 +300,14 @@ const MealSessionDetail = () => {
                           meal?.status === "PROCESSING"
                             ? "APPROVED"
                             : "COMPLETED",
-                        label:
-                          meal?.status === "PROCESSING"
-                            ? "Approve"
-                            : "Complete",
+                        label: "Sold Out",
                       },
                       {
                         value:
                           meal?.status === "APPROVED"
                             ? "CANCELLED"
                             : "REJECTED",
-                        label:
-                          meal?.status === "APPROVED" ? "Cancel" : "Reject",
-                        disabled: meal?.status?.includes("CANCELLED"),
+                        label: "Available",
                       },
                       // {
                       //   value: "COMPLETED",
@@ -379,7 +317,6 @@ const MealSessionDetail = () => {
                     ]}
                     onChange={(value) => {
                       onHandleUpdateStatusMultiMealSession(value);
-                      console.log("Valye khi onchange", value);
                     }}
                   ></Select>
                 </div>
@@ -391,51 +328,90 @@ const MealSessionDetail = () => {
                   <div className="w-full my-2">
                     <Row className="flex flex-row justify-between w-full gap-4">
                       <Col xs={23} md={11} lg={11}>
-                        <label>Kitchen</label>
+                        <label>Title</label>
                         <Input
-                          value={meal?.kitchenDtoForMealSessions?.name}
+                          value={product?.title}
                           className="box__shadow"
+                          onChange={(e) => {
+                            setProduct({ ...product, title: e.target.value });
+                          }}
                         />
                       </Col>
                       <Col xs={23} md={11} lg={11}>
-                        <label>Price</label>
+                        <label>Stock</label>
                         <Input
-                          value={formatMoney(meal?.price) + "  " + "VND"}
+                          type="number"
+                          value={product?.stock}
                           className="box__shadow"
+                          onChange={(e) => {
+                            setProduct({ ...product, stock: e.target.value });
+                          }}
                         />
                       </Col>
                     </Row>
                     <Row className="flex flex-row justify-between w-full my-5">
-                      <Col span={23}>
+                      <Col span={24}>
                         <label>Description</label>
                         <TextArea
-                          className="box__shadow"
-                          value={meal?.mealDtoForMealSessions?.description}
+                          className="box__shadow w-full"
+                          value={product?.description}
+                          onChange={(e) => {
+                            setProduct({
+                              ...product,
+                              description: e.target.value,
+                            });
+                          }}
                         ></TextArea>
                       </Col>
                     </Row>
                     <Row className="flex flex-row justify-between w-full my-5">
                       <Col xs={23} md={11} lg={11}>
-                        <label>Session</label>
+                        <label>Discount (Percent)</label>
                         <Input
-                          value={meal?.sessionDtoForMealSessions?.sessionName}
+                          type="number"
+                          value={product?.discountPercentage}
+                          suffix={<FontAwesomeIcon icon={faPercent} />}
                           className="box__shadow"
+                          onChange={(e) => {
+                            setProduct({
+                              ...product,
+                              discountPercentage: e.target.value,
+                            });
+                          }}
                         />
                       </Col>
+
                       <Col xs={23} md={11} lg={11}>
-                        <label>Area</label>
+                        <label>Price</label>
                         <Input
-                          value={meal?.areaDtoForMealSessions?.areaName}
+                          value={formatMoney(product?.price)}
+                          suffix={<FontAwesomeIcon icon={faDollar} />}
                           className="box__shadow"
+                          onChange={(e) => {
+                            setProduct({ ...product, price: e.target.value });
+                          }}
                         />
                       </Col>
                     </Row>
                     <Row className="flex flex-row justify-between w-full my-5">
                       <Col xs={23} md={11} lg={11}>
-                        <label>Quantity (Slot)</label>
-                        <Input value={meal?.quantity} className="box__shadow" />
+                        <label>Category</label>
+
+                        <Select
+                          value={product?.category}
+                          options={categories.map((item) => ({
+                            value: item,
+                            label: item,
+                          }))}
+                          onChange={(value) => {
+                            setProduct({
+                              ...product,
+                              category: value,
+                            });
+                          }}
+                        ></Select>
                       </Col>
-                      <Col xs={23} md={11} lg={11}>
+                      <Col xs={23} md={11} lg={11} hidden>
                         <label>Remain Quantity (Slot)</label>
                         <Input
                           value={meal?.remainQuantity}
@@ -444,30 +420,40 @@ const MealSessionDetail = () => {
                       </Col>
                     </Row>
                     <Row>
-                      <h1>Dishes In Meal</h1>
+                      <h1>Collections</h1>
                       <Divider
                         className="w-full"
                         orientationMargin={50}
                       ></Divider>
                       <div className="grid md:grid-cols-2  lg:grid-cols-2 grid-cols-1 gap-2 p-4 bg-colorBg rounded-lg w-full">
-                        {dishesDtoMealSession?.map((item) => (
-                          <div className="flex flex-col lg:flex-row md:flex-row items-center gap-2 bg-white border w-[100%] p-2 rounded-lg shadow-inner">
+                        {product?.images?.map((item) => (
+                          <div className="flex flex-col lg:flex-row md:flex-row items-center gap-2 bg-white border w-[100%] p-2 rounded-lg">
                             <img
-                              src={item.image}
-                              className="w-[50px] h-[50px] rounded-full box__shadow border"
+                              src={item}
+                              className="w-[100px] h-[100px] rounded-full box__shadow border"
                             ></img>
-                            <div>
-                              <div className="py-1 px-1">
-                                <span className="font-bold">Dish's Name:</span>{" "}
-                                {item.name}
-                              </div>
-                              <div className="py-1 px-1">
-                                <span className="font-bold">Dish's Type:</span>{" "}
-                                <Tag>{item.dishTypeDtoMealSession?.name}</Tag>
-                              </div>
-                            </div>
+                            <div></div>
                           </div>
                         ))}
+                        <div
+                          className="flex flex-col lg:flex-row md:flex-row items-center gap-2 bg-white border w-[100%] p-2 rounded-lg cursor-pointer"
+                          onClick={() => {
+                            document.getElementById("choose2").click();
+                          }}
+                        >
+                          <input
+                            type="file"
+                            hidden
+                            id="choose2"
+                            onChange={(e) => {
+                              product?.images?.push(
+                                URL.createObjectURL(e.target.files[0])
+                              );
+                            }}
+                          />
+                          <FontAwesomeIcon icon={faPlusCircle} size="xl" />
+                          <h1>Add more...</h1>
+                        </div>
                       </div>
                     </Row>
                   </div>
@@ -475,7 +461,7 @@ const MealSessionDetail = () => {
               </div>
             </div>
             <div>
-              <div className=" h-full min-h-[200px] overflow-scroll no-scrollbar rounded-3xl p-5 border-2 flex flex-col justify-around box__shadow my-5">
+              {/* <div className=" h-full min-h-[200px] overflow-scroll no-scrollbar rounded-3xl p-5 border-2 flex flex-col justify-around box__shadow my-5">
                 <h1 className="my-2">Orders</h1>
                 <Divider></Divider>
                 <ConfigProvider
@@ -512,7 +498,7 @@ const MealSessionDetail = () => {
                     // }}
                   ></Table>
                 </ConfigProvider>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

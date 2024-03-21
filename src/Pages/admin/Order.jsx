@@ -93,7 +93,7 @@ const Order = () => {
       dataIndex: "orderId",
       render: (text) => (
         <div className="">
-          <p className="font-bold">{text}</p>
+          <p className="font-bold text-sm">{text}</p>
         </div>
       ),
     },
@@ -103,31 +103,31 @@ const Order = () => {
       // render: (name) => `${name.first} ${name.last}`
       render: (_, record) => (
         <div className="flex flex-col">
-          <p className="font-bold">{record.name}</p>
-          <p className="font-bold">{record.email}</p>
+          <p className="">{record.name}</p>
+          <p className="">{record.email}</p>
         </div>
       ),
     },
     {
       title: "Store",
       dataIndex: "meal",
-      render: (_, record) => <p className="font-bold">{record.store}</p>,
+      render: (_, record) => <p className="">{record.store}</p>,
     },
     {
       title: "Product",
       dataIndex: "product",
-      render: (_, record) => <p className="font-bold">{record.product}</p>,
+      render: (_, record) => <p className="">{record.product}</p>,
     },
     {
       title: "Create At",
       dataIndex: "time",
-      render: (record) => <p className="font-bold">{record.time}</p>,
+      render: (record) => <p className="">{record.time}</p>,
     },
     {
       title: "Price/VND",
       dataIndex: "price",
       sorter: (a, b) => a.price - b.price,
-      render: (text) => <p className="font-bold">{formatMoney(text)}</p>,
+      render: (text) => <p className="">{formatMoney(text)}</p>,
     },
     {
       title: selectedRowIsActive ? (
@@ -434,7 +434,7 @@ const Order = () => {
               dataSource={data}
               columns={columns}
               loading={loading}
-              pagination={{ pageSize: 5 }}
+              pagination={{ pageSize: 10 }}
               rowKey={(order) => order.orderId}
               rowSelection={rowSelection}
               rowClassName={(record, index) =>

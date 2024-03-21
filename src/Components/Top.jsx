@@ -131,7 +131,7 @@ const Top = () => {
 
         <div className="lg:title lg:flex lg:flex-col lg:justify-center lg:items-start hidden">
           <h1 className="">
-            Welcome to <span>Home Meal Taste</span> !
+            Welcome to <span>T&S Store</span> !
           </h1>
           <p className="text-textColor p-0 m-0 leading-5">
             Hello <span className="text-yellowColor">{}</span>, Welcome back !

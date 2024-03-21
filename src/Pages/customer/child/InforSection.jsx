@@ -12,17 +12,17 @@ const InforSection = ({ item }) => {
           Newest <FontAwesomeIcon icon={faFire} color="red" />
         </h2>
         <h1 className="text-3xl lg:text-5xl ">{item?.title}</h1>
-        <Button className="mt-5 p-5 flex justify-center items-center bg-yellow-200 rounded-full">
+        <Button className="mt-5 p-5 flex justify-center items-center bg-yellow-200 rounded-full md:my-10">
           <h3 className="font-bold">Show more...</h3>
         </Button>
       </div>
       <img
-        src={item?.image}
+        src={item?.thumbnail}
         alt=""
         style={{
           objectFit: "fill",
         }}
-        className="w-[90%] rounded-full min-h-[380px] md:min-h-[700px] lg:w-[40%] lg:min-h-[600px] lg:rounded-full animate-appear2"
+        className="w-[90%] rounded-full min-h-[380px] md:h-[10px] md:w-[40%]  lg:w-[40%] lg:min-h-[600px] lg:rounded-full animate-appear2"
       />
     </div>
   );

@@ -8,7 +8,7 @@ import { useDispatch } from "react-redux";
 import { addItemToCart } from "../../../redux/productCart";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-const ProductCard = ({ product }) => {
+const ProductSlideCard = ({ product }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   return (
@@ -17,31 +17,15 @@ const ProductCard = ({ product }) => {
       initial={{
         y: 200,
         opacity: 0.5,
-        x: -50,
       }}
       animate={{
         y: 0,
         opacity: 1,
-        x: 0,
       }}
       transition={{
-        type: "spring",
-        stiffness: 100,
+        duration: 0.2,
       }}
-      whileHover={{
-        scale: 0.9,
-        animationDelay: 0.1,
-        transition: {
-          type: "spring",
-          stiffness: 100,
-        },
-        backgroundColor: "#F8F5EC",
-        boxShadow: "0 0 5px gray",
-      }}
-      whileTap={{
-        scale: 1,
-      }}
-      className="rounded-2xl p-2 flex flex-col gap-3  justify-between w-full  bg-[#F8FAFC]   cursor-pointer relative lg:max-h-[500px]"
+      className="rounded-2xl p-2 flex flex-col gap-3  justify-between w-[95%]  bg-[#F8FAFC]  hover:scale-90 transition-all duration-1000 cursor-pointer relative lg:max-h-[500px]"
     >
       <FontAwesomeIcon
         icon={faHeart}
@@ -81,4 +65,4 @@ const ProductCard = ({ product }) => {
   );
 };
 
-export default ProductCard;
+export default ProductSlideCard;
